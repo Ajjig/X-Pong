@@ -1,0 +1,48 @@
+version: '3.5'
+
+networks:
+  warper-network:
+    name: warper-network
+    driver: bridge
+
+volumes:
+  nestjs:
+    driver: local
+    name: nestjs
+    driver_opts:
+      type: none
+      device: /Users/iidkhebb/Desktop/TSC/tmp_vl/nestjs
+      o: bind
+
+  postgres:
+    driver: local
+    name: postgres
+    driver_opts:
+      type: none
+      device:  /Users/iidkhebb/Desktop/TSC/tmp_vl/postgres
+      o: bind
+
+services:
+  nestjs:
+    container_name: nestjs
+    build: ./src/nestjs
+    env_file:
+      - .env
+    networks:
+      - warper-network
+    volumes:
+      - nestjs:/workspace
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  
+  postgres:
+    container_name: postgres
+    build: ./src/postgres
+    env_file:
+      - .env
+    networks:
+      - warper-network
+    volumes:
+      - postgres:/var
+    restart: unless-stopped
