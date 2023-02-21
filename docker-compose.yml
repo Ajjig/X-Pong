@@ -6,12 +6,20 @@ networks:
     driver: bridge
 
 volumes:
+  ngnix:
+    driver: local
+    name: ngnix
+    driver_opts:
+      type: none
+      device: /Users/iidkhebb/Desktop/ft_transcendence/vl/ngnix
+      o: bind
+  
   nestjs:
     driver: local
     name: nestjs
     driver_opts:
       type: none
-      device: /Users/iidkhebb/Desktop/TSC/tmp_vl/nestjs
+      device: /Users/iidkhebb/Desktop/ft_transcendence/vl/nestjs
       o: bind
 
   postgres:
@@ -19,10 +27,24 @@ volumes:
     name: postgres
     driver_opts:
       type: none
-      device:  /Users/iidkhebb/Desktop/TSC/tmp_vl/postgres
+      device:  /Users/iidkhebb/Desktop/ft_transcendence/vl/postgres
       o: bind
 
 services:
+  ngnix:
+    container_name: ngnix
+    build: ./src/ngnix
+    env_file:
+      - .env
+    networks:
+      - warper-network
+    volumes:
+      - ngnix:/workspace
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+  
   nestjs:
     container_name: nestjs
     build: ./src/nestjs
@@ -33,7 +55,7 @@ services:
     volumes:
       - nestjs:/workspace
     ports:
-      - 3000:3000
+      - "3000:3000"
     restart: unless-stopped
   
   postgres:
