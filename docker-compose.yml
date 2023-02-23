@@ -66,5 +66,5 @@ services:
     networks:
       - warper-network
     volumes:
-      - postgres:/var
+      - postgres:/workspace
     restart: unless-stopped

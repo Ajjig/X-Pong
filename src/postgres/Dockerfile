@@ -1,6 +1,9 @@
 FROM postgres:latest
 
-COPY . /app
+EXPOSE 5432
+ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+COPY . /workspace
 
 
-CMD ["tail", "-f"]
+CMD ["postgres"]
