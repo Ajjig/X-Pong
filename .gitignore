@@ -2,3 +2,6 @@ tmp_vl
 .vscode
 vl
 .env
+src/nestjs/tsc/node_modules
+src/nestjs/tsc/.env
+tsc
