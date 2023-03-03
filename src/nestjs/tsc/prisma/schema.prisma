@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int      @id @default(autoincrement())
+  email               String   @unique
+  name                String
+  username            String?  @unique
+  password            String?  @unique
+  avatarUrl           String   @default("https://i.pravatar.cc/150?img=3")
+  oauthId             String   @unique
+  istwoFactor         Boolean  @default(false)
+  twoFactorAuthSecret String?  @unique
+  onlineStatus        String   @default("Offline") // Online, Offline, Away, Busy, lookingForMatch
+  blockedUsernames    String[] // array of blocked usernames
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  Matchs    Matchs[] // one to many
+  Userstats Userstats? // one to one
+
+  Friends Friends[] @relation("UserFriends") // many to many
+
+  // channels
+  channels         Channel[]       @relation("Member")
+  AdminOf          Channel[]       @relation("Admin")
+  invitedTo        Channel[]       @relation("Invited")
+  bannedFrom       Channel[]       @relation("Banned")
+  sentMessages     DirectMessage[] @relation("SentMessages")
+  receivedMessages DirectMessage[] @relation("ReceivedMessages")
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isPublic Boolean @default(true)
+  password String?
+  owner    String
+
+  // relations
+
+  members  User[]    @relation("Member")
+  admins   User[]    @relation("Admin")
+  invited  User[]    @relation("Invited")
+  banned   User[]    @relation("Banned")
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  content String
+
+  // relations
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+
+  sender   String[]
+  senderId Int
+}
+
+model DirectMessage {
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
+
+  // relations
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  senderId Int
+
+  receiver   User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId Int
+}
+
+model Friends {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  username String? @unique // username of the friend
+
+  // relations
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  userId Int
+  // relations
+}
+
+model Matchs {
+  id       Int    @id @default(autoincrement())
+  result   String @default("Undefined")
+  opponent Int    @default(0)
+  map      String @default("Undefined")
+  mode     String @default("Undefined")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  // relations
+}
+
+model Userstats {
+  id           Int      @id @default(autoincrement())
+  achievements String[] // array of achievements
+  wins         Int      @default(0)
+  losses       Int      @default(0)
+  ladder       String   @default("Novice") // Novice, Apprentice, Journeyman, Expert, Master, Grandmaster, and Legend
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+  // relations
+}
