@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 import { PrismaService } from './prisma.service';
+import { JwtService } from '@nestjs/jwt';
 
 export type UserFilted = {
   id: number
@@ -16,7 +17,9 @@ export type UserFilted = {
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private JwtService : JwtService) {}
+
+  
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
@@ -28,7 +31,6 @@ export class AuthService {
       }
     });
   }
-  
 
   async findOrCreateUser(profile: any): Promise<UserFilted> {
     let user = await this.prisma.user.findUnique({ 
@@ -59,5 +61,13 @@ export class AuthService {
       });
     }
     return user;
+  }
+
+  async login(user: any) {
+    console.log(user);
+    const payload = { name: user.name, sub: user.id };
+    return {
+      access_token: this.JwtService.sign(payload),
+    };
   }
 }
