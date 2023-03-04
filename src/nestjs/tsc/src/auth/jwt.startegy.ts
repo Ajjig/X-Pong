@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma.service';
 import { AuthService } from './auth.service';
 
 dotenv.config();

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User, Prisma, PrismaClient } from '.prisma/client';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
 export type UserFilted = {
