@@ -1,2 +1,6 @@
 vl
 .env
+node_modules
+npm-debug.log
+npm-debug.log.0
+node_modules/*
