@@ -1,0 +1,3 @@
+class JoinEventDto {
+  username: string;
+}
