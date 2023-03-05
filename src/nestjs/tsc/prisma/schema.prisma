@@ -12,7 +12,6 @@ model User {
   email               String   @unique
   name                String
   username            String?  @unique
-  password            String?  @unique
   avatarUrl           String   @default("https://i.pravatar.cc/150?img=3")
   oauthId             String   @unique
   istwoFactor         Boolean  @default(false)
@@ -21,7 +20,8 @@ model User {
   blockedUsernames    String[] // array of blocked usernames
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-
+  confirmed           Boolean  @default(false)
+  
   Matchs    Matchs[] // one to many
   Userstats Userstats? // one to one
 

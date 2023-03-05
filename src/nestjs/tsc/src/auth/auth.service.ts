@@ -13,6 +13,7 @@ export type UserFilted = {
   blockedUsernames: string[];
   createdAt: Date;
   updatedAt: Date;
+  confirmed: boolean;
 };
 
 @Injectable()
@@ -26,6 +27,18 @@ export class AuthService {
         name: data.name,
         username: data.username,
         oauthId: data.oauthId,
+        Userstats: {
+          create: {
+            wins: 0,
+            losses: 0,
+            ladder: 'bronze',
+            achievements: [],
+          },
+        },
+        blockedUsernames: [],
+        Matchs: {
+          create: {},
+        },
       },
     });
   }
@@ -44,6 +57,7 @@ export class AuthService {
         blockedUsernames: true,
         createdAt: true,
         updatedAt: true,
+        confirmed: true,
       },
     });
   }
@@ -62,12 +76,15 @@ export class AuthService {
         blockedUsernames: true,
         createdAt: true,
         updatedAt: true,
+        confirmed: true,
       },
     });
   }
 
   async findOrCreateUser(profile: any): Promise<UserFilted> {
-    let user = await this.findUserByUsername(profile.username);
+    let user: User | UserFilted = await this.findUserByUsername(
+      profile.username,
+    );
 
     if (!user) {
       user = await this.createUser({
@@ -77,7 +94,7 @@ export class AuthService {
         oauthId: '',
       });
     }
-    return user;
+    return user as UserFilted;
   }
 
   async login(user: any) {

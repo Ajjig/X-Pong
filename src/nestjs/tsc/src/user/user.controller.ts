@@ -26,10 +26,11 @@ export class UserController {
     );
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Post('/set_username')
-  async setProfileUsernameByusername(@Body() body: any) : Promise<HttpException> {
+  async setProfileUsernameByusername(
+    @Body() body: any,
+  ): Promise<HttpException> {
     if (!body || !body.username || !body.new_username) {
       throw new HttpException('Missing username or name', 400);
     }
@@ -37,5 +38,23 @@ export class UserController {
       body.username,
       body.new_username,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_confirmed')
+  async setProfileConfirmedByUsername(@Body() body: any) {
+    if (!body || !body.username) {
+      throw new HttpException('Missing username', 400);
+    }
+    return this.userService.setProfileConfirmedByUsername(body.username);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Post('/set_stats')
+  async setProfileStatsByUsername(@Body() body: any) { 
+    if (!body || !body.username || !body.stats) {
+      throw new HttpException('Missing username or stats', 400);
+    }
+    return this.userService.setProfileStatsByUsername(body.username, body.stats);
   }
 }

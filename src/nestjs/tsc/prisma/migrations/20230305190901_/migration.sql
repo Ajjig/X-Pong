@@ -4,7 +4,6 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "username" TEXT,
-    "password" TEXT,
     "avatarUrl" TEXT NOT NULL DEFAULT 'https://i.pravatar.cc/150?img=3',
     "oauthId" TEXT NOT NULL,
     "istwoFactor" BOOLEAN NOT NULL DEFAULT false,
@@ -13,6 +12,7 @@ CREATE TABLE "User" (
     "blockedUsernames" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "comfirmed" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -122,9 +122,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_oauthId_key" ON "User"("oauthId");
