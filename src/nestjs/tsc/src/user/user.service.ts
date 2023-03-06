@@ -90,4 +90,95 @@ export class UserService {
     }
     
   }
+
+  async getProfileStatsByUsername(username: string) { 
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+        include: { Userstats: true },
+      });
+      return user.Userstats;
+    } catch (e) {
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async getUserDataByUsername(username: string) { 
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+        include: { Userstats: true, Matchs: true, Friends: true  }, // add friends and ... later
+      });
+      return user;
+    } catch (e) {
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async addFriendByUsername(username: string, friendUsername: string) { 
+    try {
+      
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+      });
+      
+      const friend = await this.prisma.user.findUnique({
+        where: { username: friendUsername },
+        include: { Userstats: true },
+      });
+      
+      const findexist = await this.prisma.friends.findUnique({ // check if friend already added
+        where: { username: friend.username },
+      });
+      if (findexist) {
+        return new HttpException('Friend already added', 400);
+      }
+      
+      const newFriend = await this.prisma.friends.create({
+        data: {
+          user: { connect: { id: user.id } },
+          username: friend.username,
+          ladder: friend.Userstats.ladder,
+          onlineStatus: friend.onlineStatus,
+        },
+      });
+      return new HttpException('Friend added', 200);
+    } catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async saveMatchByUsername(username: string, match: Prisma.MatchsCreateInput) { 
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+      });
+      const newMatch = await this.prisma.matchs.create({
+        data: {
+          user: { connect: { id: user.id } },
+          result: match.result,
+          opponent: match.opponent,
+          map: match.map,
+          mode: match.mode,
+        },
+      });
+      return new HttpException('Match saved', 200);
+    } catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async getMatchesByUsername(username: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+        include: { Matchs: true },
+      });
+      return user.Matchs;
+    } catch (e) {
+      return new HttpException(e.meta, 400);
+    }
+  }
 }

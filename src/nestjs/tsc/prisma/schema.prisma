@@ -89,6 +89,9 @@ model Friends {
   updatedAt DateTime @updatedAt
 
   username String? @unique // username of the friend
+  friendshipStatus String @default("Pending") // Pending, Accepted, Declined, Blocked
+  onlineStatus String @default("Offline") // Online, Offline, InGame, lookingForMatch
+  ladder String @default("Novice")
 
   // relations
   user   User @relation("UserFriends", fields: [userId], references: [id])
@@ -98,8 +101,8 @@ model Friends {
 
 model Matchs {
   id       Int    @id @default(autoincrement())
-  result   String @default("Undefined")
-  opponent Int    @default(0)
+  result   String @default("Undefined") // Win, Loss
+  opponent String @default("Undefined")
   map      String @default("Undefined")
   mode     String @default("Undefined")
 

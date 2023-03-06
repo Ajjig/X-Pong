@@ -1,3 +1,0 @@
-class JoinEventDto {
-  username: string;
-}
