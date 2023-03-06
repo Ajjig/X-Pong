@@ -1,5 +1,6 @@
 export class matchMakingEventDto {
 
+    matchId : string;
     OpponentUsername : string;
     OpponentLevel : number;
     OpponentRanking : number;
