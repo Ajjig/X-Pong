@@ -61,17 +61,15 @@ export class UserService {
   }
 
   async setProfileStatsByUsername(username: string, stats: userStatstype) {
-    
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
         include: { Userstats: true },
       });
-    
+
       const oldAchievements = user.Userstats?.achievements || [];
       const updatedAchievements = [...oldAchievements, ...stats.achievements];
-   
-      
+
       const updatedUserStats = await this.prisma.userstats.update({
         where: { id: user.Userstats.id },
         data: {
@@ -82,16 +80,13 @@ export class UserService {
         },
       });
       return new HttpException('Stats updated', 200);
-
-    } catch (e)
-    { 
+    } catch (e) {
       console.log(e);
       return new HttpException(e.meta, 400);
     }
-    
   }
 
-  async getProfileStatsByUsername(username: string) { 
+  async getProfileStatsByUsername(username: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
@@ -103,11 +98,11 @@ export class UserService {
     }
   }
 
-  async getUserDataByUsername(username: string) { 
+  async getUserDataByUsername(username: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
-        include: { Userstats: true, Matchs: true, Friends: true  }, // add friends and ... later
+        include: { Userstats: true, Matchs: true, Friends: true }, // add friends and ... later
       });
       return user;
     } catch (e) {
@@ -115,25 +110,36 @@ export class UserService {
     }
   }
 
-  async addFriendByUsername(username: string, friendUsername: string) { 
+  async addFriendByUsername(username: string, friendUsername: string) {
     try {
-      
       const user = await this.prisma.user.findUnique({
         where: { username: username },
+        include: { Userstats: true },
       });
-      
+
       const friend = await this.prisma.user.findUnique({
         where: { username: friendUsername },
         include: { Userstats: true },
       });
-      
-      const findexist = await this.prisma.friends.findUnique({ // check if friend already added
+
+      const findexist = await this.prisma.friends.findUnique({
+        // check if friend already added
         where: { username: friend.username },
       });
       if (findexist) {
         return new HttpException('Friend already added', 400);
       }
-      
+
+      const other_side = await this.prisma.friends.create({
+        data: {
+          user: { connect: { id: friend.id } },
+          username: user.username,
+          ladder: user.Userstats.ladder,
+          onlineStatus: user.onlineStatus,
+
+        },
+      });
+
       const newFriend = await this.prisma.friends.create({
         data: {
           user: { connect: { id: user.id } },
@@ -149,7 +155,44 @@ export class UserService {
     }
   }
 
-  async saveMatchByUsername(username: string, match: Prisma.MatchsCreateInput) { 
+  async acceptFriendRequestByUsername(
+    username: string,
+    friendUsername: string,
+  ) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+      });
+      const friend = await this.prisma.user.findUnique({
+        where: { username: friendUsername },
+        include : { Friends: true }
+      });
+
+      const findexist = await this.prisma.friends.findUnique({
+        // check if friend exists
+        where: { username: friend.username },
+      });
+      if (!findexist) {
+        return new HttpException('Friend not found', 400);
+      }
+
+      const otherside = await this.prisma.friends.update({
+        where: { username: user.username },
+        data: { friendshipStatus: 'Accepted' },
+      });
+
+      const newFriend = await this.prisma.friends.update({
+        where: { username: friend.username },
+        data: { friendshipStatus: 'Accepted' },
+      });
+      return new HttpException('Friend added', 200);
+    } catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async saveMatchByUsername(username: string, match: Prisma.MatchsCreateInput) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },

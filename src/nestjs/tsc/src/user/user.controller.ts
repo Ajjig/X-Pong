@@ -77,13 +77,25 @@ export class UserController {
     return this.userService.getUserDataByUsername(body.username);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('/add_friend')
   async addFriendByUsername(@Body() body: any) {
     if (!body || !body.username || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
     return this.userService.addFriendByUsername(
+      body.username,
+      body.friend_username,
+    );
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Post('/accept_friend_request')
+  async acceptFriendRequestByUsername(@Body() body: any) { 
+    if (!body || !body.username || !body.friend_username) {
+      throw new HttpException('Missing username or friend_username', 400);
+    }
+    return this.userService.acceptFriendRequestByUsername(
       body.username,
       body.friend_username,
     );
@@ -98,7 +110,7 @@ export class UserController {
     return this.userService.saveMatchByUsername(body.username, body.match);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('/get_matches')
   async getMatchesByUsername(@Body() body: any) {
     if (!body || !body.username) {

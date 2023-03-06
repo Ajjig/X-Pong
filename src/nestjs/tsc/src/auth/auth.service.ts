@@ -26,7 +26,6 @@ export class AuthService {
         email: data.email,
         name: data.name,
         username: data.username,
-        oauthId: data.oauthId,
         Userstats: {
           create: {
             wins: 0,
