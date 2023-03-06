@@ -1,5 +1,6 @@
 import { Logger } from "@nestjs/common";
-import { MessageBody, SubscribeMessage, WebSocketGateway } from "@nestjs/websockets";
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { Server } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
 import { DataDto } from "../dto/data.dto";
 import { JoinEventDto } from "../dto/join.event.dto";
@@ -19,7 +20,7 @@ import { MoveEventDto } from "../dto/move.event.dio";
 //
 // };
 
-function makeId() {
+function makeId(games : Map<string, Game>) : string {
     let result = '';
     let length = 10;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -27,7 +28,10 @@ function makeId() {
     let counter = 0;
     while (counter < length) {
       result += chars.charAt(Math.floor(Math.random() * charsLength));
-      counter += 1;
+      counter++;
+    }
+    if (games.has(result)) {
+      return makeId(games);
     }
     return result;
 }
@@ -102,16 +106,20 @@ export class Game {
 
 }
 
-WebSocketGateway(3000, { namespace: 'game' })
+WebSocketGateway(3001, { cors: '*' })
 export class GameGateway {
 
   constructor (private readonly authService : AuthService) {}
 
-  private games = new Map<String, Game>();
+  private games = new Map<string, Game>();
   private queue = [];
-  private readonly logger = new Logger('MatchMaking');
+  private readonly logger = new Logger('MATCH-MAKING');
 
+  onModuleInit() {
+    this.logger.log('GAME GATEWAY INIT');
+  }
 
+  @WebSocketServer() server : Server;
 
   @SubscribeMessage('join')
   async handleMatchmaking(client : any, @MessageBody() data : JoinEventDto) {
@@ -119,10 +127,10 @@ export class GameGateway {
     if (this.queue.length >= 2) {
       let p1 = this.queue.shift();
       let p2 = this.queue.shift();
-      let id = makeId();
+      let id = makeId(this.games);
       this.games.set(id, new Game(p1.client, p2.client));
-      let p1Data = await { level : 12 } // this.authService.findUserByUsername(p1.data.username);
-      let p2Data = await { level : 69 } // this.authService.findUserByUsername(p2.data.username);
+      let p1Data = { level : 12 } // await this.authService.findUserByUsername(p1.data.username);
+      let p2Data = { level : 69 } // await  this.authService.findUserByUsername(p2.data.username);
       p1.client.emit('match', { matchId : id, opponent : p2Data });
       p2.client.emit('match', { matchId : id, opponent : p1Data });
       this.logger.log(`Match ${id} created`);
