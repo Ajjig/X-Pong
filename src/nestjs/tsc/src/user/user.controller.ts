@@ -51,24 +51,26 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_stats')
-  async setProfileStatsByUsername(@Body() body: any) { 
+  async setProfileStatsByUsername(@Body() body: any) {
     if (!body || !body.username || !body.stats) {
       throw new HttpException('Missing username or stats', 400);
     }
-    return this.userService.setProfileStatsByUsername(body.username, body.stats);
+    return this.userService.setProfileStatsByUsername(
+      body.username,
+      body.stats,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_stats')
-  async getProfileStatsByUsername(@Body() body: any) { 
+  async getProfileStatsByUsername(@Body() body: any) {
     if (!body || !body.username) {
       throw new HttpException('Missing username', 400);
     }
     return this.userService.getProfileStatsByUsername(body.username);
   }
 
-
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('/get_userdata')
   async getUserDataByUsername(@Body() body: any) {
     if (!body || !body.username) {
@@ -77,7 +79,7 @@ export class UserController {
     return this.userService.getUserDataByUsername(body.username);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/add_friend')
   async addFriendByUsername(@Body() body: any) {
     if (!body || !body.username || !body.friend_username) {
@@ -89,9 +91,9 @@ export class UserController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/accept_friend_request')
-  async acceptFriendRequestByUsername(@Body() body: any) { 
+  async acceptFriendRequestByUsername(@Body() body: any) {
     if (!body || !body.username || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -103,7 +105,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/save_match')
-  async saveMatchByUsername(@Body() body: any) { 
+  async saveMatchByUsername(@Body() body: any) {
     if (!body || !body.username || !body.match) {
       throw new HttpException('Missing username or match', 400);
     }
@@ -117,5 +119,43 @@ export class UserController {
       throw new HttpException('Missing username', 400);
     }
     return this.userService.getMatchesByUsername(body.username);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/create_channel')
+  async createChannelByUsername(@Body() body: any) {
+    if (!body || !body.username || !body.channel) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.userService.createChannelByUsername(
+      body.username,
+      body.channel,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_user_as_admin_of_channel')
+  async setUserAsAdminOfChannelByUsername(@Body() body: any) {
+    if (!body || !body.admin || !body.channelname || !body.new_admin) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.userService.setUserAsAdminOfChannelByUsername(
+      body.admin,
+      body.new_admin,
+      body.channelname,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_user_as_member_of_channel')
+  async setUserAsMemberOfChannelByUsername(@Body() body: any) {
+    if (!body || !body.admin || !body.channelname || !body.new_member) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.userService.setUserAsMemberOfChannelByUsername(
+      body.admin,
+      body.new_member,
+      body.channelname,
+    );
   }
 }
