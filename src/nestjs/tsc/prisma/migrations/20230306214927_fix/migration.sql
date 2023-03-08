@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Channel" ALTER COLUMN "owner" SET NOT NULL,
+ALTER COLUMN "owner" SET DATA TYPE TEXT;
