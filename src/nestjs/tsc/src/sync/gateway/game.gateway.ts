@@ -3,6 +3,7 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { Server } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
 import { DataDto } from "../dto/data.dto";
+import { InitEventDto } from "../dto/init.event.dto";
 import { JoinEventDto } from "../dto/join.event.dto";
 import { MoveEventDto } from "../dto/move.event.dio";
 
@@ -106,14 +107,15 @@ export class Game {
 
 }
 
-@WebSocketGateway(3001, { cors: '*', namespace : 'game' })
+@WebSocketGateway({ port: 3001 , cors: true})
 export class GameGateway {
 
-  constructor (private readonly authService : AuthService) {}
+  constructor (/* private readonly authService : AuthService */) {}
 
   private games = new Map<string, Game>();
   private queue = [];
   private readonly logger = new Logger('MATCH-MAKING');
+  private readonly players = new Map<string, any>();
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
@@ -146,6 +148,17 @@ export class GameGateway {
     catch (e) {
         this.logger.error(e);
     }
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(client : any, @MessageBody() data : string) : void {
+    this.logger.log(`Message from ${client.id} : ${data}`);
+  }
+
+  @SubscribeMessage('init')
+  handleInit(client : any, @MessageBody() data : InitEventDto) : void {
+    this.players.set(data.username, client);
+    this.logger.log(`Player ${data.username} connected`);
   }
 
 }
