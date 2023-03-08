@@ -44,10 +44,20 @@ model Channel {
 
   isPublic Boolean @default(true)
   password String?
+  salt    String?
   owner    String
+  // channel settings
+  
+  isBanned Boolean @default(false)
+  banned_until DateTime? 
+  
+  isMuted Boolean @default(false)
+  muted_until DateTime?
 
+  isKicked Boolean @default(false)
+  
   // relations
-
+  
   members  User[]    @relation("Member")
   admins   User[]    @relation("Admin")
   invited  User[]    @relation("Invited")

@@ -106,7 +106,7 @@ export class Game {
 
 }
 
-@WebSocketGateway(3001, { cors: '*', namespace : 'game' })
+WebSocketGateway(3001, { cors: '*' })
 export class GameGateway {
 
   constructor (private readonly authService : AuthService) {}

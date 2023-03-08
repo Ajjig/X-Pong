@@ -4,10 +4,9 @@ import { AppService } from './app.service';
 import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { GameModule } from './sync/game.module';
 
 @Module({
-  imports: [ChatModule, AuthModule, UserModule, GameModule],
+  imports: [ChatModule, AuthModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
