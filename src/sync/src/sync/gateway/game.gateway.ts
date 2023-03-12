@@ -1,12 +1,12 @@
 import { Logger } from "@nestjs/common";
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
-import { Client } from "socket.io/dist/client";
-// import { AuthService } from "src/auth/auth.service";
+import { Socket } from "socket.io-client"
 import { DataDto } from "../dto/data.dto";
 import { InitEventDto } from "../dto/init.event.dto";
 import { JoinEventDto } from "../dto/join.event.dto";
 import { MoveEventDto } from "../dto/move.event.dio";
+import { makeId } from "../utils/generate.id";
 
 // export type UserFilted = {
 //
@@ -22,27 +22,11 @@ import { MoveEventDto } from "../dto/move.event.dio";
 //
 // };
 
-function makeId(games : Map<string, Game>) : string {
-    let result = '';
-    let length = 10;
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charsLength = chars.length;
-    let counter = 0;
-    while (counter < length) {
-      result += chars.charAt(Math.floor(Math.random() * charsLength));
-      counter++;
-    }
-    if (games.has(result)) {
-      return makeId(games);
-    }
-    return result;
-}
 
 export class Game {
-    id : number;
     p1Data : DataDto;
     p2Data : DataDto;
-    constructor (private readonly client1 : any, private readonly client2 : any) {
+    constructor (private readonly id : string, private readonly client1 : Socket, private readonly client2 : Socket) {
         this.p1Data = {
             playerX : 0,
             playerY : 0,
@@ -71,10 +55,16 @@ export class Game {
             opponentHealth : 10,
             opponentScore : 0,
         }
+        this.emitMatch();
     }
 
 
-    updatePlayerData(client : any, data : MoveEventDto) {
+    emitMatch() {
+        this.client1.emit('match', { matchId : this.id, opponent : this.p2Data });
+        this.client2.emit('match', { matchId : this.id, opponent : this.p1Data });
+    }
+
+    updatePlayerData(client : Socket, data : MoveEventDto) {
         if (client === this.client1) {
             this.updateP1Data(data);
         } else if (client === this.client2) {
@@ -108,7 +98,7 @@ export class Game {
 
 }
 
-@WebSocketGateway(3001, { namespace : 'game' })
+@WebSocketGateway(3001)
 export class GameGateway {
 
   constructor (/* private readonly authService : AuthService */) {}
@@ -125,24 +115,21 @@ export class GameGateway {
   @WebSocketServer() server : Server;
 
   @SubscribeMessage('join')
-  async handleMatchmaking(client : any, @MessageBody() data : JoinEventDto) {
-    this.queue.push({client, data});
+  handleMatchmaking(client : Socket, data : JoinEventDto) : void {
+    this.queue.push({ client, data });
+    this.logger.log(`Player ${data.username} waiting for an opponent`);
     if (this.queue.length >= 2) {
       let p1 = this.queue.shift();
       let p2 = this.queue.shift();
       let id = makeId(this.games);
-      this.games.set(id, new Game(p1.client, p2.client));
-      let p1Data = { level : 12 } // await this.authService.findUserByUsername(p1.data.username);
-      let p2Data = { level : 69 } // await  this.authService.findUserByUsername(p2.data.username);
-      p1.client.emit('match', { matchId : id, opponent : p2Data });
-      p2.client.emit('match', { matchId : id, opponent : p1Data });
-      this.logger.log(`Match ${id} created`);
+      this.logger.log(`Match '${id}' created`);
       this.logger.log(`${p1.data.username} X ${p2.data.username}`);
+      this.games.set(id, new Game(id, p1.client, p2.client));
     }
   }
 
   @SubscribeMessage('move')
-  handleMove(client : any, @MessageBody() data : MoveEventDto) : void {
+  handleMove(client : Socket, data : MoveEventDto) : void {
     try {
       this.games[data.matchId].updatePlayerData(client, data);
     }
@@ -152,12 +139,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage('message')
-  handleMessage(client : any, @MessageBody() data : string) : void {
+  handleMessage(client : Socket, data : string) : void {
     this.logger.log(`Message from ${client.id} : ${data}`);
   }
 
   @SubscribeMessage('init')
-  handleInit(client : any, @MessageBody() data : InitEventDto) : void {
+  handleInit(client : Socket, data : InitEventDto) : void {
     this.players.set(data.username, client);
     this.logger.log(`Player ${data.username} connected to the game`);
   }
