@@ -4,6 +4,7 @@ import { User, Prisma, PrismaClient } from '.prisma/client';
 import { compare, genSalt, hash } from 'bcrypt';
 import { UserPasswordService } from './user.password.service';
 import e from 'express';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class UserChannelService {
@@ -232,4 +233,119 @@ export class UserChannelService {
       return new HttpException(e.meta, 400);
     }
   }
+
+  async removeChannelPasswordByUsername(username: string, channelname: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: username },
+      });
+
+      if (user == null) {
+        return new HttpException('User does not exist', 400);
+      }
+
+      const channel = await this.prisma.channel.findUnique({
+        where: { name: channelname },
+      });
+
+      if (channel == null) {
+        return new HttpException('Channel does not exist', 400);
+      }
+
+      if (channel.owner != username) {
+        return new HttpException('User is not owner of channel', 400);
+      }
+
+      await this.prisma.channel.update({
+        where: { name: channelname },
+        data: {
+          password: null,
+          isPublic: true,
+        },
+      });
+      return new HttpException('Password removed', 200);
+    } catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+  async setUserAsBannedOfChannelByUsername(
+    admin: string,
+    new_banned: string,
+    channelname: string,
+  ) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: admin },
+      });
+
+      if (user == null) {
+        return new HttpException('User does not exist', 400);
+      }
+
+      const channel = await this.prisma.channel.findUnique({
+        where: { name: channelname },
+      });
+
+      if (channel == null) {
+        return new HttpException('Channel does not exist', 400);
+      }
+
+      const admin_check = await this.prisma.channel.findFirst({
+        where: {
+          name: channelname,
+          admins: {
+            some: {
+              username: admin,
+            },
+          },
+        },
+      });
+
+      if (admin_check == null) {
+        return new HttpException('User is not admin of channel', 400);
+      }
+
+      const banned_user = await this.prisma.user.findUnique({
+        where: { username: new_banned },
+      });
+
+      if (banned_user == null) {
+        return new HttpException('User does not exist', 400);
+      }
+
+      // check if user is already banned
+      const banned_check = await this.prisma.channel.findFirst({
+        where: {
+          name: channelname,
+          banned: {
+            some: {
+              username: new_banned,
+            },
+          },
+        },
+      });
+
+      if (banned_check != null) {
+        return new HttpException('User is already banned', 400);
+      }
+  
+      await this.prisma.channel.update({
+        where: { name: channelname },
+        data: {
+          banned: {
+            connect: { id: banned_user.id },
+
+          },
+        },
+      });
+      return new HttpException('User banned', 200);
+    } catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+  }
+
+
 }

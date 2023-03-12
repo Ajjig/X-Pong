@@ -10,9 +10,7 @@ import {
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 import { UserChannelService } from './user.channel.service';
-import { SkipThrottle, Throttle, ThrottlerModule } from '@nestjs/throttler';
 
-// @SkipThrottle()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService, private readonly UserChannelService: UserChannelService) {}
@@ -170,10 +168,8 @@ export class UserController {
     );
   }
 
-  // @Throttle(3, 60)
   @UseGuards(JwtAuthGuard)
   @Post('/check_channel_password')
-  // @SkipThrottle(false)
   async checkChannelPasswordByUsername(@Body() body: any) {
     if (!body || !body.username || !body.channelname || !body.password) {
       throw new HttpException('Missing username or channel', 400);
@@ -182,6 +178,31 @@ export class UserController {
       body.username,
       body.channelname,
       body.password,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/remove_channel_password')
+  async removechannelpasswordByUsername(@Body() body: any) { 
+    if (!body || !body.username || !body.channelname) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.UserChannelService.removeChannelPasswordByUsername(
+      body.username,
+      body.channelname,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_user_as_banned_of_channel')
+  async setUserAsBannedOfChannelByUsername(@Body() body: any) {
+    if (!body || !body.admin || !body.channelname || !body.new_banned) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.UserChannelService.setUserAsBannedOfChannelByUsername(
+      body.admin,
+      body.new_banned,
+      body.channelname,
     );
   }
 }

@@ -32,6 +32,8 @@ model User {
   AdminOf          Channel[]       @relation("Admin")
   invitedTo        Channel[]       @relation("Invited")
   bannedFrom       Channel[]       @relation("Banned")
+  kickedFrom       Channel[]       @relation("Kicked")
+  mutedFrom        Channel[]       @relation("Muted")
   sentMessages     DirectMessage[] @relation("SentMessages")
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
 }
@@ -62,6 +64,8 @@ model Channel {
   admins   User[]    @relation("Admin")
   invited  User[]    @relation("Invited")
   banned   User[]    @relation("Banned")
+  kicked   User[]    @relation("Kicked")
+  muted    User[]    @relation("Muted")
   messages Message[]
 }
 
