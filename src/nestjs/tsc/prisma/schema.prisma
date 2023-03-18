@@ -21,13 +21,14 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
-  
+  socketId            String?
   Matchs    Matchs[] // one to many
   Userstats Userstats? // one to one
 
   Friends Friends[] @relation("UserFriends") // many to many
 
   // channels
+  privateChannels     String[] // array of private channel ids
   channels         Channel[]       @relation("Member")
   AdminOf          Channel[]       @relation("Admin")
   invitedTo        Channel[]       @relation("Invited")
@@ -48,15 +49,8 @@ model Channel {
   password String?
   salt    String?
   owner    String
-  // channel settings
   
-  isBanned Boolean @default(false)
-  banned_until DateTime? 
-  
-  isMuted Boolean @default(false)
-  muted_until DateTime?
 
-  isKicked Boolean @default(false)
   
   // relations
   
@@ -95,6 +89,12 @@ model DirectMessage {
 
   receiver   User @relation("ReceivedMessages", fields: [receiverId], references: [id])
   receiverId Int
+
+
+
+  SenderUsername String
+  ReceiverUsername String
+  privateChannelId String @default("undefined")
 }
 
 model Friends {

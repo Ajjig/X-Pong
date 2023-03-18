@@ -1,9 +1,8 @@
 FROM postgres:latest
 
 EXPOSE 5432
-# ENV POSTGRES_PASSWORD=${DB_PASS}
 
-COPY . /workspace
-
+COPY /conf/mybackup.sql /docker-entrypoint-initdb.d/
 
 CMD ["postgres"]
+
