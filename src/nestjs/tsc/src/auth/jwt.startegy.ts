@@ -30,6 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<UserFilted> {
+
     return this.AuthService.findUserByUsername(payload.username);
   }
 }

@@ -21,7 +21,6 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
-  socketId            String?
   Matchs    Matchs[] // one to many
   Userstats Userstats? // one to one
 
@@ -94,7 +93,7 @@ model DirectMessage {
 
   SenderUsername String
   ReceiverUsername String
-  privateChannelId String @default("undefined")
+  privateChannelId String 
 }
 
 model Friends {

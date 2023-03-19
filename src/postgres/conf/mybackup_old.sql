@@ -457,10 +457,6 @@ COPY public."Channel" (id, name, "createdAt", "updatedAt", "isPublic", password,
 --
 
 COPY public."DirectMessage" (id, text, "createdAt", "senderId", "receiverId", "privateChannelId", "ReceiverUsername", "SenderUsername") FROM stdin;
-1	test	2023-03-19 11:44:41.672	1	2	__private__iidkhebb__test	test	iidkhebb
-2	test	2023-03-19 11:45:33.166	1	2	__private__iidkhebb__test	test	iidkhebb
-3	test	2023-03-19 11:46:22.775	1	2	__private__iidkhebb__test	test	iidkhebb
-4	test	2023-03-19 11:46:38.011	1	2	__private__iidkhebb__test	test	iidkhebb
 \.
 
 
@@ -493,8 +489,7 @@ COPY public."Message" (id, "createdAt", "updatedAt", content, "channelId", sende
 --
 
 COPY public."User" (id, email, name, username, "avatarUrl", "oauthId", "istwoFactor", "twoFactorAuthSecret", "onlineStatus", "blockedUsernames", "createdAt", "updatedAt", confirmed, "privateChannels") FROM stdin;
-1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://i.pravatar.cc/150?img=3	\N	f	\N	Offline	{}	2023-03-19 08:09:13.937	2023-03-19 11:32:53.597	f	{__private__iidkhebb__test}
-2	gkmjg	jghkm	test	https://i.pravatar.cc/150?img=3	\N	f	\N	Offline	{}	2023-03-19 11:32:41.694	2023-03-19 11:32:53.606	f	{__private__iidkhebb__test}
+1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://i.pravatar.cc/150?img=3	\N	f	\N	Offline	{}	2023-03-19 08:09:13.937	2023-03-19 08:09:13.937	f	\N
 \.
 
 
@@ -592,7 +587,7 @@ SELECT pg_catalog.setval('public."Channel_id_seq"', 1, false);
 -- Name: DirectMessage_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."DirectMessage_id_seq"', 4, true);
+SELECT pg_catalog.setval('public."DirectMessage_id_seq"', 1, false);
 
 
 --
@@ -620,7 +615,7 @@ SELECT pg_catalog.setval('public."Message_id_seq"', 1, false);
 -- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."User_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."User_id_seq"', 1, true);
 
 
 --

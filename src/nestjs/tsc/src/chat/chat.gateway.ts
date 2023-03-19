@@ -8,23 +8,29 @@ import {
 import { ChatService } from './chat.service';
 import { CreateChatDto, CreatePrivateChannelDto } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
-import { PrismaService } from '../prisma.service';
 import { joinPrivateChannel } from './entities/chat.entity';
-import { channel } from 'diagnostics_channel';
+import { UseFilters, UseGuards } from '@nestjs/common';
+import { JwtUnauthorizedFilter } from './customfilter.service';
+import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
+@UseFilters(JwtUnauthorizedFilter)
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
 
   @WebSocketServer()
   server: Server;
 
+  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('createChannelPrivate')
-  async createChannelPrivate(client: Socket, payload: CreatePrivateChannelDto) {
+  async createChannelPrivate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: CreatePrivateChannelDto,
+  ) {
     // check for payload validity
     const check = this.chatService.checkpayload(payload);
     if (check !== 'ok') {
@@ -43,7 +49,6 @@ export class ChatGateway {
       client.emit('channelId', this.chatService.makePrivateChannelId(payload));
       return;
     }
-    await this.chatService.setusersocketid(payload.user1, client.id);
     const NewChannelId = await this.chatService.createprivatechannel(
       payload,
       this.server,
@@ -51,8 +56,12 @@ export class ChatGateway {
     client.emit('channelId', NewChannelId);
   }
 
+  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('joinPrivateChannel')
-  async joinPrivateChannel(client: Socket, payload: joinPrivateChannel) {
+  async joinPrivateChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: joinPrivateChannel,
+  ) {
     if (!payload || !payload.channelId || !payload.user) {
       client.emit('error', 'You must provide a payload');
       return;
@@ -79,7 +88,6 @@ export class ChatGateway {
       client.emit('error', 'You have already joined the channel');
       return;
     }
-    await this.chatService.setusersocketid(payload.user, client.id);
     // join the user to the channel
     client.join(payload.channelId);
 
@@ -87,9 +95,13 @@ export class ChatGateway {
     client.to(payload.channelId).emit('privateJoined', payload.user);
   }
 
+  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('PrivateMessage') // send a message to a Private channel
-  async PrivateMessage(client: Socket, payload: any) {
-    if (!payload || !payload.channelId || !payload.user || !payload.msg) {
+  async PrivateMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    if (!payload || !payload.channelId || !payload.user || !payload.msg || !payload.receiver) {
       client.emit('error', 'You must provide a payload');
       return;
     }
@@ -104,7 +116,6 @@ export class ChatGateway {
       );
       return;
     }
-    await this.chatService.setusersocketid(payload.user, client.id);
     await this.chatService.saveprivatechatmessage({
       msg: payload.msg,
       sender: payload.user,
@@ -113,5 +124,32 @@ export class ChatGateway {
     });
     // send the message to the channel
     client.to(payload.channelId).emit('PrivateMessage', payload.msg);
+  }
+
+  @UseGuards(JwtAuthGuardSockets)
+  @SubscribeMessage('findallmessages')
+  async findALLmessages(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    if (!payload || !payload.channelId || !payload.user) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+    const channel = await this.chatService.checkSingleChannelExsting(
+      payload.user,
+      payload.channelId,
+    );
+    if (!channel) {
+      client.emit(
+        'error',
+        'You are not authorized to send messages to this channel',
+      );
+      return;
+    }
+    const messages = await this.chatService.findAllPrivateMessagesByChannelID(
+      payload.channelId,
+    );
+    client.emit('findallmessages', messages);
   }
 }

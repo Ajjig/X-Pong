@@ -97,19 +97,19 @@ export class ChatService {
     return id;
   }
 
-  async getusersocketid(username: string): Promise<string> {
-    const user = await this.prisma.user.findUnique({
-      where: { username: username },
-    });
-    return user.socketId;
-  }
+  // async getusersocketid(username: string): Promise<string> {
+  //   const user = await this.prisma.user.findUnique({
+  //     where: { username: username },
+  //   });
+  //   return user.socketId;
+  // }
 
-  async setusersocketid(username: string, socketId: string): Promise<void> {
-    const user = await this.prisma.user.update({
-      where: { username: username },
-      data: { socketId: socketId },
-    });
-  }
+  // async setusersocketid(username: string, socketId: string): Promise<void> {
+  //   const user = await this.prisma.user.update({
+  //     where: { username: username },
+  //     data: { socketId: socketId },
+  //   });
+  // }
 
   async createprivatechannel(
     data: CreatePrivateChannelDto,
@@ -144,7 +144,6 @@ export class ChatService {
   }
 
   async saveprivatechatmessage(payload: DirectMessageDto): Promise<void> {
-    
     const message = await this.prisma.directMessage.create({
       data: {
         text: payload.msg,
@@ -165,5 +164,20 @@ export class ChatService {
     });
   }
 
-      
+  async findAllPrivateMessagesByChannelID(channelId: any): Promise<any[]> {
+    const messages = await this.prisma.directMessage.findMany({
+      where: {
+        privateChannelId: channelId,
+      },
+      select: {
+        text: true,
+        SenderUsername: true,
+        ReceiverUsername: true,
+        createdAt: true,
+      },
+    });
+    return messages;
+  }
+
+
 }
