@@ -73,7 +73,7 @@ model Message {
   channel   Channel @relation(fields: [channelId], references: [id])
   channelId Int
 
-  sender   String[]
+  sender   String
   senderId Int
 }
 

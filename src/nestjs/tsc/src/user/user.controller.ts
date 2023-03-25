@@ -6,14 +6,19 @@ import {
   HttpException,
   Post,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 import { UserChannelService } from './user.channel.service';
+import { request } from 'http';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService, private readonly UserChannelService: UserChannelService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly UserChannelService: UserChannelService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_picture')
@@ -52,22 +57,24 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_stats')
-  async setProfileStatsByUsername(@Body() body: any) { 
+  async setProfileStatsByUsername(@Body() body: any) {
     if (!body || !body.username || !body.stats) {
       throw new HttpException('Missing username or stats', 400);
     }
-    return this.userService.setProfileStatsByUsername(body.username, body.stats);
+    return this.userService.setProfileStatsByUsername(
+      body.username,
+      body.stats,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_stats')
-  async getProfileStatsByUsername(@Body() body: any) { 
+  async getProfileStatsByUsername(@Body() body: any) {
     if (!body || !body.username) {
       throw new HttpException('Missing username', 400);
     }
     return this.userService.getProfileStatsByUsername(body.username);
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_userdata')
@@ -92,7 +99,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/accept_friend_request')
-  async acceptFriendRequestByUsername(@Body() body: any) { 
+  async acceptFriendRequestByUsername(@Body() body: any) {
     if (!body || !body.username || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -104,7 +111,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/save_match')
-  async saveMatchByUsername(@Body() body: any) { 
+  async saveMatchByUsername(@Body() body: any) {
     if (!body || !body.username || !body.match) {
       throw new HttpException('Missing username or match', 400);
     }
@@ -122,16 +129,19 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create_channel')
-  async createChannelByUsername(@Body() body: any) { 
+  async createChannelByUsername(@Body() body: any) {
     if (!body || !body.username || !body.channel) {
       throw new HttpException('Missing username or channel', 400);
     }
-    return this.UserChannelService.createChannelByUsername(body.username, body.channel);
+    return this.UserChannelService.createChannelByUsername(
+      body.username,
+      body.channel,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_user_as_admin_of_channel')
-  async setUserAsAdminOfChannelByUsername(@Body() body: any) { 
+  async setUserAsAdminOfChannelByUsername(@Body() body: any) {
     if (!body || !body.admin || !body.channelname || !body.new_admin) {
       throw new HttpException('Missing username or channel', 400);
     }
@@ -144,7 +154,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_user_as_member_of_channel')
-  async setUserAsMemberOfChannelByUsername(@Body() body: any) { 
+  async setUserAsMemberOfChannelByUsername(@Body() body: any) {
     if (!body || !body.admin || !body.channelname || !body.new_member) {
       throw new HttpException('Missing username or channel', 400);
     }
@@ -157,7 +167,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/change_channel_password')
-  async changeChannelPasswordByUsername(@Body() body: any) { 
+  async changeChannelPasswordByUsername(@Body() body: any) {
     if (!body || !body.admin || !body.channelname || !body.password) {
       throw new HttpException('Missing username or channel', 400);
     }
@@ -183,7 +193,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/remove_channel_password')
-  async removechannelpasswordByUsername(@Body() body: any) { 
+  async removechannelpasswordByUsername(@Body() body: any) {
     if (!body || !body.username || !body.channelname) {
       throw new HttpException('Missing username or channel', 400);
     }
@@ -202,6 +212,35 @@ export class UserController {
     return this.UserChannelService.setUserAsBannedOfChannelByUsername(
       body.admin,
       body.new_banned,
+      body.channelname,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_user_as_kicked_of_channel')
+  async setUserAsKickedOfChannelByUsername(
+    @Req() request: any,
+    @Body() body: any,
+  ) {
+    if (!body || !body.channelname || !body.new_kicked) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.UserChannelService.setUserAsKickedOfChannelByUsername(
+      request.user,
+      body.new_kicked,
+      body.channelname,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/set_user_as_muted_of_channel')
+  async setUserAsMutedOfChannelByUsername(@Req() request, @Body() body: any) {
+    if (!body || !body.channelname || !body.new_muted) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.UserChannelService.setUserAsMutedOfChannelByUsername(
+      request.user,
+      body.new_muted,
       body.channelname,
     );
   }

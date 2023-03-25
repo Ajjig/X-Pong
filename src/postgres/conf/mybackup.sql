@@ -190,7 +190,7 @@ CREATE TABLE public."Message" (
     "updatedAt" timestamp(3) without time zone NOT NULL,
     content text NOT NULL,
     "channelId" integer NOT NULL,
-    sender text[],
+    sender text NOT NULL,
     "senderId" integer NOT NULL
 );
 
@@ -449,6 +449,7 @@ ALTER TABLE ONLY public."Userstats" ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 COPY public."Channel" (id, name, "createdAt", "updatedAt", "isPublic", password, owner, salt) FROM stdin;
+1	freaks	2023-03-19 15:15:21.688	2023-03-19 15:15:21.688	f	$2b$10$kZaGR6e4ZxcY2ZYZcr1VF.Mm/aQNuvarjacJ.d2c1oZbw0m/jyNiK	iidkhebb	$2b$10$kZaGR6e4ZxcY2ZYZcr1VF.
 \.
 
 
@@ -485,6 +486,8 @@ COPY public."Matchs" (id, result, opponent, map, mode, "createdAt", "updatedAt",
 --
 
 COPY public."Message" (id, "createdAt", "updatedAt", content, "channelId", sender, "senderId") FROM stdin;
+1	2023-03-19 16:24:09.952	2023-03-19 16:24:09.952	ok bb	1	test	2
+2	2023-03-19 16:24:22.218	2023-03-19 16:24:22.218	aji negolik	1	iidkhebb	1
 \.
 
 
@@ -512,6 +515,7 @@ COPY public."Userstats" (id, achievements, wins, losses, ladder, "createdAt", "u
 --
 
 COPY public."_Admin" ("A", "B") FROM stdin;
+1	1
 \.
 
 
@@ -536,6 +540,7 @@ COPY public."_Invited" ("A", "B") FROM stdin;
 --
 
 COPY public."_Kicked" ("A", "B") FROM stdin;
+1	2
 \.
 
 
@@ -544,6 +549,8 @@ COPY public."_Kicked" ("A", "B") FROM stdin;
 --
 
 COPY public."_Member" ("A", "B") FROM stdin;
+1	1
+1	2
 \.
 
 
@@ -552,6 +559,7 @@ COPY public."_Member" ("A", "B") FROM stdin;
 --
 
 COPY public."_Muted" ("A", "B") FROM stdin;
+1	2
 \.
 
 
@@ -578,6 +586,7 @@ c3f1d5b5-4e9f-4269-86fa-90e1dd5ffca1	cd21a6084507d65ff4481a22e74284af4020e5c33d6
 e836674e-5e3a-4f2c-a135-b578e8868e2c	c6c6cd0007c704d5ea02e258efee7595dc07f60ec40f968f212bcc496ded8a81	2023-03-19 08:08:22.258566+00	20230318092400_dd	\N	\N	2023-03-19 08:08:22.252749+00	1
 19c61015-1bcc-40bf-abd8-dcb6e7dc884b	2b38877277d21051ac4f28eb9d1ab346a5e67bcde3ef08eff2abc7df53173606	2023-03-19 08:08:22.267069+00	20230318101241_ff	\N	\N	2023-03-19 08:08:22.262627+00	1
 ce37542a-2a7e-4fa7-9c45-d09319ca74de	e3321fe83c3ba4e50fb978c41aa8f8034fbe8b4c94428b4b378a2f60bb566dd2	2023-03-19 08:08:26.387248+00	20230319080826_deplot	\N	\N	2023-03-19 08:08:26.383411+00	1
+4289f97b-93f4-4462-ae54-6b17085ed6ba	40cb04d536645a6dce9192a879f8cb4710ab8096746ee39dc6b39be80068fc87	2023-03-19 16:18:42.716761+00	20230319161842_	\N	\N	2023-03-19 16:18:42.706559+00	1
 \.
 
 
@@ -585,7 +594,7 @@ ce37542a-2a7e-4fa7-9c45-d09319ca74de	e3321fe83c3ba4e50fb978c41aa8f8034fbe8b4c944
 -- Name: Channel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Channel_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Channel_id_seq"', 1, true);
 
 
 --
@@ -613,7 +622,7 @@ SELECT pg_catalog.setval('public."Matchs_id_seq"', 1, false);
 -- Name: Message_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Message_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Message_id_seq"', 2, true);
 
 
 --

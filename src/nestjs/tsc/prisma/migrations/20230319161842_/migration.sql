@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Message" ALTER COLUMN "sender" SET NOT NULL,
+ALTER COLUMN "sender" SET DATA TYPE TEXT;

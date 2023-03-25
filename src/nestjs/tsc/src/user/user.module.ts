@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma.service';
 import { UserChannelService } from './user.channel.service';
 import { UserPasswordService } from './user.password.service';
 import { ThrottlerModule } from '@nestjs/throttler';
-
+import {OrigineService } from './user.validate.origine.service';
 
 @Module({
   imports: [ThrottlerModule.forRoot({
@@ -13,7 +13,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     limit: 5,
   })],
   controllers: [UserController],
-  providers: [UserService, PrismaService, UserChannelService, UserPasswordService],
-  exports : [UserService, UserChannelService, UserPasswordService],
+  providers: [UserService, PrismaService, UserChannelService, UserPasswordService, OrigineService],
+  exports : [UserService, UserChannelService, UserPasswordService, OrigineService],
 })
 export class UserModule {}

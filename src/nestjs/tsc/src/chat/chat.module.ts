@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma.service';
 import { JwtUnauthorizedFilter } from './customfilter.service';
 import { AuthModule } from '../auth/auth.module';
 import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
+import { PublicChannelService } from './publicchannel.service'; 
 
 @Module({
   imports: [AuthModule],
@@ -14,6 +15,7 @@ import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
     PrismaService,
     JwtUnauthorizedFilter,
     JwtAuthGuardSockets,
+    PublicChannelService,
   ],
 })
 export class ChatModule {}

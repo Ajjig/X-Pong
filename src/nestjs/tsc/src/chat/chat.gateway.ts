@@ -6,12 +6,18 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
-import { CreateChatDto, CreatePrivateChannelDto } from './dto/create-chat.dto';
+import {
+  CreateChatDto,
+  CreatePrivateChannelDto,
+  JoinPublicChannelDto,
+  PublicChannelMessageDto,
+} from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { joinPrivateChannel } from './entities/chat.entity';
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { JwtUnauthorizedFilter } from './customfilter.service';
 import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
+import { PublicChannelService } from './publicchannel.service';
 
 @WebSocketGateway({
   cors: {
@@ -20,7 +26,10 @@ import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
 })
 @UseFilters(JwtUnauthorizedFilter)
 export class ChatGateway {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly PublicChannelService: PublicChannelService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -101,7 +110,13 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ) {
-    if (!payload || !payload.channelId || !payload.user || !payload.msg || !payload.receiver) {
+    if (
+      !payload ||
+      !payload.channelId ||
+      !payload.user ||
+      !payload.msg ||
+      !payload.receiver
+    ) {
       client.emit('error', 'You must provide a payload');
       return;
     }
@@ -151,5 +166,79 @@ export class ChatGateway {
       payload.channelId,
     );
     client.emit('findallmessages', messages);
+  }
+
+  // @UseGuards(JwtAuthGuardSockets)
+  @SubscribeMessage('joinChannelPublic')
+  async joinChannelPublic(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: JoinPublicChannelDto,
+  ) {
+    if (!payload || !payload.username || !payload.channelName) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+
+    if (
+      !(await this.PublicChannelService.checkSingleUserExsting(
+        payload.username,
+      ))
+    ) {
+      client.emit('error', 'User not found');
+      return;
+    }
+
+    if (
+      !(await this.PublicChannelService.checkSingleChannelExsting(
+        payload.channelName,
+      ))
+    ) {
+      client.emit('error', 'Channel not found');
+      return;
+    }
+
+    if (
+      !(await this.PublicChannelService.checkUsermemberofChannel(
+        payload.username,
+        payload.channelName,
+      ))
+    ) {
+      client.emit('error', 'You are not authorized to join this channel');
+      return;
+    }
+
+    // check if the user is already in the channel
+    const inChannel = client.rooms.has(payload.channelName);
+    if (inChannel) {
+      client.emit('error', 'You have already joined the channel');
+      return;
+    }
+
+    // join the user to the channel
+    client.join(payload.channelName);
+
+    // notify the user that he joined the channel
+    client.to(payload.channelName).emit('publicJoined', payload.username);
+  }
+
+  // @UseGuards(JwtAuthGuardSockets)
+  @SubscribeMessage('PublicMessage') // send a message to a Public channel
+  async PublicMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: PublicChannelMessageDto,
+  ) {
+    if (!payload || !payload.channelName || !payload.username || !payload.msg) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+
+    // check if the user has joined the channel
+    const inChannel = client.rooms.has(payload.channelName);
+    if (!inChannel) {
+      client.emit('error', 'You have not joined the channel');
+      return;
+    }
+    await this.PublicChannelService.saveprivatechatmessage(payload);
+    client.to(payload.channelName).emit('PublicMessage', payload.msg);
   }
 }

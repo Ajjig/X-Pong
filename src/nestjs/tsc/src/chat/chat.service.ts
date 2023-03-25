@@ -2,13 +2,10 @@ import { Injectable } from '@nestjs/common';
 import {
   CreateChatDto,
   CreatePrivateChannelDto,
-  CreatePublicChannelDto,
   DirectMessageDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
-import { PrivateChannel, PrivateMessage } from './entities/chat.entity';
-import { connected } from 'process';
 
 @Injectable()
 export class ChatService {
@@ -97,19 +94,6 @@ export class ChatService {
     return id;
   }
 
-  // async getusersocketid(username: string): Promise<string> {
-  //   const user = await this.prisma.user.findUnique({
-  //     where: { username: username },
-  //   });
-  //   return user.socketId;
-  // }
-
-  // async setusersocketid(username: string, socketId: string): Promise<void> {
-  //   const user = await this.prisma.user.update({
-  //     where: { username: username },
-  //     data: { socketId: socketId },
-  //   });
-  // }
 
   async createprivatechannel(
     data: CreatePrivateChannelDto,

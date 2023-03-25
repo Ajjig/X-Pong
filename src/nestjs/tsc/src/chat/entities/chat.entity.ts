@@ -1,7 +1,6 @@
 export class PrivateChannel {
   user1: string;
   user2: string;
-  id: string;
 }
 
 export class Chat {
@@ -10,8 +9,8 @@ export class Chat {
 }
 
 export class PublicChannel {
-  name: string;
-  id: string;
+  username: string;
+  channelName: string;
 }
 
 export class joinPrivateChannel {
@@ -30,4 +29,10 @@ export class DirectMessage {
   sender: string;
   receiver: string;
   PrivateChannelId : string;
+}
+
+export class PublicChannelMessage {
+  msg: string;
+  username: string;
+  channelName: string;
 }
