@@ -16,6 +16,4 @@ export class AuthController {
   async fortyTwoAuthCallback(@Req() req) {
     return this.AuthService.login(req.user);
   }
-
-
 }

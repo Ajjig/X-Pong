@@ -21,6 +21,14 @@ volumes:
       type: none
       device: /Users/iidkhebb/Desktop/ft_transcendence/vl/nestjs
       o: bind
+  
+  # front:
+  #   driver: local
+  #   name: front
+  #   driver_opts:
+  #     type: none
+  #     device: /Users/iidkhebb/Desktop/ft_transcendence/vl/front
+  #     o: bind
 
   postgres:
     driver: local
@@ -45,6 +53,17 @@ services:
   #     - "443:443"
   #   restart: unless-stopped
   
+  # front:
+    # container_name: front
+    # build: ./src/front
+    # networks:
+    #   - warper-network
+    # volumes:
+    #   - front:/workspace
+    # ports:
+    #   - "3001:3001"
+    # restart: unless-stopped
+
   nestjs:
     container_name: nestjs
     build: ./src/nestjs

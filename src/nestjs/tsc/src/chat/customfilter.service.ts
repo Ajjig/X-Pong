@@ -8,6 +8,7 @@ export class JwtUnauthorizedFilter {
     const ctx = host.switchToWs();
     const client = ctx.getClient();
 
+
     client.emit('error', {
       message: 'Unauthorized Exception',
     });

@@ -1,5 +1,4 @@
 export class PrivateChannel {
-  user1: string;
   user2: string;
 }
 

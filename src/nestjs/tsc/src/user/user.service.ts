@@ -1,3 +1,4 @@
+import { request } from 'http';
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma, PrismaClient } from '.prisma/client';
@@ -140,7 +141,7 @@ export class UserService {
         data: {
           user: { connect: { id: friend.id } },
           username: user.username,
-          ladder: user.Userstats.ladder,
+          ladder: user.Userstats.ladder ? user.Userstats.ladder : 'Bronze',
           onlineStatus: user.onlineStatus,
         },
       });
@@ -149,7 +150,7 @@ export class UserService {
         data: {
           user: { connect: { id: user.id } },
           username: friend.username,
-          ladder: friend.Userstats.ladder,
+          ladder: friend.Userstats.ladder ? friend.Userstats.ladder : 'Bronze',
           onlineStatus: friend.onlineStatus,
         },
       });
@@ -229,6 +230,46 @@ export class UserService {
       return new HttpException(e.meta, 400);
     }
   }
+
+  async blockFriendByUsername(request : any, 
+    friendUsername: string,
+    )
+  {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username: request.username },
+      });
+      const friend = await this.prisma.user.findUnique({
+        where: { username: friendUsername },
+      });
+
+      const findexist = await this.prisma.friends.findUnique({
+        // check if friend exists
+        where: { username: friend.username },
+      });
+      if (!findexist) {
+        return new HttpException('Friend not found', 400);
+      }
+
+      const otherside = await this.prisma.friends.update({
+        where: { username: user.username },
+        data: { friendshipStatus: 'Blocked' },
+      });
+
+      const newFriend = await this.prisma.friends.update({
+        where: { username: friend.username },
+        data: { friendshipStatus: 'Blocked' },
+      });
+      return new HttpException('Friend blocked', 200);
+    }
+    catch (e) {
+      console.log(e);
+      return new HttpException(e.meta, 400);
+    }
+
+  }
+
+    
 
 
 }

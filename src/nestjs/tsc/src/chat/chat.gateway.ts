@@ -14,9 +14,6 @@ import {
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { joinPrivateChannel } from './entities/chat.entity';
-import { UseFilters, UseGuards } from '@nestjs/common';
-import { JwtUnauthorizedFilter } from './customfilter.service';
-import { JwtAuthGuardSockets } from '../auth/socket-jwt-auth.guard';
 import { PublicChannelService } from './publicchannel.service';
 
 @WebSocketGateway({
@@ -24,7 +21,6 @@ import { PublicChannelService } from './publicchannel.service';
     origin: '*',
   },
 })
-@UseFilters(JwtUnauthorizedFilter)
 export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
@@ -34,49 +30,66 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('createChannelPrivate')
   async createChannelPrivate(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: CreatePrivateChannelDto,
   ) {
     // check for payload validity
-    const check = this.chatService.checkpayload(payload);
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
+
+    const check = this.chatService.checkpayload(userdata.username, payload);
     if (check !== 'ok') {
       client.emit('error', check);
       return;
     }
-    const checkUserExsting = await this.chatService.checkUserExsting(payload);
+    const checkUserExsting = await this.chatService.checkUserExsting(
+      userdata.username,
+      payload,
+    );
     if (!checkUserExsting) {
       client.emit('error', 'User not found');
       return;
     }
     const checkChannelExsting = await this.chatService.checkChannelExsting(
+      userdata.username,
       payload,
     );
     if (checkChannelExsting) {
-      client.emit('channelId', this.chatService.makePrivateChannelId(payload));
+      client.emit(
+        'channelId',
+        this.chatService.makePrivateChannelId(userdata.username, payload),
+      );
       return;
     }
     const NewChannelId = await this.chatService.createprivatechannel(
+      userdata.username,
       payload,
       this.server,
     );
     client.emit('channelId', NewChannelId);
   }
 
-  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('joinPrivateChannel')
   async joinPrivateChannel(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: joinPrivateChannel,
   ) {
-    if (!payload || !payload.channelId || !payload.user) {
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    if (!payload || !payload.channelId || !userdata.username) {
       client.emit('error', 'You must provide a payload');
       return;
     }
     const checkUserExsting = await this.chatService.checkSingleUserExsting(
-      payload.user,
+      userdata.username,
     );
     if (!checkUserExsting) {
       client.emit('error', 'User not found');
@@ -84,7 +97,7 @@ export class ChatGateway {
     }
     const checkChannelExsting =
       await this.chatService.checkSingleChannelExsting(
-        payload.user,
+        userdata.username,
         payload.channelId,
       );
     if (!checkChannelExsting) {
@@ -101,19 +114,23 @@ export class ChatGateway {
     client.join(payload.channelId);
 
     // notify the user that he joined the channel
-    client.to(payload.channelId).emit('privateJoined', payload.user);
+    client.to(payload.channelId).emit('privateJoined', userdata.username);
   }
 
-  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('PrivateMessage') // send a message to a Private channel
   async PrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ) {
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
     if (
       !payload ||
       !payload.channelId ||
-      !payload.user ||
+      !userdata.username ||
       !payload.msg ||
       !payload.receiver
     ) {
@@ -121,7 +138,7 @@ export class ChatGateway {
       return;
     }
     const channel = this.chatService.checkSingleChannelExsting(
-      payload.user,
+      userdata.username,
       payload.channelId,
     );
     if (!channel) {
@@ -133,7 +150,7 @@ export class ChatGateway {
     }
     await this.chatService.saveprivatechatmessage({
       msg: payload.msg,
-      sender: payload.user,
+      sender: userdata.username,
       PrivateChannelId: payload.channelId,
       receiver: payload.receiver,
     });
@@ -141,18 +158,22 @@ export class ChatGateway {
     client.to(payload.channelId).emit('PrivateMessage', payload.msg);
   }
 
-  @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('findallmessages')
   async findALLmessages(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ) {
-    if (!payload || !payload.channelId || !payload.user) {
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    if (!payload || !payload.channelId || !userdata.username) {
       client.emit('error', 'You must provide a payload');
       return;
     }
     const channel = await this.chatService.checkSingleChannelExsting(
-      payload.user,
+      userdata.username,
       payload.channelId,
     );
     if (!channel) {
@@ -168,20 +189,24 @@ export class ChatGateway {
     client.emit('findallmessages', messages);
   }
 
-  // @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('joinChannelPublic')
   async joinChannelPublic(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinPublicChannelDto,
   ) {
-    if (!payload || !payload.username || !payload.channelName) {
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    if (!payload || !userdata.username || !payload.channelName) {
       client.emit('error', 'You must provide a payload');
       return;
     }
 
     if (
       !(await this.PublicChannelService.checkSingleUserExsting(
-        payload.username,
+        userdata.username,
       ))
     ) {
       client.emit('error', 'User not found');
@@ -199,7 +224,7 @@ export class ChatGateway {
 
     if (
       !(await this.PublicChannelService.checkUsermemberofChannel(
-        payload.username,
+        userdata.username,
         payload.channelName,
       ))
     ) {
@@ -218,16 +243,25 @@ export class ChatGateway {
     client.join(payload.channelName);
 
     // notify the user that he joined the channel
-    client.to(payload.channelName).emit('publicJoined', payload.username);
+    client.to(payload.channelName).emit('publicJoined', userdata.username);
   }
 
-  // @UseGuards(JwtAuthGuardSockets)
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: PublicChannelMessageDto,
   ) {
-    if (!payload || !payload.channelName || !payload.username || !payload.msg) {
+    const userdata = await this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    if (
+      !payload ||
+      !payload.channelName ||
+      !userdata.username ||
+      !payload.msg
+    ) {
       client.emit('error', 'You must provide a payload');
       return;
     }
@@ -240,5 +274,45 @@ export class ChatGateway {
     }
     await this.PublicChannelService.saveprivatechatmessage(payload);
     client.to(payload.channelName).emit('PublicMessage', payload.msg);
+  }
+
+  @SubscribeMessage('UserStatus')
+  async UserStatus(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
+    if (!payload || !payload.username_status) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+    const status = await this.chatService.get_user_status(
+      payload.username_status,
+    );
+    if (!status) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    client.emit('UserStatus', status);
+  }
+
+  async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    await this.chatService.set_user_online(userdata.username);
+  }
+
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    await this.chatService.set_user_offline(userdata.username);
+    console.log('client disconnected');
   }
 }

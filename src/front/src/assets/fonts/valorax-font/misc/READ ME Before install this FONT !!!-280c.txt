@@ -1,0 +1,25 @@
+By installing or using this font, you are agreeing to the Product Usage Agreement:
+
+This font is copyrighted and protected by the law. Usage of this font on any work without a proper license is 
+deemed illegal. You might get fined at least USD 2000 for this act. 
+Please do understand that we have our own system for tracking the usage of our works on the internet.
+
+- This font is already FULL VERSION but 
+
+-  BUY COMMERCIAL LICENSE or CORPORATE LICENSE www.maknastudio.com
+
+- Any donations are very appreciated. Paypal account for donation:
+https://paypal.me/maknastudio
+
+for news update for our project font, please
+Follow our Instagram: @makna.std
+
+Thank you.
+
+-----------------------------------------------
+
+JANGAN MENGGUNAKAN FONT INI TANPA IJIN LICENSE DARI
+MAKNA STUDIO
+Jika menggunakan tanpa izin license makan akan dikenakan denda 5x lipat dari biaya extended
+
+terima kasih

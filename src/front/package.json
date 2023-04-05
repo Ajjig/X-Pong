@@ -1,0 +1,48 @@
+{
+  "name": "70sPONG",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21",
+    "three": "^0.151.3"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/server": "^11.10.0",
+    "@mantine/core": "^6.0.6",
+    "@mantine/ds": "^6.0.6",
+    "@mantine/form": "^6.0.6",
+    "@mantine/hooks": "^6.0.6",
+    "@mantine/next": "^6.0.6",
+    "@next/font": "^13.2.4",
+    "@react-three/cannon": "^6.5.2",
+    "@react-three/drei": "^9.62.2",
+    "@react-three/fiber": "^8.12.0",
+    "@reduxjs/toolkit": "^1.9.3",
+    "@rive-app/react-canvas": "^3.0.39",
+    "@tabler/icons": "^2.13.2",
+    "@tabler/icons-react": "^2.13.2",
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "@types/three": "^0.150.1",
+    "eslint": "^8.37.0",
+    "eslint-config-next": "^13.2.4",
+    "lamina": "^1.1.23",
+    "next": "^13.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.1",
+    "socket.io-client": "^4.6.1",
+    "three-to-cannon": "^4.3.0",
+    "typescript": "^5.0.3"
+  }
+}

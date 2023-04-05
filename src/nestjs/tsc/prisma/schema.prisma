@@ -38,6 +38,8 @@ model User {
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
 }
 
+
+
 model Channel {
   id        Int      @id @default(autoincrement())
   name      String   @unique
