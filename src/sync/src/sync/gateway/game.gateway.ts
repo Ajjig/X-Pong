@@ -24,76 +24,24 @@ import { makeId } from "../utils/generate.id";
 
 
 export class Game {
-    p1Data : DataDto;
-    p2Data : DataDto;
-    constructor (private readonly id : string, private readonly client1 : Socket, private readonly client2 : Socket) {
-        this.p1Data = {
-            playerX : 0,
-            playerY : 0,
-            playerZ : 0,
-            playerRotation : 0,
-            playerHealth : 0,
-            playerScore : 0,
-            opponentX : 0,
-            opponentY : 0,
-            opponentZ : 0,
-            opponentRotation : 0,
-            opponentHealth : 10,
-            opponentScore : 0,
-        };
-        this.p2Data = {
-            playerX : 0,
-            playerY : 0,
-            playerZ : 0,
-            playerRotation : 0,
-            playerHealth : 0,
-            playerScore : 0,
-            opponentX : 0,
-            opponentY : 0,
-            opponentZ : 0,
-            opponentRotation : 0,
-            opponentHealth : 10,
-            opponentScore : 0,
+    constructor (private readonly id : string, private readonly client1 , private readonly client2 ) {
+        try {
+          this.client1.join(this.id);
+          this.client2.join(this.id);
+        } catch (e) {
+          // console.log(e);
         }
         this.emitMatch();
     }
 
-
     emitMatch() {
-        this.client1.emit('match', { matchId : this.id, opponent : this.p2Data });
-        this.client2.emit('match', { matchId : this.id, opponent : this.p1Data });
-    }
-
-    updatePlayerData(client : Socket, data : MoveEventDto) {
-        if (client === this.client1) {
-            this.updateP1Data(data);
-        } else if (client === this.client2) {
-            this.updateP2Data(data);
-        }
-        this.emitter();
-    }
-
-    updateP1Data(data : MoveEventDto) {
-        this.p1Data.playerX = data.moveX;
-        this.p1Data.playerY = data.moveY;
-        this.p1Data.playerZ = data.moveZ;
-        this.p2Data.opponentX = data.moveX;
-        this.p2Data.opponentY = data.moveY;
-        this.p2Data.opponentZ = data.moveZ;
-    }
-
-    updateP2Data(data : MoveEventDto) {
-        this.p2Data.playerX = data.moveX;
-        this.p2Data.playerY = data.moveY;
-        this.p2Data.playerZ = data.moveZ;
-        this.p1Data.opponentX = data.moveX;
-        this.p1Data.opponentY = data.moveY;
-        this.p1Data.opponentZ = data.moveZ;
+        this.client1.emit('match', { roomName : this.id, player : 1 });
+        this.client2.emit('match', { roomName : this.id, player : 2 });
     }
 
     emitter() {
-        this.client1.emit('data', this.p1Data);
-        this.client2.emit('data', this.p2Data);
+        this.client1.emit('data', { });
+        this.client2.emit('data', { });
     }
 
 }
@@ -128,20 +76,20 @@ export class GameGateway {
     }
   }
 
-  @SubscribeMessage('move')
-  handleMove(client : Socket, data : MoveEventDto) : void {
-    try {
-      this.games[data.matchId].updatePlayerData(client, data);
-    }
-    catch (e) {
-        this.logger.error(e);
-    }
-  }
+  // @SubscribeMessage('move')
+  // handleMove(client : Socket, data : MoveEventDto) : void {
+  //   try {
+  //     this.games[data.matchId].updatePlayerData(client, data);
+  //   }
+  //   catch (e) {
+  //     this.logger.error(e);
+  //   }
+  // }
 
-  @SubscribeMessage('message')
-  handleMessage(client : Socket, data : string) : void {
-    this.logger.log(`Message from ${client.id} : ${data}`);
-  }
+  // @SubscribeMessage('message')
+  // handleMessage(client : Socket, data : string) : void {
+  //   this.logger.log(`Message from ${client.id} : ${data}`);
+  // }
 
   @SubscribeMessage('init')
   handleInit(client : Socket, data : InitEventDto) : void {
