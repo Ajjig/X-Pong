@@ -35,13 +35,17 @@ export class Game {
     }
 
     emitMatch() {
-        this.client1.emit('match', { roomName : this.id, player : 1 });
-        this.client2.emit('match', { roomName : this.id, player : 2 });
+        this.client1.to(this.id).emit('match', { roomName : this.id, player : 1 });
+        this.client2.to(this.id).emit('match', { roomName : this.id, player : 2 });
     }
 
-    emitter() {
-        this.client1.emit('data', { });
-        this.client2.emit('data', { });
+    emitter(client : any, data: MoveEventDto) : void {
+        if (client === this.client1) {
+          this.client2.to(this.id).emit('move', data.data);
+        }
+        else {
+          this.client1.to(this.id).emit('move', data.data);
+        }
     }
 
 }
@@ -76,20 +80,22 @@ export class GameGateway {
     }
   }
 
-  // @SubscribeMessage('move')
-  // handleMove(client : Socket, data : MoveEventDto) : void {
-  //   try {
-  //     this.games[data.matchId].updatePlayerData(client, data);
-  //   }
-  //   catch (e) {
-  //     this.logger.error(e);
-  //   }
-  // }
+  @SubscribeMessage('move')
+  handleMove(client : Socket, data : MoveEventDto) : void {
+    try {
+      let game : Game = this.games.get(data.room);
+      this.logger.log(typeof game);
+      game.emitter(client, data);
+    }
+    catch (e) {
+      this.logger.error(e);
+    }
+  }
 
-  // @SubscribeMessage('message')
-  // handleMessage(client : Socket, data : string) : void {
-  //   this.logger.log(`Message from ${client.id} : ${data}`);
-  // }
+  @SubscribeMessage('message')
+  handleMessage(client : Socket, data : string) : void {
+    this.logger.log(`Message from ${client.id} : ${data}`);
+  }
 
   @SubscribeMessage('init')
   handleInit(client : Socket, data : InitEventDto) : void {
