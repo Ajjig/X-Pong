@@ -7,13 +7,21 @@ import {
   Post,
   UseGuards,
   Req,
+  Res,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+  ParseFilePipe,
+  ParseFilePipeBuilder,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 import { UserChannelService } from './user.channel.service';
-import { request } from 'http';
 import { InfoUserService } from './info.user.service';
 import { TwoFactorAuthService } from './TwoFactorAuthService.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadService } from './upload.service';
 
 @Controller('user')
 export class UserController {
@@ -22,19 +30,8 @@ export class UserController {
     private readonly UserChannelService: UserChannelService,
     private readonly InfoUserService: InfoUserService,
     private readonly TwoFactorAuthService: TwoFactorAuthService,
+    private readonly UploadService: UploadService,
   ) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/set_picture')
-  async setProfilePictureByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username || !body.avatarUrl) {
-      throw new HttpException('Missing username or avatarUrl', 400);
-    }
-    return this.userService.setProfilePictureByUsername(
-      request.user.username,
-      body.avatarUrl,
-    );
-  }
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_username') // change username
@@ -391,5 +388,36 @@ export class UserController {
       throw new HttpException('Invalid code or User 2FA Disabled', 400);
     }
     return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/disable_2fa')
+  async disable_2fa(@Req() request) {
+    if (!request.user.username) {
+      throw new HttpException('Missing username', 400);
+    }
+    const user = await this.TwoFactorAuthService.disableTwoFactorAuth(
+      request.user.username,
+    );
+    if (user == false) {
+      throw new HttpException('User already disabled 2FA', 400);
+    }
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(
+    @Req() request,
+    @UploadedFile()
+    file: Express.Multer.File,
+  ) {
+    if (!request.user.username) {
+      throw new HttpException('Missing username', 400);
+    }
+    const path = await this.UploadService.uploadFile(file);
+    await this.UploadService.updateUserAvatar(request.user.username, path);
+    return path;
   }
 }

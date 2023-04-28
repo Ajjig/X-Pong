@@ -1,7 +1,5 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { User, Prisma, PrismaClient } from '.prisma/client';
-import { compare, genSalt, hash } from 'bcrypt';
 import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
 import * as speakeasy from 'speakeasy';
@@ -9,11 +7,7 @@ import * as qrcode from 'qrcode';
 
 @Injectable()
 export class TwoFactorAuthService {
-  constructor(
-    private prisma: PrismaService,
-    private UserPasswordService: UserPasswordService,
-    private OrigineService: OrigineService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   generateSecret(): string {
     const secret = speakeasy.generateSecret({ length: 20 });
@@ -26,7 +20,7 @@ export class TwoFactorAuthService {
         speakeasy.otpauthURL({
           secret: secret,
           label: username,
-          issuer: 'Your App Name',
+          issuer: 'PingPong 1970',
         }),
         (err, data) => {
           if (err) {
@@ -82,5 +76,28 @@ export class TwoFactorAuthService {
       });
       return qrCodeUrl;
     }
+  }
+
+  async disableTwoFactorAuth(username: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+
+    if (!user || user.istwoFactor === false || !user.twoFactorAuthSecret) {
+      return false;
+    }
+
+    await this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        istwoFactor: false,
+        twoFactorAuthSecret: null,
+      },
+    });
+    return true;
   }
 }

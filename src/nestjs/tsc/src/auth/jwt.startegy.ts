@@ -7,17 +7,7 @@ import { AuthService } from './auth.service';
 
 dotenv.config();
 
-export type UserFilted = {
-  id: number;
-  email: string;
-  name: string;
-  username: string | null;
-  avatarUrl: string;
-  onlineStatus: string;
-  blockedUsernames: string[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -29,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any): Promise<UserFilted> {
+  async validate(payload: any): Promise<any> {
 
     return this.AuthService.findUserByUsername(payload.username);
   }

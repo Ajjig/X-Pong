@@ -16,21 +16,6 @@ export type userStatstype = {
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async setProfilePictureByUsername(
-    username: string,
-    avatarUrl: string,
-  ): Promise<HttpException> {
-    try {
-      const user = await this.prisma.user.update({
-        where: { username: username },
-        data: { avatarUrl: avatarUrl },
-      });
-      return new HttpException('Avatar updated', 200);
-    } catch (e) {
-      return new HttpException(e.meta, 400);
-    }
-  }
-
   async setProfileUsernameByusername(
     username: string,
     new_username: string,
@@ -262,5 +247,4 @@ export class UserService {
       return new HttpException(e.meta, 400);
     }
   }
-
 }
