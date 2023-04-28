@@ -3,7 +3,6 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 
-
 export type userStatstype = {
   achievements?: string[];
   wins?: number;
@@ -231,10 +230,7 @@ export class UserService {
     }
   }
 
-  async blockFriendByUsername(request : any, 
-    friendUsername: string,
-    )
-  {
+  async blockFriendByUsername(request: any, friendUsername: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: request.username },
@@ -261,15 +257,10 @@ export class UserService {
         data: { friendshipStatus: 'Blocked' },
       });
       return new HttpException('Friend blocked', 200);
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e);
       return new HttpException(e.meta, 400);
     }
-
   }
-
-    
-
 
 }

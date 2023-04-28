@@ -13,14 +13,12 @@ export class PublicChannel {
 }
 
 export class joinPrivateChannel {
-  user: string;
-  channelId: string;
+  receiver: string;
 }
 
 export class PrivateMessage {
   msg: string;
-  user: string;
-  channelId: string;
+  receiver: string;
 }
 
 export class DirectMessage {

@@ -48,10 +48,8 @@ export class ChatService {
 
   async checkChannelExsting(
     username: string,
-    data: CreatePrivateChannelDto,
+    genereatedChannelId: string,
   ): Promise<boolean> {
-    const NewChannelId = this.makePrivateChannelId(username, data);
-
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
@@ -59,7 +57,7 @@ export class ChatService {
     let check: boolean = false;
 
     user.privateChannels.forEach((channel) => {
-      if (channel === NewChannelId) {
+      if (channel === genereatedChannelId) {
         check = true;
       }
     });
@@ -98,45 +96,54 @@ export class ChatService {
     return check;
   }
 
-  makePrivateChannelId(
-    username: string,
-    data: CreatePrivateChannelDto,
-  ): string {
-    const id = `__private__${username}__${data.user2}`;
+  async makePrivateChannelId(
+    sender: string,
+    receiver: string,
+  ): Promise<string> {
+    const senderID = await this.prisma.user.findUnique({
+      where: { username: sender },
+    });
+    const receiverID = await this.prisma.user.findUnique({
+      where: { username: receiver },
+    });
+
+    let genid: number = +senderID.id + +receiverID.id + 1005;
+
+    const id = `__private__${genid}`;
     return id;
   }
 
   async createprivatechannel(
     username: string,
-    data: CreatePrivateChannelDto,
+    receiver: string,
     Server: Server,
+    genereatedChannelId: string,
   ): Promise<string> {
-    const NewChannelId = this.makePrivateChannelId(username, data);
-    const createnewchanneluser1 = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         username: username,
       },
       data: {
         // append the new channel to the user's list of channels String[]
         privateChannels: {
-          push: NewChannelId,
+          push: genereatedChannelId,
         },
       },
     });
 
-    const createnewchanneluser2 = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
-        username: data.user2,
+        username: receiver,
       },
       data: {
         // append the new channel to the user's list of channels String[]
         privateChannels: {
-          push: NewChannelId,
+          push: genereatedChannelId,
         },
       },
     });
-    Server.to(username).to(data.user2).emit('channelId', NewChannelId);
-    return NewChannelId;
+    Server.to(username).to(receiver).emit('channelId', genereatedChannelId); // remove this line
+    return genereatedChannelId;
   }
 
   async saveprivatechatmessage(payload: DirectMessageDto): Promise<void> {
@@ -238,5 +245,70 @@ export class ChatService {
       },
     });
     return user.onlineStatus;
+  }
+
+  async SearchQuery(query: string): Promise<any[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        username: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        username: true,
+        onlineStatus: true,
+      },
+    });
+
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        name: true,
+        id: true,
+        isPublic: true,
+        owner: true,
+      },
+    });
+
+    if (users.length === 0 && channels.length === 0) {
+      return [];
+    }
+
+    if (users.length === 0) {
+      return [channels];
+    }
+    if (channels.length === 0) {
+      return [users];
+    }
+
+    return [users, channels];
+  }
+
+  async checkUserIsBlocked(Sender: string, Receiver: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: Sender,
+      },
+      include: {
+        Friends: true,
+      },
+    });
+
+    let check: boolean = false;
+
+    user.Friends.forEach((friend) => {
+      if (friend.username === Receiver) {
+        if (friend.friendshipStatus === 'blocked') {
+          check = true;
+        }
+      }
+    });
+    return check;
   }
 }

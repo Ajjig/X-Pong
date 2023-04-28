@@ -359,13 +359,4 @@ export class UserController {
     }
     return this.InfoUserService.get_any_user_info(body.username);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/search_on_users_or_channels')
-  async search_on_users_or_channels(@Req() request, @Body() body: any) {
-    if (!body || !request.user.username || !body.search) {
-      throw new HttpException('Missing username or channel', 400);
-    }
-    return this.InfoUserService.search_on_users_or_channels(body.search);
-  }
 }

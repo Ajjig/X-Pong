@@ -101,7 +101,7 @@ export default function Home() {
                     <Canvas shadows>
                         <Scene />
                         <Html center as="div" position={[0, 1, 0]}>
-                            <Welcome />
+                            <Welcome /> 
                         </Html>
                     </Canvas>
                 </Box>

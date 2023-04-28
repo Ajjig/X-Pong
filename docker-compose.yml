@@ -6,13 +6,6 @@ networks:
     driver: bridge
 
 volumes:
-  # ngnix:
-  #   driver: local
-  #   name: ngnix
-  #   driver_opts:
-  #     type: none
-  #     device: /Users/iidkhebb/Desktop/ft_transcendence/vl/ngnix
-  #     o: bind
   
   nestjs:
     driver: local
@@ -39,19 +32,6 @@ volumes:
       o: bind
 
 services:
-  # ngnix:
-  #   container_name: ngnix
-  #   build: ./src/ngnix
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - warper-network
-  #   volumes:
-  #     - ngnix:/workspace
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   restart: unless-stopped
   
   # front:
     # container_name: front
