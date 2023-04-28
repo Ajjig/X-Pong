@@ -7,6 +7,7 @@ import { UserPasswordService } from './user.password.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { OrigineService } from './user.validate.origine.service';
 import { InfoUserService } from './info.user.service';
+import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { InfoUserService } from './info.user.service';
     PrismaService,
     UserChannelService,
     UserPasswordService,
+    TwoFactorAuthService,
     OrigineService,
     InfoUserService,
   ],
@@ -28,6 +30,7 @@ import { InfoUserService } from './info.user.service';
     UserService,
     UserChannelService,
     UserPasswordService,
+    TwoFactorAuthService,
     OrigineService,
     InfoUserService,
   ],

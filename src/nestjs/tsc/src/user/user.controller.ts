@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 import { UserChannelService } from './user.channel.service';
 import { request } from 'http';
 import { InfoUserService } from './info.user.service';
+import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 
 @Controller('user')
 export class UserController {
@@ -20,6 +21,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly UserChannelService: UserChannelService,
     private readonly InfoUserService: InfoUserService,
+    private readonly TwoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -358,5 +360,36 @@ export class UserController {
       throw new HttpException('Missing username or channel', 400);
     }
     return this.InfoUserService.get_any_user_info(body.username);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/setup_2fa')
+  async setup_2fa(@Req() request) {
+    if (!request.user.username) {
+      throw new HttpException('Missing username', 400);
+    }
+    const user = await this.TwoFactorAuthService.enableTwoFactorAuth(
+      request.user.username,
+    );
+    if (user == false) {
+      throw new HttpException('User already enabled 2FA', 400);
+    }
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/verify_2fa')
+  async verify_2fa(@Req() request, @Body() body: any) {
+    if (!body || !request.user.username || !body.code) {
+      throw new HttpException('Missing username or code', 400);
+    }
+    const user = await this.TwoFactorAuthService.verifyToken(
+      request.user.username,
+      body.code,
+    );
+    if (user == false) {
+      throw new HttpException('Invalid code or User 2FA Disabled', 400);
+    }
+    return user;
   }
 }

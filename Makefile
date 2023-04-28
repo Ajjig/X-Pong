@@ -22,8 +22,8 @@ up:
 	sudo docker-compose up
 
 fclean:
-	docker stop $(docker ps -a -q)
-	docker rm $(docker ps -a -q)
+	docker-compose stop $(docker ps -a -q)
+	docker-compose rm $(docker ps -a -q)
 	docker system prune -f
 	rm -rf vl
-	docker volume rm $(docker volume ls -q)
+	docker volume rm nestjs postgres front
