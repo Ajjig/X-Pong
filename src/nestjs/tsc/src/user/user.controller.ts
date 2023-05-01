@@ -2,18 +2,12 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpException,
   Post,
   UseGuards,
   Req,
-  Res,
-  Put,
   UploadedFile,
   UseInterceptors,
-  ParseFilePipe,
-  ParseFilePipeBuilder,
-  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -173,7 +167,7 @@ export class UserController {
     ) {
       throw new HttpException('Missing username or channel', 400);
     }
-    return this.UserChannelService.setUserAsAdminOfChannelByUsername(
+    return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
       request.user.username,
       body.new_admin,
       body.channelname,
@@ -181,7 +175,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/set_user_as_member_of_channel')
+  @Post('/set_user_as_member_of_channel') // invite new user
   async setUserAsMemberOfChannelByUsername(
     @Req() request: any,
     @Body() body: any,
@@ -197,6 +191,18 @@ export class UserController {
     return this.UserChannelService.setUserAsMemberOfChannelByUsername(
       request.user.username,
       body.new_member,
+      body.channelname,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/leave_channel')
+  async leaveChannelByUsername(@Req() request: any, @Body() body: any) {
+    if (!body || !request.user.username || !body.channelname) {
+      throw new HttpException('Missing username or channel', 400);
+    }
+    return this.UserChannelService.leaveChannelByUsername(
+      request.user.username,
       body.channelname,
     );
   }

@@ -1,3 +1,4 @@
+import { channel } from 'diagnostics_channel';
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma, PrismaClient } from '.prisma/client';
@@ -591,5 +592,109 @@ export class UserChannelService {
     return new HttpException('User unkicked', 200);
   }
 
+  async HandleChannelOwnerLeaveChannel(owner_check: any, username: string) {
+    if (owner_check == null) {
+      return new HttpException('Channel not exist', 400);
+    }
 
+    /* update the owner of the channel with the first admin 
+    of the channel if no admin exist then delete the channel*/
+    const channel = await this.prisma.channel.findUnique({
+      where: { name: owner_check.name },
+      include: { admins: true },
+    });
+
+    const firstAdmin = channel.admins.find(
+      (admin) => admin.username !== username,
+    );
+    if (firstAdmin) {
+      await this.prisma.channel.update({
+        where: { name: owner_check.name },
+        data: { owner: firstAdmin.username },
+      });
+    } else {
+      await this.prisma.channel.delete({
+        where: { name: owner_check.name },
+      });
+    }
+
+    // remove the user from the channel
+    await this.prisma.user.update({
+      where: { username: username },
+      data: {
+        channels: {
+          disconnect: { name: owner_check.name },
+        },
+        AdminOf: {
+          disconnect: { name: owner_check.name },
+        },
+      },
+    });
+
+    // remove the the new owner from kicked or banned or muted list
+    await this.prisma.channel.update({
+      where: { name: owner_check.name },
+      data: {
+        kicked: {
+          disconnect: { username: firstAdmin.username },
+        },
+        banned: {
+          disconnect: { username: firstAdmin.username },
+        },
+        muted: {
+          disconnect: { username: firstAdmin.username },
+        },
+      },
+    });
+
+    return new HttpException('User removed from channel', 200);
+  }
+
+  async leaveChannelByUsername(
+    username: string,
+    channelname: string,
+  ): Promise<any> {
+    // check if the user is a channel member or channel exist
+    const member_check = await this.prisma.user.findFirst({
+      where: {
+        username: username,
+        channels: { some: { name: channelname } },
+      },
+    });
+
+    if (member_check == null) {
+      return new HttpException(
+        'User is not a member of the channel or channel not exist',
+        400,
+      );
+    }
+
+    // check if the user is the owner of the channel
+    const owner_check = await this.prisma.channel.findFirst({
+      where: {
+        name: channelname,
+      },
+    });
+    if (owner_check.owner == username) {
+      const owner_handler = this.HandleChannelOwnerLeaveChannel(
+        owner_check,
+        username,
+      );
+    } else {
+      // remove the non owner user from the channel
+      await this.prisma.channel.update({
+        where: { name: channelname },
+        data: {
+          members: {
+            disconnect: { username: username },
+          },
+          admins: {
+            disconnect: { username: username },
+          },
+        },
+      });
+    }
+
+    return new HttpException('User removed from channel', 200);
+  }
 }
