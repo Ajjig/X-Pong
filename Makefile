@@ -19,11 +19,14 @@ build:
 down:
 	docker-compose down
 up:
-	sudo docker-compose up
+	docker-compose up
 
-fclean:
+clean: 
+	rm -rf vl
+	docker system prune -f
+
+
+fclean: down clean
 	docker-compose stop $(docker ps -a -q)
 	docker-compose rm $(docker ps -a -q)
-	docker system prune -f
-	rm -rf vl
-	docker volume rm nestjs postgres front
+	docker volume rm nestjs postgres

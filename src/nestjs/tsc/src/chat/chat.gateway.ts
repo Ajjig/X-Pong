@@ -13,10 +13,12 @@ import {
   JoinPublicChannelDto,
   PrivateMessageDto,
   PublicChannelMessageDto,
+  GetPrivateConversationsDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
+import { UserChatHistoryService } from './user.chat.history.service';
 
 @WebSocketGateway({
   cors: {
@@ -27,6 +29,7 @@ export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
     private readonly PublicChannelService: PublicChannelService,
+    private readonly UserChatHistoryService: UserChatHistoryService,
   ) {}
 
   @WebSocketServer()
@@ -184,39 +187,6 @@ export class ChatGateway {
     client.to(payload.channelName).emit('publicJoined', userdata.username);
   }
 
-  // @SubscribeMessage('leaveChannelPublic')
-
-  // @SubscribeMessage('joinChannelProtected')
-  // async joinChannelProtected(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() payload: any,
-  // ) {
-  //   const userdata = await this.chatService.jwtdecoder(client);
-  //   if (!userdata) {
-  //     client.emit('error', 'User not found');
-  //     return;
-  //   }
-  //   if (
-  //     !payload ||
-  //     !userdata.username ||
-  //     !payload.channelName ||
-  //     !payload.password
-  //   ) {
-  //     client.emit('error', 'You must provide a payload');
-  //     return;
-  //   }
-
-  //   const check_channel =
-  //     await this.PublicChannelService.checkSingleChannelExsting(
-  //       payload.channelName,
-  //     );
-  //   if (!check_channel) {
-  //     client.emit('error', 'Channel not found');
-  //     return;
-  //   }
-    
-  // }
-
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
@@ -237,6 +207,17 @@ export class ChatGateway {
       return;
     }
 
+    const flaggedUsersCheck = await this.PublicChannelService.limitFlagedUsers(
+      payload.channelName,
+      userdata.username,
+    );
+    if (flaggedUsersCheck) {
+      client.emit(
+        'error',
+        'You are not authorized to send messages to this channel',
+      );
+      return;
+    }
     // check if the user has joined the channel
     const inChannel = client.rooms.has(payload.channelName);
     if (!inChannel) {
@@ -283,6 +264,52 @@ export class ChatGateway {
     client.emit('SearchQuery', result);
   }
 
+  @SubscribeMessage('getprivateconversations')
+  async getprivateconversations(@ConnectedSocket() client: Socket) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+
+    const result =
+      await this.UserChatHistoryService.getUserPrivateConversationChatHistory(
+        userdata.username,
+      );
+    client.emit('getprivateconversations', result);
+  }
+
+  @SubscribeMessage('getchannelconversations')
+  async getchannelconversations(@ConnectedSocket() client: Socket) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    const result =
+      await this.UserChatHistoryService.getUserChannelConversationChatHistory(
+        userdata.username,
+      );
+    client.emit('getchannelconversations', result);
+  }
+
+  @SubscribeMessage('getlastedchannels')
+  async getlastedchannels(@ConnectedSocket() client: Socket) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+
+    const result = await this.PublicChannelService.latestchannels(
+      userdata.username,
+    );
+
+    client.emit('getlastedchannels', result);
+  }
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     let userdata: any = this.chatService.jwtdecoder(client);

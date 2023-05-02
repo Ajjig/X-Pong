@@ -33,3 +33,7 @@ export class PublicChannelMessage {
   username: string;
   channelName: string;
 }
+
+export class GetPrivateConversations {
+  username: string;
+}

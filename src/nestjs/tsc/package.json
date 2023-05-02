@@ -30,7 +30,7 @@
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/throttler": "^4.0.0",
     "@nestjs/websockets": "^9.3.9",
-    "@prisma/client": "^4.11.0",
+    "@prisma/client": "^4.13.0",
     "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "helmet": "^6.0.1",

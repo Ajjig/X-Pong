@@ -8,4 +8,4 @@ WORKDIR /workspace/tsc
 
 RUN npm install
 
-CMD ["tail", "-f"]
+CMD ["npm", "run", "start:dev"]

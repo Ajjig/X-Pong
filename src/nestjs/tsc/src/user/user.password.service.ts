@@ -1,6 +1,5 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { User, Prisma, PrismaClient } from '.prisma/client';
 import { compare, genSalt, hash} from 'bcrypt';
 import * as passwordValidator from 'password-validator';
 import { stat } from 'fs';

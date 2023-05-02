@@ -1,7 +1,7 @@
 import { request } from 'http';
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { User, Prisma, PrismaClient } from '.prisma/client';
+import { Prisma } from '.prisma/client';
 
 export type userStatstype = {
   achievements?: string[];
