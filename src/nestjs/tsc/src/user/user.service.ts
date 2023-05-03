@@ -182,20 +182,96 @@ export class UserService {
     }
   }
 
-  async saveMatchByUsername(username: string, match: Prisma.MatchsCreateInput) {
+  async saveMatchByUsername(username: string, match: any) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
+        include: { Userstats: true },
       });
+
+      const opp = await this.prisma.user.findUnique({
+        where: { username: match.opponent },
+      });
+
+      if (!opp) {
+        return new HttpException('Opponent not found', 400);
+      }
+
       const newMatch = await this.prisma.matchs.create({
         data: {
           user: { connect: { id: user.id } },
           result: match.result,
           opponent: match.opponent,
           map: match.map,
-          mode: match.mode,
+          mode: match.mode, // random, friendly
+          opponentUser: { connect: { id: opp.id } },
         },
       });
+
+      // if the user won the match increase his wins by 1
+      if (match.result === 'Win') {
+        const updatedUserStats = await this.prisma.userstats.update({
+          where: { userId: user.id },
+          data: { wins: user.Userstats.wins + 1 },
+        });
+      }
+      // if the user lost the match increase his losses by 1
+      if (match.result === 'Loss') {
+        const updatedUserStats = await this.prisma.userstats.update({
+          where: { userId: user.id },
+          data: { losses: user.Userstats.losses + 1 },
+        });
+      }
+
+      const LadderList: string[] = [
+        'Bronze',
+        'Silver',
+        'Gold',
+        'Platinum',
+        'Diamond',
+        'Master',
+      ];
+      const userstats = await this.prisma.userstats.findUnique({
+        where: { userId: user.id },
+      });
+      // if the user won the match increase his ladder by ladder index list
+      for (let i = 0; i < LadderList.length; i++) {
+        const threshold = (i + 1) * 5; // Set the threshold for each ladder level
+        if (userstats.wins >= threshold) {
+          const updatedUserStats = await this.prisma.userstats.update({
+            where: { userId: user.id },
+            data: { ladder: LadderList[i] },
+          });
+        }
+      }
+
+      const winThresholds = [10, 50, 100, 500];
+      const lossThresholds = [10, 50, 100, 500];
+
+      // Check for win count achievements
+      for (const threshold of winThresholds) {
+        if (userstats.wins >= threshold) {
+          await this.prisma.userstats.update({
+            where: { userId: user.id },
+            data: {
+              achievements: { push: `Winning Streak: Win ${threshold} games.` },
+            },
+          });
+        }
+      }
+
+      // Check for loss count achievements
+      for (const threshold of lossThresholds) {
+        if (userstats.losses >= threshold) {
+          await this.prisma.userstats.update({
+            where: { userId: user.id },
+            data: {
+              achievements: { push: `Tough Losses: Lose ${threshold} games.` },
+            },
+          });
+        }
+      }
+
       return new HttpException('Match saved', 200);
     } catch (e) {
       console.log(e);

@@ -16,6 +16,7 @@ import { InfoUserService } from './info.user.service';
 import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
+import { match } from 'assert';
 
 @Controller('user')
 export class UserController {
@@ -122,12 +123,19 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('/save_match')
   async saveMatchByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username || !body.match) {
+    if (
+      !body ||
+      !request.user.username ||
+      !body.result ||
+      !body.opponent ||
+      !body.map ||
+      !body.mode
+    ) {
       throw new HttpException('Missing username or match', 400);
     }
     return this.userService.saveMatchByUsername(
       request.user.username,
-      body.match,
+      body,
     );
   }
 

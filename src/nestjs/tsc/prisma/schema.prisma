@@ -21,7 +21,8 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
-  Matchs    Matchs[] // one to many
+  Matchs    Matchs[] @relation("Matchs")
+  OpponentMatchs Matchs[] @relation("OpponentMatchs")
   Userstats Userstats? // one to one
 
   Friends Friends[] @relation("UserFriends") // many to many
@@ -125,8 +126,12 @@ model Matchs {
   updatedAt DateTime @updatedAt
 
   // relations
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation("Matchs",fields: [userId], references: [id])
   userId Int
+
+  opponentUser   User @relation("OpponentMatchs",fields: [opponentUserId], references: [id])
+  opponentUserId Int
+  
   // relations
 }
 
