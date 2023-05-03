@@ -152,7 +152,8 @@ CREATE TABLE public."Matchs" (
     mode text DEFAULT 'Undefined'::text NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updatedAt" timestamp(3) without time zone NOT NULL,
-    "userId" integer NOT NULL
+    "userId" integer NOT NULL,
+    "opponentUserId" integer NOT NULL
 );
 
 
@@ -477,7 +478,10 @@ COPY public."Friends" (id, "createdAt", "updatedAt", username, "userId", "friend
 -- Data for Name: Matchs; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Matchs" (id, result, opponent, map, mode, "createdAt", "updatedAt", "userId") FROM stdin;
+COPY public."Matchs" (id, result, opponent, map, mode, "createdAt", "updatedAt", "userId", "opponentUserId") FROM stdin;
+1	Win	test	basic	random	2023-05-03 14:49:45.766	2023-05-03 14:49:45.766	1	2
+2	Win	test	basic	random	2023-05-03 14:49:54.988	2023-05-03 14:49:54.988	1	2
+3	Win	test	basic	random	2023-05-03 14:49:56.346	2023-05-03 14:49:56.346	1	2
 \.
 
 
@@ -506,7 +510,7 @@ COPY public."User" (id, email, name, username, "avatarUrl", "oauthId", "istwoFac
 --
 
 COPY public."Userstats" (id, achievements, wins, losses, ladder, "createdAt", "updatedAt", "userId") FROM stdin;
-1	{}	0	0	bronze	2023-03-19 08:09:13.937	2023-03-19 08:09:13.937	1
+1	{}	3	0	bronze	2023-03-19 08:09:13.937	2023-05-03 14:49:56.354	1
 \.
 
 
@@ -587,6 +591,7 @@ e836674e-5e3a-4f2c-a135-b578e8868e2c	c6c6cd0007c704d5ea02e258efee7595dc07f60ec40
 19c61015-1bcc-40bf-abd8-dcb6e7dc884b	2b38877277d21051ac4f28eb9d1ab346a5e67bcde3ef08eff2abc7df53173606	2023-03-19 08:08:22.267069+00	20230318101241_ff	\N	\N	2023-03-19 08:08:22.262627+00	1
 ce37542a-2a7e-4fa7-9c45-d09319ca74de	e3321fe83c3ba4e50fb978c41aa8f8034fbe8b4c94428b4b378a2f60bb566dd2	2023-03-19 08:08:26.387248+00	20230319080826_deplot	\N	\N	2023-03-19 08:08:26.383411+00	1
 4289f97b-93f4-4462-ae54-6b17085ed6ba	40cb04d536645a6dce9192a879f8cb4710ab8096746ee39dc6b39be80068fc87	2023-03-19 16:18:42.716761+00	20230319161842_	\N	\N	2023-03-19 16:18:42.706559+00	1
+ad3ea342-71c2-49fc-a6c4-6b68d09a59ba	96236c3c49ee2db123b95f0b5d3a02f0ac4b90845d52294e2c587ba7c214a845	2023-05-03 14:49:00.745874+00	20230503142457_oppo_matvhs	\N	\N	2023-05-03 14:49:00.741122+00	1
 \.
 
 
@@ -615,7 +620,7 @@ SELECT pg_catalog.setval('public."Friends_id_seq"', 1, false);
 -- Name: Matchs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Matchs_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Matchs_id_seq"', 3, true);
 
 
 --
@@ -858,6 +863,14 @@ ALTER TABLE ONLY public."DirectMessage"
 
 ALTER TABLE ONLY public."Friends"
     ADD CONSTRAINT "Friends_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Matchs Matchs_opponentUserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Matchs"
+    ADD CONSTRAINT "Matchs_opponentUserId_fkey" FOREIGN KEY ("opponentUserId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
