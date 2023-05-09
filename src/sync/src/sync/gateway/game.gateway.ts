@@ -24,7 +24,18 @@ import { makeId } from "../utils/generate.id";
 
 
 export class Game {
-    constructor (private readonly id : string, private readonly client1 , private readonly client2 ) {
+    id : string;
+    player1Username : string;
+    player2Username : string;
+    client1 : any;
+    client2 : any;
+
+    constructor ( data : any ) {
+        this.id = data.id;
+        this.player1Username = data.player1Username;
+        this.player2Username = data.player2Username;
+        this.client1 = data.client1;
+        this.client2 = data.client2;
         try {
           this.client1.join(this.id);
           this.client2.join(this.id);
@@ -35,8 +46,8 @@ export class Game {
     }
 
     emitMatch() {
-        this.client1.to(this.id).emit('match', { roomName : this.id, player : 1 });
-        this.client2.to(this.id).emit('match', { roomName : this.id, player : 2 });
+        this.client1.to(this.id).emit('match', { roomName : this.id, player : 1, opponentName : this.player2Username });
+        this.client2.to(this.id).emit('match', { roomName : this.id, player : 2, opponentName : this.player1Username });
     }
 
     emitter(client : any, data: MoveEventDto) : void {
@@ -76,7 +87,13 @@ export class GameGateway {
       let id = makeId(this.games);
       this.logger.log(`Match '${id}' created`);
       this.logger.log(`${p1.data.username} X ${p2.data.username}`);
-      this.games.set(id, new Game(id, p1.client, p2.client));
+      this.games.set(id, new Game({
+        id,
+        client1 : p1.client,
+        client2 : p2.client,
+        player1Username : p1.data.username,
+        player2Username : p2.data.username
+      }));
     }
   }
 
@@ -101,6 +118,21 @@ export class GameGateway {
   handleInit(client : Socket, data : InitEventDto) : void {
     this.players.set(data.username, client);
     this.logger.log(`Player ${data.username} connected to the game`);
+  }
+
+  /////////////////////////////
+  getUserName(client) : string {
+    let username : string;
+    this.players.forEach((value : any, key : string) => {
+      if (value === client) {
+        username = key;
+      }
+    });
+    if (username) {
+      return username;
+    } else {
+      return 'Unknown';
+    }
   }
 
 }
