@@ -1,8 +1,5 @@
 export class MoveEventDto {
-    matchId : string;
-    moveX : number;
-    moveY : number;
-    moveZ : number;
-    moveType : number;
+    room : string;
+    data : any
     // ... more fields here
 }
