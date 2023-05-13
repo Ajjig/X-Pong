@@ -1,4 +1,4 @@
-import { Logger } from "@nestjs/common";
+import { Logger, UseGuards } from "@nestjs/common";
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { Socket } from "socket.io-client"
@@ -7,6 +7,7 @@ import { InitEventDto } from "../dto/init.event.dto";
 import { JoinEventDto } from "../dto/join.event.dto";
 import { MoveEventDto } from "../dto/move.event.dio";
 import { makeId } from "../utils/generate.id";
+import { AuthService } from "src/auth/auth.service";
 
 // export type UserFilted = {
 //
@@ -61,15 +62,16 @@ export class Game {
 
 }
 
-@WebSocketGateway(3001)
+@WebSocketGateway(3069)
 export class GameGateway {
 
-  constructor (/* private readonly authService : AuthService */) {}
+  constructor (private readonly authService : AuthService) {}
 
   private games = new Map<string, Game>();
   private queue = [];
   private readonly logger = new Logger('MATCH-MAKING');
   private readonly players = new Map<string, any>();
+
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
