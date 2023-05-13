@@ -8,6 +8,7 @@ import { JoinEventDto } from "../dto/join.event.dto";
 import { MoveEventDto } from "../dto/move.event.dio";
 import { makeId } from "../utils/generate.id";
 import { AuthService } from "src/auth/auth.service";
+import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 
 // export type UserFilted = {
 //
@@ -62,6 +63,7 @@ export class Game {
 
 }
 
+@UseGuards(JwtAuthGuard)
 @WebSocketGateway(3069)
 export class GameGateway {
 
