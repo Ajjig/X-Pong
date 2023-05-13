@@ -2,6 +2,8 @@ local=$(HOME)/.local
 
 .PHONY: init
 
+.DEFAULT_GOAL := all
+
 all: build up
 	@echo "All done"
 
@@ -27,6 +29,8 @@ clean:
 
 
 fclean: down clean
-	docker-compose stop $(docker ps -a -q)
-	docker-compose rm $(docker ps -a -q)
-	docker volume rm nestjs postgres
+	-@ docker-compose stop $(docker ps -a -q)
+	-@ docker-compose rm $(docker ps -a -q)
+	-@ docker volume rm nestjs postgres
+	-@ docker rmi $(docker images -q | tr "\n" " ")
+	
