@@ -1,7 +1,7 @@
-import { Game } from "../gateway/game.gateway";
+import { GameService } from "../gateway/game.service";
 
 
-export function makeId(games : Map<string, Game>) : string {
+export function makeId(games : Map<string, GameService>) : string {
     let result = '';
     let length = 10;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
