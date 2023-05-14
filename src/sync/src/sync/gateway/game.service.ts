@@ -12,15 +12,17 @@
 //
 // };
 
+import { Logger } from "@nestjs/common";
 import { MoveEventDto } from "../dto/move.event.dio";
 
 
 export class GameService {
-    id : string;
-    player1Username : string;
-    player2Username : string;
-    client1 : any;
-    client2 : any;
+    private readonly id : string;
+    private readonly player1Username : string;
+    private readonly player2Username : string;
+    private readonly client1 : any;
+    private readonly client2 : any;
+    private readonly logger = new Logger('GAME-SERVICE');
 
     constructor ( data : any ) {
         this.id = data.id;
@@ -40,14 +42,17 @@ export class GameService {
     emitMatch() {
         this.client1.to(this.id).emit('match', { roomName : this.id, player : 1, opponentName : this.player2Username });
         this.client2.to(this.id).emit('match', { roomName : this.id, player : 2, opponentName : this.player1Username });
-    }
+        this.logger.log(`${this.player1Username} X ${this.player2Username}`);
+      }
 
     emitter(client : any, data: MoveEventDto) : void {
-        if (client === this.client1) {
-          this.client2.to(this.id).emit('move', data.data);
+      if (client === this.client1) {
+          this.logger.log(`Player 1 '${this.player1Username}' moved`);
+          this.client1.to(this.id).emit('move', data.data);
         }
         else {
-          this.client1.to(this.id).emit('move', data.data);
+          this.logger.log(`Player 2 '${this.player2Username}' moved`);
+          this.client2.to(this.id).emit('move', data.data);
         }
     }
 

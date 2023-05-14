@@ -36,7 +36,6 @@ export class GameGateway {
       let p2 = this.queue.shift();
       let id = makeId(this.games);
       this.logger.log(`Match '${id}' created`);
-      this.logger.log(`${p1.data.username} X ${p2.data.username}`);
       this.games.set(id, new GameService({
         id,
         client1 : p1.client,
@@ -51,7 +50,6 @@ export class GameGateway {
   handleMove(client : Socket, data : MoveEventDto) : void {
     try {
       let game : GameService = this.games.get(data.room);
-      this.logger.log(typeof game);
       game.emitter(client, data);
     }
     catch (e) {
