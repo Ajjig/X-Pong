@@ -19,7 +19,7 @@ export class GameGateway {
   private games = new Map<string, GameService>();
   private queue = [];
   private readonly logger = new Logger('MATCH-MAKING');
-  private readonly players = new Map<string, any>();
+  private readonly players = new Map<string, Socket>();
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
@@ -68,21 +68,25 @@ export class GameGateway {
     this.logger.log(`Player ${data.username} connected to the game`);
   }
 
+  @SubscribeMessage('disconnect')
+  handleDisconnect(client : Socket) : void {
+    let username = this.getUserNameBySocket(client);
+    if (username) {
+      this.players.delete(username);
+      this.logger.log(`Player ${username} disconnected`);
+    }
+  }
 
 
   /////////////////////////////
-  getUserName(client) : string {
-    let username : string;
+  getUserNameBySocket(client: Socket) : string | null {
+    let username : string | null = null;
     this.players.forEach((value : any, key : string) => {
       if (value === client) {
         username = key;
       }
     });
-    if (username) {
-      return username;
-    } else {
-      return 'Unknown';
-    }
+    return username;
   }
 
 }
