@@ -77,6 +77,15 @@ export class GameGateway {
     }
   }
 
+  @SubscribeMessage('endgame')
+  handleEndGame(client : Socket, data : { room : string }) : void {
+    if (!data || !data.room) return;
+
+    const isRemoved = this.games.delete(data.room);
+    if (isRemoved) {
+      this.logger.log(`Match '${data.room}' ended`);
+    }
+  }
 
   /////////////////////////////
   getUserNameBySocket(client: Socket) : string | null {
