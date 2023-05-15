@@ -50,6 +50,10 @@ export class GameGateway {
   handleMove(client : Socket, data : MoveEventDto) : void {
     try {
       let game : GameService = this.games.get(data.room);
+      if (!game) {
+        this.logger.error(`Game '${data.room}' not found`);
+        return;
+      }
       game.emitter(client, data);
     }
     catch (e) {
