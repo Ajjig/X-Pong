@@ -21,7 +21,7 @@ build:
 down:
 	docker compose down
 up:
-	docker compose up
+	docker compose up --build
 
 clean: 
 	rm -rf vl
