@@ -1,0 +1,3 @@
+tsc/node_modules
+./tsc/node_modules/
+./tsc/node_modules/@types
