@@ -15,13 +15,13 @@ init:
 
 build:
 	@mkdir -p vl/nestjs vl/postgres vl/front
-	docker-compose build
+	docker compose build
 	@echo "Build complete"
 
 down:
-	docker-compose down
+	docker compose down
 up:
-	docker-compose up
+	docker compose up
 
 clean: 
 	rm -rf vl
@@ -29,8 +29,8 @@ clean:
 
 
 fclean: down clean
-	-@ docker-compose stop $(docker ps -a -q)
-	-@ docker-compose rm $(docker ps -a -q)
+	-@ docker compose stop $(docker ps -a -q)
+	-@ docker compose rm $(docker ps -a -q)
 	-@ docker volume rm nestjs postgres
-	-@ docker rmi $(docker images -q | tr "\n" " ")
+	-@ docker rmi $(shell docker images -q | tr "\n" " ")
 	
