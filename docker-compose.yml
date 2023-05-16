@@ -7,13 +7,13 @@ networks:
 
 # volumes:
   
-  # nestjs:
-  #   driver: local
-  #   name: nestjs
-  #   driver_opts:
-  #     type: none
-  #     device: /Users/majjig/goinfre/ft_transcendence/src/nestjs
-  #     o: bind
+#   nestjs:
+#     driver: local
+#     name: nestjs
+#     driver_opts:
+#       type: none
+#       device: /goinfre/majjig/ft_transcendence/src/nestjs
+#       o: bind
   
   # # front:
   # #   driver: local
