@@ -6,6 +6,6 @@ COPY . /workspace
 
 WORKDIR /workspace/tsc
 
-RUN npm install
+RUN rm -rf node_modules && npm install
 
 CMD ["npm", "run", "start:dev"]
