@@ -2,6 +2,8 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+
 
 
 @Injectable()
@@ -59,9 +61,17 @@ export class AuthService {
     return user;
   }
 
-  async login(user: any) {
+  // async login(user: any) {
+  //   const payload = { name: user.name, username: user.username, sub: user.id };
+  //   const userData = await this.findUserByUsername(user.username);
+  //   return { access_token: this.JwtService.sign(payload), data: userData};
+  // }
+
+  async login(user: any, res: Response) {
     const payload = { name: user.name, username: user.username, sub: user.id };
     const userData = await this.findUserByUsername(user.username);
-    return { access_token: this.JwtService.sign(payload), data: userData};
+    const token = this.JwtService.sign(payload);
+    res.cookie('jwt', token, { httpOnly: true });
+    return { access_token: token, data: userData};
   }
 }

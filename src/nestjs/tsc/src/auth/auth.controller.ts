@@ -1,6 +1,7 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Res,  Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -12,7 +13,7 @@ export class AuthController {
 
   @Get('42/callback')
   @UseGuards(AuthGuard('42'))
-  async fortyTwoAuthCallback(@Req() req) {
-    return this.AuthService.login(req.user);
+  async fortyTwoAuthCallback(@Req() req, @Res({ passthrough: true }) res : Response) {
+    return this.AuthService.login(req.user, res);
   }
 }
