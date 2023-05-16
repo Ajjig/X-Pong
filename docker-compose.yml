@@ -32,17 +32,6 @@ networks:
   #     o: bind
 
 services:
-  
-  # front:
-    # container_name: front
-    # build: ./src/front
-    # networks:
-    #   - warper-network
-    # volumes:
-    #   - front:/workspace
-    # ports:
-    #   - "3001:3001"
-    # restart: unless-stopped
 
   nestjs:
     container_name: nestjs
