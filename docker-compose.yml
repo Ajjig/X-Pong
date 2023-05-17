@@ -5,15 +5,15 @@ networks:
     name: warper-network
     driver: bridge
 
-volumes:
+# volumes:
   
-  nestjs:
-    driver: local
-    name: nestjs
-    driver_opts:
-      type: none
-      device: /Users/majjig/Desktop/vl
-      o: bind
+#   nestjs:
+#     driver: local
+#     name: nestjs
+#     driver_opts:
+#       type: none
+#       device: /Users/majjig/Desktop/vl
+#       o: bind
   
   # # front:
   # #   driver: local
@@ -33,19 +33,19 @@ volumes:
 
 services:
 
-  nestjs:
-    container_name: nestjs
-    build: ./src/nestjs
-    env_file:
-      - .env
-    networks:
-      - warper-network
-    volumes:
-      - nestjs:/workspace
-    ports:
-      - "3000:3000"
-      - "5555:5555"
-    restart: unless-stopped
+  # nestjs:
+  #   container_name: nestjs
+  #   build: ./src/nestjs
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - warper-network
+  #   volumes:
+  #     - nestjs:/workspace
+  #   ports:
+  #     - "3000:3000"
+  #     - "5555:5555"
+  #   restart: unless-stopped
   
   postgres:
     container_name: postgres
@@ -54,6 +54,8 @@ services:
       - .env
     networks:
       - warper-network
+    ports:
+      - "5432:5432"
     # volumes:
     #   - postgres:/docker-entrypoint-initdb.d
     environment:
