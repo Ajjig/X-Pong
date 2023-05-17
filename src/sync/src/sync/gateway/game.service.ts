@@ -1,59 +1,98 @@
-// export type UserFilted = {
-//
-//   id: number;
-//   email: string;
-//   name: string;
-//   username: string | null;
-//   avatarUrl: string;
-//   onlineStatus: string;
-//   blockedUsernames: string[];
-//   createdAt: Date;
-//   updatedAt: Date;
-//
-// };
-
-import { Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { Server } from "socket.io";
+import { Socket } from "socket.io-client"
+import { DataDto } from "../dto/data.dto";
+import { InitEventDto } from "../dto/init.event.dto";
+import { JoinEventDto } from "../dto/join.event.dto";
 import { MoveEventDto } from "../dto/move.event.dio";
+import { makeId } from "../utils/generate.id";
+import { Game } from "./game";
 
-
+@Injectable()
 export class GameService {
-    private readonly id : string;
-    private readonly player1Username : string;
-    private readonly player2Username : string;
-    private readonly client1 : any;
-    private readonly client2 : any;
-    private readonly logger = new Logger('GAME-SERVICE');
 
-    constructor ( data : any ) {
-        this.id = data.id;
-        this.player1Username = data.player1Username;
-        this.player2Username = data.player2Username;
-        this.client1 = data.client1;
-        this.client2 = data.client2;
-        try {
-          this.client1.join(this.id);
-          this.client2.join(this.id);
-        } catch (e) {
-          // console.log(e);
-        }
-        this.emitMatch();
+    constructor (/* private readonly authService : AuthService */) {}
+  
+    private games = new Map<string, Game>();
+    private queue = [];
+    private readonly logger = new Logger('MATCH-MAKING');
+    private readonly players = new Map<string, Socket>();
+  
+    onModuleInit() {
+      this.logger.log('GAME GATEWAY INIT');
     }
-
-    emitMatch() {
-        this.client1.to(this.id).emit('match', { roomName : this.id, player : 1, opponentName : this.player2Username });
-        this.client2.to(this.id).emit('match', { roomName : this.id, player : 2, opponentName : this.player1Username });
-        this.logger.log(`${this.player1Username} X ${this.player2Username}`);
+  
+  
+    handleMatchmaking(client : Socket, data : JoinEventDto) : void {
+      this.queue.push({ client, data });
+      this.logger.log(`Player ${data.username} waiting for an opponent`);
+      if (this.queue.length >= 2) {
+        let p1 = this.queue.shift();
+        let p2 = this.queue.shift();
+        let id = makeId(this.games);
+        this.logger.log(`Match '${id}' created`);
+        this.games.set(id, new Game({
+          id,
+          client1 : p1.client,
+          client2 : p2.client,
+          player1Username : p1.data.username,
+          player2Username : p2.data.username
+        }));
       }
+    }
+  
+    handleMove(client : Socket, data : MoveEventDto) : void {
+      try {
+        let game : Game = this.games.get(data.room);
+        if (!game) {
+          this.logger.error(`Game '${data.room}' not found`);
+          return;
+        }
+        game.emitter(client, data);
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+    }
+  
+    handleMessage(client : Socket, data : string) : void {
+      this.logger.log(`Message from ${client.id} : ${data}`);
+    }
+  
 
-    emitter(client : any, data: MoveEventDto) : void {
-      if (client === this.client1) {
-          this.logger.log(`Player 1 '${this.player1Username}' moved`);
-          this.client1.to(this.id).emit('move', data.data);
-        }
-        else {
-          this.logger.log(`Player 2 '${this.player2Username}' moved`);
-          this.client2.to(this.id).emit('move', data.data);
-        }
+    handleInit(client : Socket, data : InitEventDto) : void {
+      this.players.set(data.username, client);
+      this.logger.log(`Player ${data.username} connected to the game`);
     }
 
-}
+    handleDisconnect(client : Socket) : void {
+      if (!client) return;
+      let username = this.getUserNameBySocket(client);
+      if (username) {
+        this.players.delete(username);
+        this.logger.log(`Player ${username} disconnected`);
+      }
+    }
+  
+    handleEndGame(client : Socket, data : { room : string }) : void {
+      if (!data || !data.room) return;
+  
+      const isRemoved = this.games.delete(data.room);
+      if (isRemoved) {
+        this.logger.log(`Match '${data.room}' ended`);
+      }
+    }
+  
+    /////////////////////////////
+    getUserNameBySocket(client: Socket) : string | null {
+      let username : string | null = null;
+      this.players.forEach((value : any, key : string) => {
+        if (value === client) {
+          username = key;
+        }
+      });
+      return username;
+    }
+  
+  }
