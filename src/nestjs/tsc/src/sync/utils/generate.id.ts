@@ -1,4 +1,4 @@
-import { Game } from "../gateway/game.gateway";
+import { Game } from "../gateway/game";
 
 
 export function makeId(games : Map<string, Game>) : string {
