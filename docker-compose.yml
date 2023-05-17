@@ -5,15 +5,15 @@ networks:
     name: warper-network
     driver: bridge
 
-# volumes:
+volumes:
   
-#   nestjs:
-#     driver: local
-#     name: nestjs
-#     driver_opts:
-#       type: none
-#       device: /goinfre/majjig/ft_transcendence/src/nestjs
-#       o: bind
+  nestjs:
+    driver: local
+    name: nestjs
+    driver_opts:
+      type: none
+      device: /Users/majjig/Desktop/vl
+      o: bind
   
   # # front:
   # #   driver: local
@@ -40,8 +40,8 @@ services:
       - .env
     networks:
       - warper-network
-    # volumes:
-    #   - nestjs:/workspace
+    volumes:
+      - nestjs:/workspace
     ports:
       - "3000:3000"
       - "5555:5555"
