@@ -7,13 +7,14 @@ import { join } from 'path';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+      cors: {
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
+    },
+  });
   app.useStaticAssets(join(__dirname, '..', 'public'));
   // app.use(cookieParser());
-  app.enableCors({
-    credentials: true,
-    origin: process.env.FRONTEND_URL,
-  })
   await app.listen(3000);
 }
 bootstrap();
