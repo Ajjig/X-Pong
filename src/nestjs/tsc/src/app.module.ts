@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GameModule } from './sync/game.module';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { join } from 'path';
     ChatModule,
     AuthModule,
     UserModule,
+    GameModule
   ],
   controllers: [AppController],
   providers: [AppService],
