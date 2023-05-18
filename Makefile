@@ -4,7 +4,7 @@ local=$(HOME)/.local
 
 .DEFAULT_GOAL := all
 
-all: build up
+all: up
 	@echo "All done"
 
 init:
@@ -14,8 +14,7 @@ init:
 	npm install -g @nestjs/cli
 
 build:
-	@mkdir -p vl/nestjs vl/postgres vl/front
-	docker compose build
+	docker compose --build
 	@echo "Build complete"
 
 down:
@@ -24,7 +23,6 @@ up:
 	docker compose up --build
 
 clean: 
-	rm -rf vl
 	docker system prune -f
 
 
