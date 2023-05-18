@@ -83,16 +83,16 @@ export class UserService {
     }
   }
 
-  async getUserDataByUsername(username: string) {
+  async getUserDataByUsername(username: string, reqUsername: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
         include: {
           Userstats: true,
-          Matchs: true,
-          Friends: true,
-          channels: true,
-          AdminOf: true,
+          Matchs: (username === reqUsername) ? true : false,
+          Friends: (username === reqUsername) ? true : false, // Send extra data if user is logged in
+          channels: (username === reqUsername) ? true : false,
+          AdminOf: (username === reqUsername) ? true : false,
         }, // add friends and ... later
       });
       return user;
