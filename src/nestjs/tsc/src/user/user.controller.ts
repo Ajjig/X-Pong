@@ -8,6 +8,9 @@ import {
   Req,
   UploadedFile,
   UseInterceptors,
+  Param,
+  Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -76,12 +79,12 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/get_userdata')
-  async getUserDataByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username) {
-      throw new HttpException('Missing username', 400);
+  @Get('/:username')
+  async getUserDataByUsername(@Req() request: any, @Param('username') username: string) {
+    if (!username) {
+      throw new BadRequestException('Missing username');
     }
-    return this.userService.getUserDataByUsername(request.user.username);
+    return this.userService.getUserDataByUsername(username, request.user.username);
   }
 
   @UseGuards(JwtAuthGuard)
