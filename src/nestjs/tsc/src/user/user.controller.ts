@@ -22,6 +22,9 @@ import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { UpdateUsernameDto } from './dto/update.username.dto';
+import { FriendDto } from './dto/friend.dto';
+import { CreateChannelDto } from './dto/create.channel.dto';
+import { Prisma } from '.prisma/client';
 
 @Controller('user')
 export class UserController {
@@ -51,9 +54,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/set_confirmed')
-  async setProfileConfirmedByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username) {
-      throw new HttpException('Missing username', 400);
+  async setProfileConfirmedByUsername(@Req() request: any) {
+    if (!request.user.username) {
+      throw new BadRequestException();
     }
     return this.userService.setProfileConfirmedByUsername(
       request.user.username,
@@ -101,8 +104,9 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/add_friend')
-  async addFriendByUsername(@Req() request: any, @Body() body: any) {
+  async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
     if (!body || !request.user.username || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -113,8 +117,9 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/accept_friend_request')
-  async acceptFriendRequestByUsername(@Req() request: any, @Body() body: any) {
+  async acceptFriendRequestByUsername(@Req() request: any, @Body() body: FriendDto) {
     if (!body || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -125,8 +130,9 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/block_friend')
-  async blockFriendByUsername(@Req() request: any, @Body() body: any) {
+  async blockFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
     if (!body || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -167,13 +173,13 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create_channel')
-  async createChannelByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username || !body.channel) {
+  async createChannelByUsername(@Req() request: any, @Body() body: Prisma.ChannelCreateInput) {
+    if (!body || !request.user.username || !body) {
       throw new HttpException('Missing username or channel', 400);
     }
     return this.UserChannelService.createChannelByUsername(
       request.user.username,
-      body.channel,
+      body,
     );
   }
 
