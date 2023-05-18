@@ -11,6 +11,8 @@ import {
   Param,
   Logger,
   BadRequestException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -19,7 +21,7 @@ import { InfoUserService } from './info.user.service';
 import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
-import { match } from 'assert';
+import { UpdateUsernameDto } from './dto/update.username.dto';
 
 @Controller('user')
 export class UserController {
@@ -32,10 +34,11 @@ export class UserController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_username') // change username
   async setProfileUsernameByusername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: UpdateUsernameDto,
   ): Promise<HttpException> {
     if (!body || !request.user.username || !body.new_username) {
       throw new HttpException('Missing username or name', 400);
