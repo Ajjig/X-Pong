@@ -72,6 +72,6 @@ export class AuthService {
     const userData = await this.findUserByUsername(user.username);
     const token = this.JwtService.sign(payload);
     res.cookie('jwt', token, { httpOnly: true });
-    return { access_token: token, data: userData};
+    res.redirect('http://localhost:3001/auth/42');
   }
 }
