@@ -79,6 +79,16 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Req() request: any) {
+    if (!request.user.username) {
+      throw new BadRequestException('Missing username');
+    }
+    const username = request.user.username;
+    return this.userService.getUserDataByUsername(username, username);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/:username')
   async getUserDataByUsername(@Req() request: any, @Param('username') username: string) {
     if (!username) {
