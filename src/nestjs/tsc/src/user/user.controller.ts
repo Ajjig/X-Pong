@@ -14,6 +14,7 @@ import {
   ValidationPipe,
   Logger,
   Res,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -43,6 +44,16 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async getAllUsers(@Req() request: any) {
     new Logger().log(request.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('id/:uid')
+  async getUserById(@Param('uid') uid : string) {
+    const user = await this.authService.findUserById(uid);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
