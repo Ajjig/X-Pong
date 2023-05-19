@@ -109,7 +109,6 @@ export class AuthService {
 
     try {
       const payload = { username: user.username, uid: user.id };
-      this.logger.log(user);
       const token = this.JwtService.sign(payload);
       res.cookie('jwt', token, { httpOnly: true });
       res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
@@ -125,7 +124,7 @@ export class AuthService {
 
   async updateProfileAndToken(user: any, res: Response) : Promise<void> {
     const payload = { username: user.username, uid: user.id};
-    Logger.warn(`Updated JWT for ${user.username}`);
+    this.logger.warn(`Updated JWT for ${user.username}`);
     const token = this.JwtService.sign(payload);
     res.cookie('jwt', token, { httpOnly: true });
   }
