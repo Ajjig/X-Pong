@@ -27,7 +27,7 @@ export class UserService {
         where: { username: username },
         data: { username: new_username },
       });
-      return user != null;
+      return user !== null;
     } catch (e) {
       return false;
     }

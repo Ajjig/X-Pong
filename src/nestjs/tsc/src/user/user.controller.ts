@@ -54,8 +54,8 @@ export class UserController {
       request.user.username,
       body.new_username,
     );
-    if (!isUpdates) {
-      this.authService.updateProfileAndToken(request.user, res);
+    if (isUpdates) {
+      return this.authService.updateProfileAndToken(request.user, res);
     } else {
       throw new HttpException('Error user not updated', 400);
     }
