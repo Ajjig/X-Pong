@@ -1,5 +1,5 @@
 import { request } from 'http';
-import { Injectable, HttpException, HttpCode } from '@nestjs/common';
+import { Injectable, HttpException, HttpCode, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 
@@ -84,21 +84,22 @@ export class UserService {
   }
 
   async getUserDataByUsername(username: string, reqUsername: string) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { username: username },
-        include: {
-          Userstats: true,
-          Matchs: (username === reqUsername) ? true : false,
-          Friends: (username === reqUsername) ? true : false, // Send extra data if user is logged in
-          channels: (username === reqUsername) ? true : false,
-          AdminOf: (username === reqUsername) ? true : false,
-        }, // add friends and ... later
-      });
+    const isSameUser = username === reqUsername;
+
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+      include: {
+        Userstats: true,
+        Matchs: isSameUser,
+        Friends: isSameUser, // Send extra data if user is logged in
+        channels: isSameUser,
+        AdminOf: isSameUser,
+      }, // add friends and ... later
+    });
+    if (user) {
       return user;
-    } catch (e) {
-      return new HttpException(e.meta, 400);
     }
+    return new NotFoundException(`User ${username} not found`);
   }
 
   async addFriendByUsername(username: string, friendUsername: string) {
