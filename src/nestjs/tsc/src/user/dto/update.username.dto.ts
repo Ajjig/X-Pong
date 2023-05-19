@@ -12,7 +12,8 @@ export class UpdateUsernameDto {
             'set_password', 'set_username', 'set_email', 'set_avatar', 'set_2fa',
             'set_origine', 'set_ladder', 'set_achievements', 'set_wins', 'set_losses',
             'set_online_status', 'set_blocked_usernames', 'set_oauth_id', 'set_oauth_provider',
-        ]
+        ],
+        { message: 'This username is not allowed.' },
     )
     new_username: string;
 }
