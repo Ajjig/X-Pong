@@ -1,5 +1,5 @@
 import { request } from 'http';
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, HttpCode } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 
@@ -19,15 +19,15 @@ export class UserService {
   async setProfileUsernameByusername(
     username: string,
     new_username: string,
-  ): Promise<HttpException> {
+  ): Promise<boolean> {
     try {
       const user = await this.prisma.user.update({
         where: { username: username },
         data: { username: new_username },
       });
-      return new HttpException('Username updated', 200);
+      return true;
     } catch (e) {
-      return new HttpException(e.meta, 400);
+      return false;
     }
   }
 

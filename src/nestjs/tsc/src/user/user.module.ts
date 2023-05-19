@@ -10,6 +10,8 @@ import { InfoUserService } from './info.user.service';
 import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { MulterModule } from '@nestjs/platform-express';
 import {UploadService} from './upload.service';
+import { AuthService } from 'src/auth/auth.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import {UploadService} from './upload.service';
       ttl: 10,
       limit: 5,
     }),
+    AuthModule,
   ],
   controllers: [UserController],
   providers: [

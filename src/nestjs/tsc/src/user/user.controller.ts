@@ -9,10 +9,11 @@ import {
   UploadedFile,
   UseInterceptors,
   Param,
-  Logger,
   BadRequestException,
   UsePipes,
   ValidationPipe,
+  Logger,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -23,8 +24,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { UpdateUsernameDto } from './dto/update.username.dto';
 import { FriendDto } from './dto/friend.dto';
-import { CreateChannelDto } from './dto/create.channel.dto';
 import { Prisma } from '.prisma/client';
+import { Response } from 'express';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('user')
 export class UserController {
@@ -34,22 +36,30 @@ export class UserController {
     private readonly InfoUserService: InfoUserService,
     private readonly TwoFactorAuthService: TwoFactorAuthService,
     private readonly UploadService: UploadService,
+    private readonly authService: AuthService,
   ) {}
+
+  @Get('')
+  @UseGuards(JwtAuthGuard)
+  async getAllUsers(@Req() request: any) {
+    new Logger().log(request.user);
+  }
 
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_username') // change username
-  async setProfileUsernameByusername(
-    @Req() request: any,
-    @Body() body: UpdateUsernameDto,
-  ): Promise<HttpException> {
-    if (!body || !request.user.username || !body.new_username) {
-      throw new HttpException('Missing username or name', 400);
-    }
-    return this.userService.setProfileUsernameByusername(
+  async setProfileUsernameByusername(@Req() request: any, @Body() body: UpdateUsernameDto, @Res() res: Response) {
+
+    const isUpdates = this.userService.setProfileUsernameByusername(
       request.user.username,
       body.new_username,
     );
+    if (!isUpdates) {
+      this.authService.updateProfileAndToken(request.user, res);
+    } else {
+      throw new HttpException('Error user not updated', 400);
+    }
+
   }
 
   @UseGuards(JwtAuthGuard)
