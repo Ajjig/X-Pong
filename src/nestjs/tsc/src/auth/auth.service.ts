@@ -102,7 +102,6 @@ export class AuthService {
 
     try {
       const payload = { name: user.name, username: user.username, sub: user.id };
-      const userData = await this.findUserByUsername(user.username);
       const token = this.JwtService.sign(payload);
       res.cookie('jwt', token, { httpOnly: true });
       res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
