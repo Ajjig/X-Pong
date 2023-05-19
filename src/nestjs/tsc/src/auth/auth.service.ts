@@ -1,4 +1,4 @@
-import { Injectable, HttpException, BadRequestException } from '@nestjs/common';
+import { Injectable, HttpException, BadRequestException, Logger } from '@nestjs/common';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -8,7 +8,12 @@ import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private JwtService: JwtService) {}
+  logger : Logger;
+  constructor(
+    private prisma: PrismaService, private JwtService: JwtService,
+  ) {
+    this.logger = new Logger('AUTH-SERVICE');
+  }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
@@ -41,6 +46,7 @@ export class AuthService {
         onlineStatus: true,
         confirmed: true,
         istwoFactor: true,
+        id: true
       },
     });
   }
@@ -71,6 +77,7 @@ export class AuthService {
         onlineStatus: true,
         confirmed: true,
         istwoFactor: true,
+        id: true
       },
     });
   }
@@ -101,7 +108,8 @@ export class AuthService {
   async login(user: any, res: Response) {
 
     try {
-      const payload = { name: user.name, username: user.username, sub: user.id };
+      const payload = { username: user.username, uid: user.id };
+      this.logger.log(user);
       const token = this.JwtService.sign(payload);
       res.cookie('jwt', token, { httpOnly: true });
       res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
@@ -116,7 +124,8 @@ export class AuthService {
   }
 
   async updateProfileAndToken(user: any, res: Response) : Promise<void> {
-    const payload = { name: user.name, username: user.username, sub: user.id };
+    const payload = { username: user.username, uid: user.id};
+    Logger.warn(`Updated JWT for ${user.username}`);
     const token = this.JwtService.sign(payload);
     res.cookie('jwt', token, { httpOnly: true });
   }
