@@ -20,7 +20,6 @@ export class UserService {
     username: string,
     new_username: string,
   ): Promise<boolean> {
-    if (username === new_username) throw new HttpException('Same username', 400);
 
     try {
       const user = await this.prisma.user.update({

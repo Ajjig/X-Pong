@@ -50,11 +50,15 @@ export class UserController {
   @Post('/set_username') // change username
   async setProfileUsernameByusername(@Req() request: any, @Body() body: UpdateUsernameDto, @Res() res: Response) {
 
+    if (body.new_username === request.user.username) {
+      throw new BadRequestException('Same username');
+    }
     const isUpdates = this.userService.setProfileUsernameByusername(
       request.user.username,
       body.new_username,
     );
     if (isUpdates) {
+      request.user.username = body.new_username;
       return this.authService.updateProfileAndToken(request.user, res);
     } else {
       throw new HttpException('Error user not updated', 400);
