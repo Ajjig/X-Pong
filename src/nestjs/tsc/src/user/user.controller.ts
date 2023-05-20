@@ -29,6 +29,16 @@ import { Prisma } from '.prisma/client';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from './user.module';
+import { UpdateAdminChannelDto } from './dto/update.admin.channel.dto';
+import { AddMemberChannelDto } from './dto/add.member.channel.dto';
+import { LeaveChannelDto } from './dto/leave.channel.dto';
+import { UpdatePasswordChannelDto } from './dto/update.password.channel.dto';
+import { CheckChannelPasswordDto } from './dto/check.channel.password.dto';
+import { RemoveChannelPasswordDto } from './dto/remove.channel.password.dto';
+import { BanMemberChannelDto } from './dto/ban.member.channel.dto';
+import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
+import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
+import { request } from 'http';
 
 @Controller('user')
 export class UserController {
@@ -210,215 +220,168 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_admin_of_channel')
   async setUserAsAdminOfChannelByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: UpdateAdminChannelDto,
   ) {
-    if (
-      !body ||
-      !request.user.username ||
-      !body.channelname ||
-      !body.new_admin
-    ) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
       request.user.username,
       body.new_admin,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_member_of_channel') // invite new user
   async setUserAsMemberOfChannelByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: AddMemberChannelDto,
   ) {
-    if (
-      !body ||
-      request.user.username ||
-      !body.channelname ||
-      !body.new_member
-    ) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.setUserAsMemberOfChannelByUsername(
       request.user.username,
       body.new_member,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/leave_channel')
-  async leaveChannelByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username || !body.channelname) {
-      throw new HttpException('Missing username or channel', 400);
-    }
+  async leaveChannelByUsername(@Req() request: any, @Body() body: LeaveChannelDto) {
     return this.UserChannelService.leaveChannelByUsername(
       request.user.username,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/change_channel_password')
   async changeChannelPasswordByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: UpdatePasswordChannelDto,
   ) {
-    if (
-      !body ||
-      !request.user.username ||
-      !body.channelname ||
-      !body.password
-    ) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.changeChannelPasswordByUsername(
       request.user.username,
-      body.channelname,
-      body.password,
+      body.channel_name,
+      body.new_password,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/check_channel_password')
-  async checkChannelPasswordByUsername(@Req() request: any, @Body() body: any) {
-    if (
-      !body ||
-      !request.user.username ||
-      !body.channelname ||
-      !body.password
-    ) {
-      throw new HttpException('Missing username or channel', 400);
-    }
+  async checkChannelPasswordByUsername(@Req() request: any, @Body() body: CheckChannelPasswordDto) {
     return this.UserChannelService.checkChannelPasswordByUsername(
       request.user.username,
-      body.channelname,
+      body.channel_name,
       body.password,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/remove_channel_password')
   async removechannelpasswordByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: RemoveChannelPasswordDto,
   ) {
-    if (!body || !request.user.username || !body.channelname) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.removeChannelPasswordByUsername(
       request.user.username,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_banned_of_channel')
   async setUserAsBannedOfChannelByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: BanMemberChannelDto,
   ) {
-    if (
-      !body ||
-      request.user.username ||
-      !body.channelname ||
-      !body.new_banned
-    ) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.setUserAsBannedOfChannelByUsername(
       request.user.username,
       body.new_banned,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_kicked_of_channel')
   async setUserAsKickedOfChannelByUsername(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: KickMemberChannelDto,
   ) {
-    if (!body || !body.channelname || !body.new_kicked) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.setUserAsKickedOfChannelByUsername(
       request.user,
       body.new_kicked,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_muted_of_channel')
-  async setUserAsMutedOfChannelByUsername(@Req() request, @Body() body: any) {
-    if (!body || !body.channelname || !body.new_muted) {
-      throw new HttpException('Missing username or channel', 400);
-    }
+  async setUserAsMutedOfChannelByUsername(@Req() request, @Body() body: MuteMemberChannelDto) {
     return this.UserChannelService.setUserAsMutedOfChannelByUsername(
       request.user,
       body.new_muted,
-      body.channelname,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannelByUsername(@Req() request, @Body() body: any) {
-    if (!body || !body.channelname || !body.new_unmuted) {
-      throw new HttpException('Missing username or channel', 400);
-    }
+  async setUserAsUnmutedOfChannelByUsername(@Req() request, @Body() body: MuteMemberChannelDto) {
+
     return this.UserChannelService.setUserAsUnmutedOfChannelByUsername(
       request.user,
-      body.new_unmuted,
-      body.channelname,
+      body.new_muted,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_unbanned_of_channel')
   async setUserAsUnbannedOfChannelByUsername(
     @Req() request,
-    @Body() body: any,
+    @Body() body: BanMemberChannelDto,
   ) {
-    if (!body || !body.channelname || !body.new_unbanned) {
-      throw new HttpException('Missing username or channel', 400);
-    }
     return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
       request.user,
-      body.new_unbanned,
-      body.channelname,
+      body.new_banned,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/set_user_as_unkicked_of_channel')
   async setUserAsUnkickedOfChannelByUsername(
     @Req() request,
-    @Body() body: any,
+    @Body() body: KickMemberChannelDto,
   ) {
-    if (!body || !body.channelname || !body.new_unkicked) {
-      throw new HttpException('Missing username or channel', 400);
-    }
+
     return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
       request.user,
-      body.new_unkicked,
-      body.channelname,
+      body.new_kicked,
+      body.channel_name,
     );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/get_any_user_info')
-  async get_any_user_info(@Req() request, @Body() body: any) {
-    if (!body || !request.user.username || !body.username) {
-      throw new HttpException('Missing username or channel', 400);
+  @Get('/:username/info')
+  async get_any_user_info(@Req() request, @Param('username') username: string) {
+    if (!username) {
+      throw new HttpException('Missing username', 400);
     }
-    return this.InfoUserService.get_any_user_info(body.username);
+    return this.InfoUserService.get_any_user_info(username);
   }
 
   @UseGuards(JwtAuthGuard)
