@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatModule } from './chat/chat.module';
@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GameModule } from './sync/game.module';
+import { AuthorisationHeaderMiddleware } from './middleware/header.middleware';
 
 
 @Module({
@@ -22,4 +23,9 @@ import { GameModule } from './sync/game.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthorisationHeaderMiddleware).exclude('/auth/42', '/auth/42/callback').forRoutes('*'); /// Applies middleware to all routes except /auth/*
+  }
+}
