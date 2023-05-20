@@ -28,6 +28,7 @@ import { FriendDto } from './dto/friend.dto';
 import { Prisma } from '.prisma/client';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
+import { UserModule } from './user.module';
 
 @Controller('user')
 export class UserController {
@@ -187,13 +188,13 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/get_matches')
-  async getMatchesByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username) {
+  @Get('/:username/matches')
+  async getMatchesByUsername(@Req() request: any, @Param('username') username: string) {
+    if (!request.user.username || !username) {
       throw new HttpException('Missing username', 400);
     }
 
-    return this.userService.getMatchesByUsername(request.user.username);
+    return this.userService.getMatchesByUsername(username);
   }
 
   @UseGuards(JwtAuthGuard)
