@@ -8,9 +8,12 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      cors: true,
+    cors: true,
   });
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
   app.useStaticAssets(join(__dirname, '..', 'public'));
   // app.use(cookieParser());
   await app.listen(3000);
