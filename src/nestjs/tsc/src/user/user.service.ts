@@ -1,5 +1,5 @@
 import { request } from 'http';
-import { Injectable, HttpException, HttpCode, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, HttpException, HttpCode, NotFoundException, Logger, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 
@@ -34,15 +34,15 @@ export class UserService {
 
   async setProfileConfirmedByUsername(
     username: string,
-  ): Promise<HttpException> {
+  ) {
     try {
       const user = await this.prisma.user.update({
         where: { username: username },
         data: { confirmed: true },
       });
-      return new HttpException('Confirmed updated', 200);
+      return user;
     } catch (e) {
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -65,10 +65,10 @@ export class UserService {
           losses: user.Userstats.losses + stats.losses,
         },
       });
-      return new HttpException('Stats updated', 200);
+      return updatedUserStats;
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -80,7 +80,7 @@ export class UserService {
       });
       return user.Userstats;
     } catch (e) {
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -120,7 +120,7 @@ export class UserService {
         where: { username: friend.username },
       });
       if (findexist) {
-        return new HttpException('Friend already added', 400);
+        throw new HttpException('Friend already added', 400);
       }
 
       const other_side = await this.prisma.friends.create({
@@ -140,10 +140,10 @@ export class UserService {
           onlineStatus: friend.onlineStatus,
         },
       });
-      return new HttpException('Friend added', 200);
+      return newFriend;
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -177,10 +177,10 @@ export class UserService {
         where: { username: friend.username },
         data: { friendshipStatus: 'Accepted' },
       });
-      return new HttpException('Friend added', 200);
+      return newFriend;
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -274,10 +274,9 @@ export class UserService {
         }
       }
 
-      return new HttpException('Match saved', 200);
+      return userstats;
     } catch (e) {
-      console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -289,7 +288,7 @@ export class UserService {
       });
       return user.Matchs;
     } catch (e) {
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -307,7 +306,7 @@ export class UserService {
         where: { username: friend.username },
       });
       if (!findexist) {
-        return new HttpException('Friend not found', 400);
+        throw new HttpException('Friend not found', 400);
       }
 
       const otherside = await this.prisma.friends.update({
@@ -319,10 +318,10 @@ export class UserService {
         where: { username: friend.username },
         data: { friendshipStatus: 'Blocked' },
       });
-      return new HttpException('Friend blocked', 200);
+      return newFriend;
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 }

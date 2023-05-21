@@ -135,11 +135,7 @@ export class UserController {
     if (!username) {
       throw new BadRequestException('Missing username');
     }
-
-    const user = await this.authService.findUserByUsername(username);
-    if (!user)
-      throw new NotFoundException('User not found');
-    return user;
+    return await this.userService.getUserDataByUsername(username, request.user.username);
   }
 
   @UseGuards(JwtAuthGuard)
