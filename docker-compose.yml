@@ -46,7 +46,8 @@ services:
       - "3000:3000"
       - "5555:5555"
     restart: unless-stopped
-  
+    depends_on:
+      - postgres  
   postgres:
     container_name: postgres
     build: ./src/postgres
