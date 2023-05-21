@@ -126,7 +126,7 @@ export class AuthService {
     const payload = { username: user.username, uid: user.id};
     this.logger.log(`Updated JWT for ${user.username}`);
     const token = this.JwtService.sign(payload);
-    res.cookie('jwt', token, { httpOnly: true });
+    res.cookie('jwt', token, { httpOnly: true, path: '/auth/42' });
     res.status(200).send({ message: 'Username updated' });
   }
 }
