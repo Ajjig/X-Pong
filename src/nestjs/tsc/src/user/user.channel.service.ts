@@ -24,14 +24,14 @@ export class UserChannelService {
       });
 
       if (user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       const check_password = this.UserPasswordService.validatePassword(
         channel.password,
       );
       if ((await check_password).validated == false) {
-        return new HttpException('Weak password', 400);
+        throw new HttpException('Weak password', 400);
       }
 
       const newChannel = await this.prisma.channel.create({
@@ -45,10 +45,10 @@ export class UserChannelService {
           owner: channel.owner ? channel.owner : user.username,
         },
       });
-      return new HttpException('Channel created', 200);
+      return newChannel;
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -63,7 +63,7 @@ export class UserChannelService {
         where: { username: new_admin },
       });
       if (new_admin_user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       let admin_user = await this.prisma.user.findUnique({
@@ -71,7 +71,7 @@ export class UserChannelService {
         where: { username: admin },
       });
       if (admin_user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       let channel = await this.prisma.channel.findUnique({
@@ -79,7 +79,7 @@ export class UserChannelService {
         where: { name: channelname },
       });
       if (channel == null) {
-        return new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', 400);
       }
 
       let admin_of = await this.prisma.user.findUnique({
@@ -93,7 +93,7 @@ export class UserChannelService {
       });
 
       if (admin_of == null) {
-        return new HttpException('User is not admin of channel', 400);
+        throw new HttpException('User is not admin of channel', 400);
       } else {
         await this.prisma.channel.update({
           // add user as admin of channel
@@ -105,11 +105,11 @@ export class UserChannelService {
             members: { connect: { id: new_admin_user.id } },
           },
         });
-        return new HttpException('Admin added', 200);
+        return channel;
       }
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -124,7 +124,7 @@ export class UserChannelService {
         where: { username: admin },
       });
       if (new_admin_user == null) {
-        return new HttpException('Admin does not exist', 400);
+        throw new HttpException('Admin does not exist', 400);
       }
 
       let new_user_member = await this.prisma.user.findUnique({
@@ -132,7 +132,7 @@ export class UserChannelService {
         where: { username: new_member },
       });
       if (new_user_member == null) {
-        return new HttpException('new member does not exist', 400);
+        throw new HttpException('new member does not exist', 400);
       }
 
       let channel = await this.prisma.channel.findUnique({
@@ -140,7 +140,7 @@ export class UserChannelService {
         where: { name: channelname },
       });
       if (channel == null) {
-        return new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', 400);
       } else {
         await this.prisma.channel.update({
           // add user as admin of channel
@@ -151,11 +151,11 @@ export class UserChannelService {
             },
           },
         });
-        return new HttpException('Member added', 200);
+        return channel;
       }
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -170,7 +170,7 @@ export class UserChannelService {
         where: { username: admin },
       });
       if (new_admin_user == null) {
-        return new HttpException('Admin does not exist', 400);
+        throw new HttpException('Admin does not exist', 400);
       }
 
       let channel = await this.prisma.channel.findUnique({
@@ -179,12 +179,12 @@ export class UserChannelService {
       });
 
       if (channel.owner != admin) {
-        return new HttpException('User is not owner of channel', 400);
+        throw new HttpException('User is not owner of channel', 400);
       } else {
         const check_password =
           this.UserPasswordService.validatePassword(password);
         if ((await check_password).validated == false) {
-          return new HttpException('Weak password', 400);
+          throw new HttpException('Weak password', 400);
         } else {
           await this.prisma.channel.update({
             where: { name: channelname },
@@ -193,12 +193,12 @@ export class UserChannelService {
               salt: (await check_password).salt,
             },
           });
-          return new HttpException('Password changed', 200);
+          return channel;
         }
       }
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -212,11 +212,11 @@ export class UserChannelService {
         where: { name: channelname },
       });
       if (channelcheck == null) {
-        return new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', 400);
       }
 
       if (channelcheck.isPublic == true) {
-        return new HttpException('Channel is public', 400);
+        throw new HttpException('Channel is public', 400);
       }
 
       const new_hash = await this.UserPasswordService.createhashPassword(
@@ -225,13 +225,13 @@ export class UserChannelService {
       );
 
       if (new_hash.password == channelcheck.password) {
-        return new HttpException('Password correct', 200);
+        return { channel };
       } else {
-        return new HttpException('Password incorrect', 400);
+        throw new HttpException('Password incorrect', 400);
       }
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -242,7 +242,7 @@ export class UserChannelService {
       });
 
       if (user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       const channel = await this.prisma.channel.findUnique({
@@ -250,11 +250,11 @@ export class UserChannelService {
       });
 
       if (channel == null) {
-        return new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', 400);
       }
 
       if (channel.owner != username) {
-        return new HttpException('User is not owner of channel', 400);
+        throw new HttpException('User is not owner of channel', 400);
       }
 
       await this.prisma.channel.update({
@@ -264,10 +264,10 @@ export class UserChannelService {
           isPublic: true,
         },
       });
-      return new HttpException('Password removed', 200);
+      return { channel };
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -282,7 +282,7 @@ export class UserChannelService {
       });
 
       if (user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       const channel = await this.prisma.channel.findUnique({
@@ -290,7 +290,7 @@ export class UserChannelService {
       });
 
       if (channel == null) {
-        return new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', 400);
       }
 
       const admin_check = await this.prisma.channel.findFirst({
@@ -305,7 +305,7 @@ export class UserChannelService {
       });
 
       if (admin_check == null) {
-        return new HttpException('User is not admin of channel', 400);
+        throw new HttpException('User is not admin of channel', 400);
       }
 
       const banned_user = await this.prisma.user.findUnique({
@@ -313,7 +313,7 @@ export class UserChannelService {
       });
 
       if (banned_user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       // check if user is already banned
@@ -329,7 +329,7 @@ export class UserChannelService {
       });
 
       if (banned_check != null) {
-        return new HttpException('User is already banned', 400);
+        throw new HttpException('User is already banned', 400);
       }
 
       await this.prisma.channel.update({
@@ -340,10 +340,10 @@ export class UserChannelService {
           },
         },
       });
-      return new HttpException('User banned', 200);
+      return { channelname };
     } catch (e) {
       console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
@@ -357,7 +357,7 @@ export class UserChannelService {
       request,
     );
     if (adminCheck == false) {
-      return new HttpException('User is not admin of channel', 400);
+      throw new HttpException('User is not admin of channel', 400);
     }
 
     const kicked_user = await this.prisma.user.findUnique({
@@ -365,7 +365,7 @@ export class UserChannelService {
     });
 
     if (kicked_user == null) {
-      return new HttpException(`doesn't exist`, 400);
+      throw new HttpException(`doesn't exist`, 400);
     }
 
     // check if user is already banned
@@ -381,7 +381,7 @@ export class UserChannelService {
     });
 
     if (banned_check != null) {
-      return new HttpException('User is already Kicked', 400);
+      throw new HttpException('User is already Kicked', 400);
     }
 
     await this.prisma.channel.update({
@@ -393,7 +393,7 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException(`User kicked`, 200);
+    return { kicked_user };
   }
 
   async setUserAsMutedOfChannelByUsername(
@@ -406,7 +406,7 @@ export class UserChannelService {
       request,
     );
     if (adminCheck == false) {
-      return new HttpException('User is not admin of channel', 400);
+      throw new HttpException('User is not admin of channel', 400);
     }
 
     const muted_user = await this.prisma.user.findUnique({
@@ -414,7 +414,7 @@ export class UserChannelService {
     });
 
     if (muted_user == null) {
-      return new HttpException('user not exist', 400);
+      throw new HttpException('user not exist', 400);
     }
 
     // check if user is already banned
@@ -430,7 +430,7 @@ export class UserChannelService {
     });
 
     if (muted_check != null) {
-      return new HttpException('User is already muted', 400);
+      throw new HttpException('User is already muted', 400);
     }
 
     await this.prisma.channel.update({
@@ -442,7 +442,7 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException('User muted', 200);
+    return { muted_user };
   }
 
   async setUserAsUnmutedOfChannelByUsername(
@@ -455,7 +455,7 @@ export class UserChannelService {
       request,
     );
     if (adminCheck == false) {
-      return new HttpException('User is not admin of channel', 400);
+      throw new HttpException('User is not admin of channel', 400);
     }
 
     const muted_user = await this.prisma.user.findUnique({
@@ -463,7 +463,7 @@ export class UserChannelService {
     });
 
     if (muted_user == null) {
-      return new HttpException('User does not exist', 400);
+      throw new HttpException('User does not exist', 400);
     }
 
     // check if user is already banned
@@ -479,7 +479,7 @@ export class UserChannelService {
     });
 
     if (muted_check == null) {
-      return new HttpException('User is not muted', 400);
+      throw new HttpException('User is not muted', 400);
     }
 
     await this.prisma.channel.update({
@@ -491,7 +491,7 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException('User unmuted', 200);
+    return { muted_user };
   }
 
   async setUserAsUnbannedOfChannelByUsername(
@@ -504,7 +504,7 @@ export class UserChannelService {
       request,
     );
     if (adminCheck == false) {
-      return new HttpException('User is not admin of channel', 400);
+      throw new HttpException('User is not admin of channel', 400);
     }
 
     const banned_user = await this.prisma.user.findUnique({
@@ -512,7 +512,7 @@ export class UserChannelService {
     });
 
     if (banned_user == null) {
-      return new HttpException('User does not exist', 400);
+      throw new HttpException('User does not exist', 400);
     }
 
     // check if user is already banned
@@ -528,7 +528,7 @@ export class UserChannelService {
     });
 
     if (banned_check == null) {
-      return new HttpException('User is not banned', 400);
+      throw new HttpException('User is not banned', 400);
     }
 
     await this.prisma.channel.update({
@@ -540,7 +540,7 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException('User unbanned', 200);
+    return { banned_user };
   }
 
   async setUserAsUnkickedOfChannelByUsername(
@@ -553,7 +553,7 @@ export class UserChannelService {
       request,
     );
     if (adminCheck == false) {
-      return new HttpException('User is not admin of channel', 400);
+      throw new HttpException('User is not admin of channel', 400);
     }
 
     const kicked_user = await this.prisma.user.findUnique({
@@ -561,7 +561,7 @@ export class UserChannelService {
     });
 
     if (kicked_user == null) {
-      return new HttpException('User does not exist', 400);
+      throw new HttpException('User does not exist', 400);
     }
 
     // check if user is already banned
@@ -577,7 +577,7 @@ export class UserChannelService {
     });
 
     if (kicked_check == null) {
-      return new HttpException('User is not kicked', 400);
+      throw new HttpException('User is not kicked', 400);
     }
 
     await this.prisma.channel.update({
@@ -589,12 +589,12 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException('User unkicked', 200);
+    return { kicked_user };
   }
 
   async HandleChannelOwnerLeaveChannel(owner_check: any, username: string) {
     if (owner_check == null) {
-      return new HttpException('Channel not exist', 400);
+      throw new HttpException('Channel not exist', 400);
     }
 
     /* update the owner of the channel with the first admin 
@@ -647,7 +647,7 @@ export class UserChannelService {
       },
     });
 
-    return new HttpException('User removed from channel', 200);
+    return { username };
   }
 
   async leaveChannelByUsername(
@@ -663,7 +663,7 @@ export class UserChannelService {
     });
 
     if (member_check == null) {
-      return new HttpException(
+      throw new HttpException(
         'User is not a member of the channel or channel not exist',
         400,
       );
@@ -695,6 +695,6 @@ export class UserChannelService {
       });
     }
 
-    return new HttpException('User removed from channel', 200);
+    return { username };
   }
 }

@@ -33,7 +33,7 @@ export class InfoUserService {
     });
 
     if (user == null) {
-      return new HttpException('User does not exist', 400);
+      throw new HttpException('User does not exist', 400);
     }
 
     return user;

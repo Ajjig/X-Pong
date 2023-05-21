@@ -165,7 +165,7 @@ export class UserService {
         where: { username: friend.username },
       });
       if (!findexist) {
-        return new HttpException('Friend not found', 400);
+        return { user };
       }
 
       const otherside = await this.prisma.friends.update({
@@ -196,7 +196,7 @@ export class UserService {
       });
 
       if (!opp) {
-        return new HttpException('Opponent not found', 400);
+        throw new HttpException('Opponent not found', 400);
       }
 
       const newMatch = await this.prisma.matchs.create({
