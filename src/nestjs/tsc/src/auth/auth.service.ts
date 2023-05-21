@@ -30,6 +30,7 @@ export class AuthService {
           },
         },
         blockedUsernames: [],
+        avatarUrl: data.avatarUrl,
       },
     });
   }
