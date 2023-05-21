@@ -1,4 +1,4 @@
-import { Injectable, Logger, NestMiddleware } from "@nestjs/common";
+import { HttpException, Injectable, Logger, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Response } from "express";
 
 
@@ -10,9 +10,8 @@ export class AuthorisationHeaderMiddleware implements NestMiddleware{
 
     use(req: any, res: Response, next: NextFunction) {
         if (req.headers.authorization === undefined) {
-            this.logger.error('NO Authorisation in the header');
-            res.status(401).send('NO Authorisation in the header');
-            return;
+            this.logger.warn('NO Authorisation in the header');
+            throw new HttpException('NO Authorisation in the header', 401);
         }
         next();
     }
