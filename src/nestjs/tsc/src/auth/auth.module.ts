@@ -15,7 +15,7 @@ dotenv.config();
     PassportModule.register({ defaultStrategy: '42' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET, // TODO: move to env
-      signOptions: { expiresIn: '10020s' },
+      signOptions: { expiresIn: '1d'},
     }),
   ],
   providers: [FortyTwoStrategy, AuthService, PrismaService, JwtStrategy],
