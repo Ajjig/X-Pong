@@ -1,21 +1,20 @@
-import { Logger } from '@nestjs/common';
 import {
-  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Socket } from 'socket.io-client';
-import { DataDto } from '../dto/data.dto';
 import { InitEventDto } from '../dto/init.event.dto';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
-import { makeId } from '../utils/generate.id';
-import { Game } from './game';
 import { GameService } from './game.service';
 
-@WebSocketGateway(3069)
+@WebSocketGateway(3069,{
+  cors: {
+    origin: '*',
+  },
+})
 export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
