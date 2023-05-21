@@ -3,9 +3,9 @@ FROM node:latest
 EXPOSE 3000
 EXPOSE 3069
 
-COPY . /workspace
+WORKDIR /workspace/
 
-WORKDIR /workspace/tsc
+COPY . .
 
 RUN rm -rf node_modules
 RUN rm -rf dist
