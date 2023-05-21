@@ -100,7 +100,7 @@ export class UserService {
     if (user) {
       return user;
     }
-    return new NotFoundException(`User ${username} not found`);
+    throw new NotFoundException(`User ${username} not found`);
   }
 
   async addFriendByUsername(username: string, friendUsername: string) {

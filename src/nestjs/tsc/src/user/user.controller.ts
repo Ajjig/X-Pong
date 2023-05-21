@@ -38,7 +38,6 @@ import { RemoveChannelPasswordDto } from './dto/remove.channel.password.dto';
 import { BanMemberChannelDto } from './dto/ban.member.channel.dto';
 import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
-import { request } from 'http';
 
 @Controller('user')
 export class UserController {
@@ -136,7 +135,11 @@ export class UserController {
     if (!username) {
       throw new BadRequestException('Missing username');
     }
-    return this.userService.getUserDataByUsername(username, request.user.username);
+
+    const user = await this.authService.findUserByUsername(username);
+    if (!user)
+      throw new NotFoundException('User not found');
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
