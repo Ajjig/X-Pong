@@ -7,7 +7,7 @@ import { UserModule } from './user/user.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GameModule } from './sync/game.module';
-import { AuthorisationHeaderMiddleware } from './middleware/header.middleware';
+import { AuthorisationHeaderMiddleware } from './middlewares/header.middleware';
 
 
 @Module({
