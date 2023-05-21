@@ -7,8 +7,6 @@ import { AuthService } from './auth.service';
 
 dotenv.config();
 
-
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private prisma: PrismaService, private AuthService: AuthService) {
@@ -20,7 +18,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<any> {
-
     return this.AuthService.findUserByUsername(payload.username);
   }
 }

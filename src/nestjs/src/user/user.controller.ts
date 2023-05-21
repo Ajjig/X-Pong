@@ -58,7 +58,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('id/:uid')
-  async getUserById(@Param('uid') uid : string) {
+  async getUserById(@Param('uid') uid: string) {
     const user = await this.authService.findUserById(uid);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -69,8 +69,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_username') // change username
-  async setProfileUsernameByusername(@Req() request: any, @Body() body: UpdateUsernameDto, @Res() res: Response) {
-
+  async setProfileUsernameByusername(
+    @Req() request: any,
+    @Body() body: UpdateUsernameDto,
+    @Res() res: Response,
+  ) {
     if (body.new_username === request.user.username) {
       throw new BadRequestException('Same username');
     }
@@ -84,7 +87,6 @@ export class UserController {
     } else {
       throw new HttpException('Error user not updated', 400);
     }
-
   }
 
   @UseGuards(JwtAuthGuard)
@@ -131,11 +133,17 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/:username')
-  async getUserDataByUsername(@Req() request: any, @Param('username') username: string) {
+  async getUserDataByUsername(
+    @Req() request: any,
+    @Param('username') username: string,
+  ) {
     if (!username) {
       throw new BadRequestException('Missing username');
     }
-    return await this.userService.getUserDataByUsername(username, request.user.username);
+    return await this.userService.getUserDataByUsername(
+      username,
+      request.user.username,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -154,7 +162,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/accept_friend_request')
-  async acceptFriendRequestByUsername(@Req() request: any, @Body() body: FriendDto) {
+  async acceptFriendRequestByUsername(
+    @Req() request: any,
+    @Body() body: FriendDto,
+  ) {
     if (!body || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -190,15 +201,15 @@ export class UserController {
     ) {
       throw new HttpException('Missing username or match', 400);
     }
-    return this.userService.saveMatchByUsername(
-      request.user.username,
-      body,
-    );
+    return this.userService.saveMatchByUsername(request.user.username, body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:username/matches')
-  async getMatchesByUsername(@Req() request: any, @Param('username') username: string) {
+  async getMatchesByUsername(
+    @Req() request: any,
+    @Param('username') username: string,
+  ) {
     if (!request.user.username || !username) {
       throw new HttpException('Missing username', 400);
     }
@@ -208,7 +219,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create_channel')
-  async createChannelByUsername(@Req() request: any, @Body() body: Prisma.ChannelCreateInput) {
+  async createChannelByUsername(
+    @Req() request: any,
+    @Body() body: Prisma.ChannelCreateInput,
+  ) {
     if (!body || !request.user.username || !body) {
       throw new HttpException('Missing username or channel', 400);
     }
@@ -249,7 +263,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/leave_channel')
-  async leaveChannelByUsername(@Req() request: any, @Body() body: LeaveChannelDto) {
+  async leaveChannelByUsername(
+    @Req() request: any,
+    @Body() body: LeaveChannelDto,
+  ) {
     return this.UserChannelService.leaveChannelByUsername(
       request.user.username,
       body.channel_name,
@@ -273,7 +290,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/check_channel_password')
-  async checkChannelPasswordByUsername(@Req() request: any, @Body() body: CheckChannelPasswordDto) {
+  async checkChannelPasswordByUsername(
+    @Req() request: any,
+    @Body() body: CheckChannelPasswordDto,
+  ) {
     return this.UserChannelService.checkChannelPasswordByUsername(
       request.user.username,
       body.channel_name,
@@ -325,7 +345,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_muted_of_channel')
-  async setUserAsMutedOfChannelByUsername(@Req() request, @Body() body: MuteMemberChannelDto) {
+  async setUserAsMutedOfChannelByUsername(
+    @Req() request,
+    @Body() body: MuteMemberChannelDto,
+  ) {
     return this.UserChannelService.setUserAsMutedOfChannelByUsername(
       request.user,
       body.new_muted,
@@ -336,8 +359,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannelByUsername(@Req() request, @Body() body: MuteMemberChannelDto) {
-
+  async setUserAsUnmutedOfChannelByUsername(
+    @Req() request,
+    @Body() body: MuteMemberChannelDto,
+  ) {
     return this.UserChannelService.setUserAsUnmutedOfChannelByUsername(
       request.user,
       body.new_muted,
@@ -366,7 +391,6 @@ export class UserController {
     @Req() request,
     @Body() body: KickMemberChannelDto,
   ) {
-
     return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
       request.user,
       body.new_kicked,

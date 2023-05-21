@@ -9,7 +9,6 @@ import { join } from 'path';
 import { GameModule } from './sync/game.module';
 import { AuthorisationHeaderMiddleware } from './middlewares/header.middleware';
 
-
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -18,14 +17,16 @@ import { AuthorisationHeaderMiddleware } from './middlewares/header.middleware';
     ChatModule,
     AuthModule,
     UserModule,
-    GameModule
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthorisationHeaderMiddleware).exclude('/auth/42', '/auth/42/callback').forRoutes('*'); /// Applies middleware to all routes except /auth/*
+    consumer
+      .apply(AuthorisationHeaderMiddleware)
+      .exclude('/auth/42', '/auth/42/callback')
+      .forRoutes('*'); /// Applies middleware to all routes except /auth/*
   }
 }

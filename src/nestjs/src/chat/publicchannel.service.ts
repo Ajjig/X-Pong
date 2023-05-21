@@ -129,22 +129,19 @@ export class PublicChannelService {
     return false;
   }
 
-  async latestchannels(username : string) : Promise<any>
-  {
+  async latestchannels(username: string): Promise<any> {
     // filter the channels that the user is a member of
 
     const lastestchannels = await this.prisma.channel.findMany({
-      where: { owner: { not : username} },
-      select :
-      {
-        name : true,
-        createdAt : true,
-        owner : true,
-        isPublic : true,
+      where: { owner: { not: username } },
+      select: {
+        name: true,
+        createdAt: true,
+        owner: true,
+        isPublic: true,
       },
     });
 
     return lastestchannels;
-
   }
 }

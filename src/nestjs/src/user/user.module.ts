@@ -9,7 +9,7 @@ import { OrigineService } from './user.validate.origine.service';
 import { InfoUserService } from './info.user.service';
 import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { MulterModule } from '@nestjs/platform-express';
-import {UploadService} from './upload.service';
+import { UploadService } from './upload.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthModule } from 'src/auth/auth.module';
 

@@ -12,7 +12,7 @@ dotenv.config();
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   checkpayload(username: string, data: CreatePrivateChannelDto): string {
     if (!data) {

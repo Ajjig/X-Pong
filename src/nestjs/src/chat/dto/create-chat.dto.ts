@@ -17,10 +17,10 @@ export class JoinPublicChannelDto extends PublicChannel {}
 
 export class JoinPrivateChannelDto extends joinPrivateChannel {}
 
-export class PrivateMessageDto extends PrivateMessage { }
+export class PrivateMessageDto extends PrivateMessage {}
 
-export class DirectMessageDto extends DirectMessage { }
+export class DirectMessageDto extends DirectMessage {}
 
-export class PublicChannelMessageDto extends PublicChannelMessage { }
+export class PublicChannelMessageDto extends PublicChannelMessage {}
 
-export class GetPrivateConversationsDto extends GetPrivateConversations { }
+export class GetPrivateConversationsDto extends GetPrivateConversations {}

@@ -25,7 +25,7 @@ export class DirectMessage {
   msg: string;
   sender: string;
   receiver: string;
-  PrivateChannelId : string;
+  PrivateChannelId: string;
 }
 
 export class PublicChannelMessage {

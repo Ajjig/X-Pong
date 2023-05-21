@@ -13,7 +13,6 @@ export class JwtAuthGuardSockets implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    
     const client = context.switchToWs().getClient();
     const token = client.handshake.headers.token;
     if (!token) {
@@ -21,8 +20,10 @@ export class JwtAuthGuardSockets implements CanActivate {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as  { id: string };;
-        context.switchToWs().getData().userId = decoded.id;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        id: string;
+      };
+      context.switchToWs().getData().userId = decoded.id;
       return true;
     } catch (error) {
       return false;

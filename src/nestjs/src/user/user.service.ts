@@ -1,5 +1,12 @@
 import { request } from 'http';
-import { Injectable, HttpException, HttpCode, NotFoundException, Logger, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpCode,
+  NotFoundException,
+  Logger,
+  HttpStatus,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 
@@ -20,7 +27,6 @@ export class UserService {
     username: string,
     new_username: string,
   ): Promise<boolean> {
-
     try {
       const user = await this.prisma.user.update({
         where: { username: username },
@@ -32,9 +38,7 @@ export class UserService {
     }
   }
 
-  async setProfileConfirmedByUsername(
-    username: string,
-  ) {
+  async setProfileConfirmedByUsername(username: string) {
     try {
       const user = await this.prisma.user.update({
         where: { username: username },

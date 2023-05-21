@@ -1,17 +1,18 @@
-import { Injectable, HttpException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 
-
-
 @Injectable()
 export class AuthService {
-  logger : Logger;
-  constructor(
-    private prisma: PrismaService, private JwtService: JwtService,
-  ) {
+  logger: Logger;
+  constructor(private prisma: PrismaService, private JwtService: JwtService) {
     this.logger = new Logger('AUTH-SERVICE');
   }
 
@@ -47,7 +48,7 @@ export class AuthService {
         onlineStatus: true,
         confirmed: true,
         istwoFactor: true,
-        id: true
+        id: true,
       },
     });
   }
@@ -78,16 +79,13 @@ export class AuthService {
         onlineStatus: true,
         confirmed: true,
         istwoFactor: true,
-        id: true
+        id: true,
       },
     });
   }
 
-
   async findOrCreateUser(profile: any): Promise<any> {
-    let user = await this.findUserByEmail(
-      profile.emails[0].value,
-    );
+    let user = await this.findUserByEmail(profile.emails[0].value);
 
     if (!user) {
       user = await this.createUser({
@@ -107,7 +105,6 @@ export class AuthService {
   // }
 
   async login(user: any, res: Response) {
-
     try {
       const payload = { username: user.username, uid: user.id };
       const token = this.JwtService.sign(payload);
@@ -123,8 +120,8 @@ export class AuthService {
     res.redirect(process.env.FRONTEND_REDIRECT_LOGOUT_URL);
   }
 
-  async updateProfileAndToken(user: any, res: Response) : Promise<void> {
-    const payload = { username: user.username, uid: user.id};
+  async updateProfileAndToken(user: any, res: Response): Promise<void> {
+    const payload = { username: user.username, uid: user.id };
     this.logger.log(`Updated JWT for ${user.username}`);
     const token = this.JwtService.sign(payload);
     res.cookie('jwt', token, { httpOnly: false, path: '/auth/42' });

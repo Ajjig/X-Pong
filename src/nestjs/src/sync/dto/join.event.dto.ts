@@ -1,4 +1,4 @@
 export class JoinEventDto {
-  username : string;
+  username: string;
   // ... more fields here
 }
