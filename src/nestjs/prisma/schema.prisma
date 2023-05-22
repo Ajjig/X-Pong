@@ -12,8 +12,8 @@ model User {
   email               String   @unique
   name                String
   username            String?  @unique
-  avatarUrl           String   @default("https://i.pravatar.cc/150?img=3")
-  oauthId             String?   @unique
+  avatarUrl           String?
+  oauthId             String?  @unique
   istwoFactor         Boolean  @default(false)
   twoFactorAuthSecret String?  @unique
   onlineStatus        String   @default("Offline") // Online, Offline, Away, Busy, lookingForMatch
