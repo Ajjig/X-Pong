@@ -1,14 +1,15 @@
-import { Catch, ArgumentsHost, UnauthorizedException } from '@nestjs/common';
+import { Catch, ArgumentsHost } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 
-@Catch()
+@Catch(WsException)
 export class JwtUnauthorizedFilter {
-  catch(exception: UnauthorizedException, host: ArgumentsHost) {
+  catch(exception: WsException, host: ArgumentsHost) {
     const ctx = host.switchToWs();
     const client = ctx.getClient();
 
     client.emit('error', {
-      message: 'Unauthorized Exception',
+      status: 'error',
+      message: 'Unauthorized',
     });
   }
 }
