@@ -93,6 +93,11 @@ export class AuthService {
         name: profile.displayName,
         username: profile.username,
         oauthId: '',
+        avatarUrl:
+          profile._json.image.link ||
+          profile._json.image.versions.medium ||
+          profile._json.image.versions.large ||
+          profile._json.image.versions.small,
       });
     }
     return user;
