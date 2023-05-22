@@ -23,6 +23,7 @@ model User {
   confirmed           Boolean  @default(false)
   Matchs    Matchs[] @relation("Matchs")
   OpponentMatchs Matchs[] @relation("OpponentMatchs")
+  onlineAt            DateTime? @default(now())
   Userstats Userstats? // one to one
 
   Friends Friends[] @relation("UserFriends") // many to many
