@@ -24,6 +24,7 @@ model User {
   Matchs    Matchs[] @relation("Matchs")
   OpponentMatchs Matchs[] @relation("OpponentMatchs")
   Userstats Userstats? // one to one
+  onlineAt           DateTime? @default(now())
 
   Friends Friends[] @relation("UserFriends") // many to many
 
