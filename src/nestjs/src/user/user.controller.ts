@@ -28,7 +28,6 @@ import { FriendDto } from './dto/friend.dto';
 import { Prisma } from '.prisma/client';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
-import { UserModule } from './user.module';
 import { UpdateAdminChannelDto } from './dto/update.admin.channel.dto';
 import { AddMemberChannelDto } from './dto/add.member.channel.dto';
 import { LeaveChannelDto } from './dto/leave.channel.dto';
@@ -40,7 +39,6 @@ import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
 
 @Controller('user')
-@Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
