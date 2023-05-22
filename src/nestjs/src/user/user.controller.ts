@@ -40,6 +40,7 @@ import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
 
 @Controller('user')
+@Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -50,10 +51,10 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  @Get('')
+  @Get()
   @UseGuards(JwtAuthGuard)
-  async getAllUsers(@Req() request: any) {
-    new Logger().log(request.user);
+  async getAllUsers(@Res() res: Response) {
+    res.redirect('/user/profile');
   }
 
   @UseGuards(JwtAuthGuard)
