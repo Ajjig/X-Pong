@@ -11,7 +11,7 @@ model User {
   id                  Int      @id @default(autoincrement())
   email               String   @unique
   name                String
-  username            String?  @unique
+  username            String  @unique
   avatarUrl           String?
   oauthId             String?  @unique
   istwoFactor         Boolean  @default(false)
@@ -21,10 +21,11 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
-  Matchs    Matchs[] @relation("Matchs")
+  Matchs    Matchs[]  @relation("Matchs")
   OpponentMatchs Matchs[] @relation("OpponentMatchs")
   Userstats Userstats? // one to one
-  onlineAt           DateTime? @default(now())
+  onlineAt            DateTime? @default(now())
+  isBanned            Boolean    @default(false)
 
   Friends Friends[] @relation("UserFriends") // many to many
 
@@ -38,6 +39,7 @@ model User {
   mutedFrom        Channel[]       @relation("Muted")
   sentMessages     DirectMessage[] @relation("SentMessages")
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
+
 }
 
 
