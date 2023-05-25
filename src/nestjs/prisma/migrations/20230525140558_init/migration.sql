@@ -3,16 +3,19 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "username" TEXT,
-    "avatarUrl" TEXT NOT NULL DEFAULT 'https://i.pravatar.cc/150?img=3',
-    "oauthId" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "avatarUrl" TEXT,
+    "oauthId" TEXT,
     "istwoFactor" BOOLEAN NOT NULL DEFAULT false,
     "twoFactorAuthSecret" TEXT,
     "onlineStatus" TEXT NOT NULL DEFAULT 'Offline',
     "blockedUsernames" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "comfirmed" BOOLEAN NOT NULL DEFAULT false,
+    "confirmed" BOOLEAN NOT NULL DEFAULT false,
+    "onlineAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "isBanned" BOOLEAN NOT NULL DEFAULT false,
+    "privateChannels" TEXT[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -25,6 +28,7 @@ CREATE TABLE "Channel" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "isPublic" BOOLEAN NOT NULL DEFAULT true,
     "password" TEXT,
+    "salt" TEXT,
     "owner" TEXT NOT NULL,
 
     CONSTRAINT "Channel_pkey" PRIMARY KEY ("id")
@@ -37,7 +41,7 @@ CREATE TABLE "Message" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "content" TEXT NOT NULL,
     "channelId" INTEGER NOT NULL,
-    "sender" TEXT[],
+    "sender" TEXT NOT NULL,
     "senderId" INTEGER NOT NULL,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
@@ -50,6 +54,9 @@ CREATE TABLE "DirectMessage" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "senderId" INTEGER NOT NULL,
     "receiverId" INTEGER NOT NULL,
+    "SenderUsername" TEXT NOT NULL,
+    "ReceiverUsername" TEXT NOT NULL,
+    "privateChannelId" TEXT NOT NULL,
 
     CONSTRAINT "DirectMessage_pkey" PRIMARY KEY ("id")
 );
@@ -60,6 +67,9 @@ CREATE TABLE "Friends" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "username" TEXT,
+    "friendshipStatus" TEXT NOT NULL DEFAULT 'Pending',
+    "onlineStatus" TEXT NOT NULL DEFAULT 'Offline',
+    "ladder" TEXT NOT NULL DEFAULT 'Novice',
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Friends_pkey" PRIMARY KEY ("id")
@@ -69,12 +79,13 @@ CREATE TABLE "Friends" (
 CREATE TABLE "Matchs" (
     "id" SERIAL NOT NULL,
     "result" TEXT NOT NULL DEFAULT 'Undefined',
-    "opponent" INTEGER NOT NULL DEFAULT 0,
+    "opponent" TEXT NOT NULL DEFAULT 'Undefined',
     "map" TEXT NOT NULL DEFAULT 'Undefined',
     "mode" TEXT NOT NULL DEFAULT 'Undefined',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
+    "opponentUserId" INTEGER NOT NULL,
 
     CONSTRAINT "Matchs_pkey" PRIMARY KEY ("id")
 );
@@ -113,6 +124,18 @@ CREATE TABLE "_Invited" (
 
 -- CreateTable
 CREATE TABLE "_Banned" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_Kicked" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_Muted" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
@@ -162,6 +185,18 @@ CREATE UNIQUE INDEX "_Banned_AB_unique" ON "_Banned"("A", "B");
 -- CreateIndex
 CREATE INDEX "_Banned_B_index" ON "_Banned"("B");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "_Kicked_AB_unique" ON "_Kicked"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_Kicked_B_index" ON "_Kicked"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_Muted_AB_unique" ON "_Muted"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_Muted_B_index" ON "_Muted"("B");
+
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "Channel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -176,6 +211,9 @@ ALTER TABLE "Friends" ADD CONSTRAINT "Friends_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Matchs" ADD CONSTRAINT "Matchs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Matchs" ADD CONSTRAINT "Matchs_opponentUserId_fkey" FOREIGN KEY ("opponentUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Userstats" ADD CONSTRAINT "Userstats_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -203,3 +241,15 @@ ALTER TABLE "_Banned" ADD CONSTRAINT "_Banned_A_fkey" FOREIGN KEY ("A") REFERENC
 
 -- AddForeignKey
 ALTER TABLE "_Banned" ADD CONSTRAINT "_Banned_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_Kicked" ADD CONSTRAINT "_Kicked_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_Kicked" ADD CONSTRAINT "_Kicked_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_Muted" ADD CONSTRAINT "_Muted_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_Muted" ADD CONSTRAINT "_Muted_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
