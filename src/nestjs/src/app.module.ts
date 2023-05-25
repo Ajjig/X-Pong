@@ -22,12 +22,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthorisationHeaderMiddleware)
       .forRoutes(
-        '/user/set*',
-        '/user/get*',
-        '/chat/set*',
-        '/chat/get*',
-        '/game/set*',
-        '/game/get*',
+        '/user/*',
+        '/chat/*',
+        '/game/*',
       );
   }
 }
