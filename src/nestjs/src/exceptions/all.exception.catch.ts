@@ -11,13 +11,13 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     const status = exception.status || 500;
 
-    this.logger.warn(` ==> ${request.method} ${request.url}`);
+    this.logger.warn(` ==> ${request.method} ${request.url} ${status} ${exception.message}`);
 
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString() || new Date(),
       path: request.url || request.originalUrl,
-      message: exception.message || 'Internal Server Error',
+      message: (status >= 500 ? 'Internal server error' : exception.message),
     });
   }
 }
