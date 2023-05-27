@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { GameModule } from './sync/game.module';
 import { AuthorisationHeaderMiddleware } from './middlewares/header.middleware';
+import { AccessControlMiddleware } from './middlewares/access.control.middleware';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ export class AppModule implements NestModule {
         '/user/*',
         '/chat/*',
         '/game/*',
-      );
+    );
+    consumer.apply(AccessControlMiddleware).forRoutes('*');
   }
 }
