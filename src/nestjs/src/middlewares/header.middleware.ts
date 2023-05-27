@@ -17,10 +17,8 @@ export class AuthorisationHeaderMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     if (req.headers.authorization === undefined) {
       const jwt = req.cookies.jwt;
-      this.logger.log('HERE ====> ', req.cookies);
       if (jwt) {
         req.headers['authorization'] = `Bearer ${jwt}`;
-        this.logger.log('JWT found in the cookie');
         next();
         return;
       }
