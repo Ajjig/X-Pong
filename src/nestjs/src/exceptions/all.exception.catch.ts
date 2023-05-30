@@ -3,13 +3,13 @@ import { Response, Request } from 'express';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger = new Logger('CATCH-ALL')) {}
+  constructor(private readonly logger: Logger = new Logger('CATCH-ALL')) {}
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response: Response = ctx.getResponse();
     const request: Request = ctx.getRequest();
 
-    const status = exception.status || 500;
+    const status: number = exception.status || 500;
 
     this.logger.warn(` ==> ${request.method} ${request.url} ${status} ${exception.message}`);
 
