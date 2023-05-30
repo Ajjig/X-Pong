@@ -3,6 +3,8 @@ local=$(HOME)/.local
 .PHONY: init
 
 .DEFAULT_GOAL := all
+DOCKER_COMPOSE = docker-compose
+
 
 all: up
 	@echo "All done"
@@ -14,21 +16,21 @@ init:
 	npm install -g @nestjs/cli
 
 build:
-	docker compose --build
+	$(DOCKER_COMPOSE) --build
 	@echo "Build complete"
 
 down:
-	docker compose down
+	$(DOCKER_COMPOSE) down
 up:
-	docker compose up --build
+	$(DOCKER_COMPOSE) up --build
 
 clean: 
-	docker system prune -f
+	-@ $(DOCKER_COMPOSE) stop $(docker ps -a -q)
+	-@ $(DOCKER_COMPOSE) rm $(docker ps -a -q)
+	-@ docker volume rm nestjs postgres
 
 
 fclean: down clean
-	-@ docker compose stop $(docker ps -a -q)
-	-@ docker compose rm $(docker ps -a -q)
-	-@ docker volume rm nestjs postgres
 	-@ docker rmi $(shell docker images -q | tr "\n" " ")
+	docker system prune -f
 	
