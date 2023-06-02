@@ -20,11 +20,11 @@ import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
+// @WebSocketGateway({
+//   cors: {
+//     origin: '*',
+//   },
+// })
 export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
