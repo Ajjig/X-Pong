@@ -1,4 +1,4 @@
-import { Injectable, ExecutionContext } from '@nestjs/common';
+import { Injectable, ExecutionContext, Logger } from '@nestjs/common';
 import {
   CreateChatDto,
   CreatePrivateChannelDto,
@@ -183,16 +183,22 @@ export class ChatService {
   }
 
   jwtdecoder(client: Socket, context?: ExecutionContext): any {
-    const token = client.handshake.headers.token as string;
+    // get token in cookie if exist else in header
+    let token = null;
+    try {
+      token = client.handshake.headers.cookie['jwt'] ||
+      client.handshake.headers.authorization.split(' ')[1];
+    } catch { }
     if (!token) {
+      new Logger('CHAT').error('No token found');
       return null;
     }
     try {
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
-        id: string;
+        uid: number;
       };
       if (context) {
-        context.switchToWs().getData().userId = userdecoded.id;
+        context.switchToWs().getData().userId = userdecoded.uid;
       }
       return userdecoded;
     } catch {
@@ -210,7 +216,7 @@ export class ChatService {
         onlineStatus: true,
       },
     });
-    if (check.onlineStatus === 'online') {
+    if (check && check.onlineStatus === 'online') {
       return;
     }
 

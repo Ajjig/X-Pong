@@ -20,11 +20,11 @@ import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
 
-// @WebSocketGateway({
-//   cors: {
-//     origin: '*',
-//   },
-// })
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
@@ -35,7 +35,7 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('PrivateMessage') // send a message to a Private channel
+  @SubscribeMessage('message') // send a message to a Private channel
   async PrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: PrivateMessageDto,
@@ -96,10 +96,10 @@ export class ChatGateway {
     });
 
     // send the message to the channel
-    client.to(channelID).emit('PrivateMessage', payload.msg);
+    client.to(channelID).emit('message', payload.msg);
   }
 
-  @SubscribeMessage('findallmessages')
+  @SubscribeMessage('findAllMessages')
   async findALLmessages(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
@@ -127,7 +127,7 @@ export class ChatGateway {
     const messages = await this.chatService.findAllPrivateMessagesByChannelID(
       payload.channelId,
     );
-    client.emit('findallmessages', messages);
+    client.emit('findAllMessages', messages);
   }
 
   @SubscribeMessage('joinChannelPublic')
@@ -228,25 +228,6 @@ export class ChatGateway {
     client.to(payload.channelName).emit('PublicMessage', payload.msg);
   }
 
-  @SubscribeMessage('UserConnectionStatus')
-  async UserStatus(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
-  ) {
-    if (!payload || !payload.username_status) {
-      client.emit('error', 'You must provide a payload');
-      return;
-    }
-    const status = await this.chatService.get_user_status(
-      payload.username_status,
-    );
-    if (!status) {
-      client.emit('error', 'User not found');
-      return;
-    }
-    client.emit('UserConnectionStatus', status);
-  }
-
   @SubscribeMessage('SearchQuery')
   async SearchQuery(
     @ConnectedSocket() client: Socket,
@@ -264,7 +245,7 @@ export class ChatGateway {
     client.emit('SearchQuery', result);
   }
 
-  @SubscribeMessage('getprivateconversations')
+  @SubscribeMessage('getPrivateChat')
   async getprivateconversations(@ConnectedSocket() client: Socket) {
     let userdata: any = this.chatService.jwtdecoder(client);
     if (!userdata) {
@@ -277,10 +258,10 @@ export class ChatGateway {
       await this.UserChatHistoryService.getUserPrivateConversationChatHistory(
         userdata.username,
       );
-    client.emit('getprivateconversations', result);
+    client.emit('getPrivateChat', result);
   }
 
-  @SubscribeMessage('getchannelconversations')
+  @SubscribeMessage('getPublicChat')
   async getchannelconversations(@ConnectedSocket() client: Socket) {
     let userdata: any = this.chatService.jwtdecoder(client);
     if (!userdata) {
@@ -292,7 +273,7 @@ export class ChatGateway {
       await this.UserChatHistoryService.getUserChannelConversationChatHistory(
         userdata.username,
       );
-    client.emit('getchannelconversations', result);
+    client.emit('getPublicChat', result);
   }
 
   @SubscribeMessage('getlastedchannels')
@@ -314,7 +295,7 @@ export class ChatGateway {
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     let userdata: any = this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'Unauthorized user');
+      client.emit('error', 'Unauthorized user to connect');
       client.disconnect();
       return;
     }
@@ -329,6 +310,5 @@ export class ChatGateway {
       return;
     }
     await this.chatService.set_user_offline(userdata.username);
-    console.log('client disconnected');
   }
 }

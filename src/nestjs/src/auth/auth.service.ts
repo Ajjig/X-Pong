@@ -30,7 +30,6 @@ export class AuthService {
             achievements: [],
           },
         },
-        blockedUsernames: [],
         avatarUrl: data.avatarUrl,
       },
     });

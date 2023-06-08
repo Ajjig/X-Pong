@@ -11,13 +11,13 @@ model User {
   id                  Int      @id @default(autoincrement())
   email               String   @unique
   name                String
-  username            String  @unique
+  username            String   @unique
   avatarUrl           String?
   oauthId             String?  @unique
   istwoFactor         Boolean  @default(false)
   twoFactorAuthSecret String?  @unique
-  onlineStatus        String   @default("Offline") // Online, Offline, Away, Busy, lookingForMatch
-  blockedUsernames    String[] // array of blocked usernames
+  onlineStatus        String   @default("Offline") // Online, Offline, AFK...
+  blockedIds          Int[]    @default([])
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
@@ -27,7 +27,7 @@ model User {
   Userstats Userstats? // one to one
   isBanned            Boolean    @default(false)
 
-  Friends Friends[] @relation("UserFriends") // many to many
+  Friends Friends[]   @relation("UserFriends") // many to many
 
   // channels
   privateChannels     String[] // array of private channel ids
@@ -52,7 +52,7 @@ model Channel {
 
   isPublic Boolean @default(true)
   password String?
-  salt    String?
+  salt     String?
   owner    String
   
 
