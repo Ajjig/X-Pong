@@ -1,0 +1,43 @@
+/*  Luckiest_Guy  */
+@font-face {
+    font-family: "LuckiestGuy-Regular";
+    src: url("../assets/fonts/Luckiest_Guy/LuckiestGuy-Regular.ttf") format("truetype");
+    font-style: normal;
+}
+
+/* Poppins */
+@font-face {
+    font-family: "Poppins";
+    src: url("../assets/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Poppins-Italic";
+    src: url("../assets/fonts/Poppins/Poppins-Italic.ttf") format("truetype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Poppins-Bold";
+    src: url("../assets/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Poppins-BoldItalic";
+    src: url("../assets/fonts/Poppins/Poppins-BoldItalic.ttf") format("truetype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "valorax";
+    src: url("../assets/fonts/valorax-font/Valorax.otf") format("opentype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "GrandGalaxy";
+    src: url("../assets/fonts/grand-galaxy-font/GrandGalaxy.otf") format("opentype");
+    font-style: normal;
+}
