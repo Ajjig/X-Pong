@@ -19,6 +19,7 @@ import { Server, Socket } from 'socket.io';
 import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -26,12 +27,14 @@ import { UserChatHistoryService } from './user.chat.history.service';
   },
 })
 export class ChatGateway {
+  connectedUsers: Map<string, any>
   constructor(
     private readonly chatService: ChatService,
     private readonly publicChannelService: PublicChannelService,
-    private readonly userChatHistoryService: UserChatHistoryService,
-    private readonly connectedUsers: Map<string, any>
-  ) {}
+    private readonly userChatHistoryService: UserChatHistoryService
+  ) {
+    this.connectedUsers = new Map();
+  }
 
   @WebSocketServer()
   server: Server;
@@ -300,7 +303,12 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    new Logger('Socket').log('Client connected: ' + userdata.username);
     this.connectedUsers[userdata.username] = client;
+    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username);
+    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username);
+    client.emit('privateChat', privateChat);
+    client.emit('publicChat', publicChat);
     await this.chatService.set_user_online(userdata.username);
   }
 
