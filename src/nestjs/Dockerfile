@@ -7,9 +7,6 @@ WORKDIR /workspace/
 
 COPY . .
 
-RUN rm -rf node_modules
-RUN rm -rf dist
-
 RUN npm i
 
 RUN npm i -g @nestjs/cli
