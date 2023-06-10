@@ -2,7 +2,7 @@ import { channel } from 'diagnostics_channel';
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma, PrismaClient } from '.prisma/client';
-import { compare, genSalt, hash } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcryptjs';
 import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
 
