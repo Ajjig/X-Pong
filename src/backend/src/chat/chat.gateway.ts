@@ -19,6 +19,7 @@ import { Server, Socket } from 'socket.io';
 import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -26,11 +27,14 @@ import { UserChatHistoryService } from './user.chat.history.service';
   },
 })
 export class ChatGateway {
+  connectedUsers: Map<string, any>
   constructor(
     private readonly chatService: ChatService,
-    private readonly PublicChannelService: PublicChannelService,
-    private readonly UserChatHistoryService: UserChatHistoryService,
-  ) {}
+    private readonly publicChannelService: PublicChannelService,
+    private readonly userChatHistoryService: UserChatHistoryService
+  ) {
+    this.connectedUsers = new Map();
+  }
 
   @WebSocketServer()
   server: Server;
@@ -146,7 +150,7 @@ export class ChatGateway {
     }
 
     if (
-      !(await this.PublicChannelService.checkSingleUserExsting(
+      !(await this.publicChannelService.checkSingleUserExsting(
         userdata.username,
       ))
     ) {
@@ -155,7 +159,7 @@ export class ChatGateway {
     }
 
     if (
-      !(await this.PublicChannelService.checkSingleChannelExsting(
+      !(await this.publicChannelService.checkSingleChannelExsting(
         payload.channelName,
       ))
     ) {
@@ -164,7 +168,7 @@ export class ChatGateway {
     }
 
     if (
-      !(await this.PublicChannelService.checkUsermemberofChannel(
+      !(await this.publicChannelService.checkUsermemberofChannel(
         userdata.username,
         payload.channelName,
       ))
@@ -207,7 +211,7 @@ export class ChatGateway {
       return;
     }
 
-    const flaggedUsersCheck = await this.PublicChannelService.limitFlagedUsers(
+    const flaggedUsersCheck = await this.publicChannelService.limitFlagedUsers(
       payload.channelName,
       userdata.username,
     );
@@ -224,7 +228,7 @@ export class ChatGateway {
       client.emit('error', 'You have not joined the channel');
       return;
     }
-    await this.PublicChannelService.saveprivatechatmessage(payload);
+    await this.publicChannelService.saveprivatechatmessage(payload);
     client.to(payload.channelName).emit('PublicMessage', payload.msg);
   }
 
@@ -255,10 +259,10 @@ export class ChatGateway {
     }
 
     const result =
-      await this.UserChatHistoryService.getUserPrivateConversationChatHistory(
+      await this.userChatHistoryService.getUserPrivateConversationChatHistory(
         userdata.username,
       );
-    client.emit('getPrivateChat', result);
+    client.emit('privateChat', result);
   }
 
   @SubscribeMessage('getPublicChat')
@@ -270,13 +274,13 @@ export class ChatGateway {
       return;
     }
     const result =
-      await this.UserChatHistoryService.getUserChannelConversationChatHistory(
+      await this.userChatHistoryService.getUserChannelConversationChatHistory(
         userdata.username,
       );
-    client.emit('getPublicChat', result);
+    client.emit('publicChat', result);
   }
 
-  @SubscribeMessage('getlastedchannels')
+  @SubscribeMessage('getLatestChannels')
   async getlastedchannels(@ConnectedSocket() client: Socket) {
     let userdata: any = this.chatService.jwtdecoder(client);
     if (!userdata) {
@@ -285,11 +289,11 @@ export class ChatGateway {
       return;
     }
 
-    const result = await this.PublicChannelService.latestchannels(
+    const result = await this.publicChannelService.latestchannels(
       userdata.username,
     );
 
-    client.emit('getlastedchannels', result);
+    client.emit('letestChannels', result);
   }
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
@@ -299,6 +303,12 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    new Logger('Socket').log('Client connected: ' + userdata.username);
+    this.connectedUsers[userdata.username] = client;
+    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username);
+    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username);
+    client.emit('privateChat', privateChat);
+    client.emit('publicChat', publicChat);
     await this.chatService.set_user_online(userdata.username);
   }
 
@@ -309,6 +319,7 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    this.connectedUsers.delete(userdata.username);
     await this.chatService.set_user_offline(userdata.username);
   }
 }
