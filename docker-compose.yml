@@ -35,7 +35,7 @@ services:
 
   nestjs:
     container_name: nestjs
-    build: ./src/nestjs
+    build: ./src/backend
     env_file:
       - .env
     networks:
@@ -50,7 +50,7 @@ services:
       - postgres  
   postgres:
     container_name: postgres
-    build: ./src/postgres
+    build: ./src/database
     env_file:
       - .env
     networks:
