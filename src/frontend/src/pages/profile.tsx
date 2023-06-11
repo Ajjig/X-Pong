@@ -9,9 +9,11 @@ export default function Profile() {
         api.get("/user/profile")
             .then((res: any) => {
                 if (res.status == 200) store.dispatch(setProfile(res.data));
+                else window.location.href = "/";
             })
             .catch((err: any) => {
-                // console.log(err);
+                // redirect to login
+                window.location.href = "/";
             });
     }, []);
 

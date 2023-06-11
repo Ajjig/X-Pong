@@ -7,15 +7,14 @@ import store, { setProfile } from "@/store/store";
 
 export default function Dashboard() {
     useEffect(() => {
-        // store.subscribe(() => {
-            // console.log(store.getState());
-        // });
         api.get("/user/profile")
             .then((res: any) => {
                 if (res.status == 200) store.dispatch(setProfile(res.data));
+                else window.location.href = "/";
             })
             .catch((err: any) => {
-                // console.log(err);
+                // redirect to login
+                window.location.href = "/";
             });
     }, []);
 
