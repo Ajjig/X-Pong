@@ -25,6 +25,7 @@ import { Logger } from '@nestjs/common';
   cors: {
     origin: '*',
   },
+  namespace: 'chat',
 })
 export class ChatGateway {
   connectedUsers: Map<string, any>

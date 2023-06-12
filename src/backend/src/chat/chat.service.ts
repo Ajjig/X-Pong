@@ -174,9 +174,8 @@ export class ChatService {
       },
       select: {
         text: true,
-        SenderUsername: true,
-        ReceiverUsername: true,
         createdAt: true,
+        senderId: true,
       },
     });
     return messages;
@@ -186,9 +185,12 @@ export class ChatService {
     // get token in cookie if exist else in header
     let token = null;
     try {
-      token = client.handshake.headers.cookie['jwt'] ||
-      client.handshake.headers.authorization.split(' ')[1];
+      token = client.handshake.headers.cookie ||
+        client.handshake.query.jwt ||
+        client.handshake.headers['authorization'].split(' ')[1];
+      
     } catch { }
+
     if (!token) {
       new Logger('CHAT').error('No token found');
       return null;

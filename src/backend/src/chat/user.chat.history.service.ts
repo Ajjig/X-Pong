@@ -11,26 +11,27 @@ export class UserChatHistoryService {
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
+
     let userConversations = [];
+    if (!user) {
+      return userConversations;
+    }
 
     await Promise.all(
       user.privateChannels.map(async (id) => {
-        let chat = await this.prisma.directMessage.findFirst({
+        let chat = await this.prisma.directMessage.findMany({
           where: { privateChannelId: id },
           orderBy: { createdAt: 'desc' },
           select: {
             text: true,
-            SenderUsername: true,
-            ReceiverUsername: true,
             createdAt: true,
             privateChannelId: true,
           },
         });
-        userConversations.push(chat);
+        userConversations.push(...chat);
       }),
     );
 
-    console.log('here');
     return userConversations;
   }
 
@@ -45,7 +46,7 @@ export class UserChatHistoryService {
         channel: { select: { name: true, isPublic: true, owner: true } },
       },
     });
-    console.log(chat);
+
     return chat;
   }
 }
