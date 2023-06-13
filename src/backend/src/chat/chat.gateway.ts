@@ -23,7 +23,7 @@ import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.FRONTEND_URL,
   },
   namespace: 'chat',
 })
