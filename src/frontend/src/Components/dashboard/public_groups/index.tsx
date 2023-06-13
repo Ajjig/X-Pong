@@ -1,31 +1,19 @@
-import {
-    Box,
-    Grid,
-    Title,
-    Text,
-    Button,
-    MantineTheme,
-    Flex,
-    Space,
-    Card,
-    Image,
-    Paper,
-    Group,
-} from "@mantine/core";
-import { IconAdjustmentsQuestion, IconLock, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
+import { Box, Grid, Title, Text, Button, MantineTheme, Flex, Card, Image, Paper, Group, Badge } from "@mantine/core";
+import { IconLock, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
-
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function PublicGroups() {
     const [publicGroups, setPublicGroups] = React.useState<any>([]);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const getLatestPublicGroups = () => {
         setPublicGroups([
             {
                 id: 1,
                 name: "THE GREATEST",
-                description: "In literary theory, a text is any object that can be, whether this object is a work of literature, a street sign, an arrangement of buildings on a city block, or styles of clothing. It is a coherent set of signs that transmits some kind of informative message.",
+                description:
+                    "In literary theory, a text is any object that can be, whether this object is a work of literature, a street sign, an arrangement of buildings on a city block, or styles of clothing. It is a coherent set of signs that transmits some kind of informative message.",
                 members: 10,
                 image: "https://picsum.photos/2000",
             },
@@ -41,10 +29,74 @@ export default function PublicGroups() {
                 name: "TRS-THEAM",
                 description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
                 members: 10,
-                image: "https://picsum.photos/2003",
+                image: "https://picsum.photos/2063",
+            },
+            {
+                id: 4144,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2094",
+            },
+            {
+                id: 4564,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2034",
+            },
+            {
+                id: 4556,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2994",
+            },
+            {
+                id: 4963,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2104",
+            },
+            {
+                id: 488,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2904",
+            },
+            {
+                id: 99,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2904",
+            },
+            {
+                id: 43,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2084",
+            },
+            {
+                id: 47,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2004",
+            },
+            {
+                id: 45,
+                name: "THE GREATEST",
+                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+                members: 10,
+                image: "https://picsum.photos/2004",
             },
         ]);
     };
+    const item = publicGroups.find((item: any) => item.id === selectedId);
 
     useEffect(() => {
         getLatestPublicGroups();
@@ -61,40 +113,6 @@ export default function PublicGroups() {
         }
     }
 
-    // const items = [
-    //     { id: "1", title: "Item 1", subtitle: "Subtitle 1" },
-    //     { id: "2", title: "Item 2", subtitle: "Subtitle 2" },
-    //     { id: "3", title: "Item 3", subtitle: "Subtitle 3" },
-    // ];
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-
-    const item = publicGroups.find((item: any) => item.id === selectedId);
-
-    // return (
-    //     <>
-    //         {items.map((item) => (
-    //             <motion.div layoutId={item.id} onClick={() => setSelectedId(item.id)} style={{
-    //                 cursor: "pointer",
-    //                 transition: "all 0.2s ease",
-    //                 backgroundColor: "red",
-    //             }}>
-    //                 <motion.h5>{item.subtitle}</motion.h5>
-    //                 <motion.h2>{item.title}</motion.h2>
-    //             </motion.div>
-    //         ))}
-
-    //         <AnimatePresence>
-    //             {selectedId && (
-    //                 <motion.div layoutId={selectedId}>
-    //                     <motion.h5>{item.subtitle}</motion.h5>
-    //                     <motion.h2>{item.title}</motion.h2>
-    //                     <motion.button onClick={() => setSelectedId(null)} />
-    //                 </motion.div>
-    //             )}
-    //         </AnimatePresence>
-    //     </>
-    // );
-
     return (
         <Grid gutter={"30px"}>
             {publicGroups.map((group: any) => (
@@ -105,27 +123,14 @@ export default function PublicGroups() {
 
             <AnimatePresence>
                 {selectedId && (
-                    <Box
-                        sx={{
+                    <motion.div
+                        style={{
                             position: "absolute",
                             top: 0,
                             left: 0,
                             zIndex: 999,
                             width: "100%",
                             height: "100%",
-                            //animtion enter
-                            animation: "fadeIn 0.3s ease-in-out forwards",
-
-                            "@keyframes fadeIn": {
-                                "0%": {
-                                    backgroundColor: "rgba(0, 0, 0, 0)",
-                                    opacity: 0,
-                                },
-                                "100%": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                                    opacity: 1,
-                                },
-                            },
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -136,9 +141,24 @@ export default function PublicGroups() {
                                 setSelectedId(null);
                             }
                         }}
+                        initial={{
+                            opacity: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0)",
+                            backdropFilter: "blur(0px)",
+                        }}
+                        animate={{
+                            opacity: 1,
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            backdropFilter: "blur(5px)",
+                        }}
+                        exit={{
+                            opacity: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0)",
+                            backdropFilter: "blur(0px)",
+                        }}
                     >
-                        <motion.div layoutId={selectedId} >
-                            <Card p={0} radius="lg" bg="gray.9" maw='500px'>
+                        <motion.div layoutId={selectedId}>
+                            <Card p={0} radius="lg" bg="gray.9" maw="500px" mx={10}>
                                 <Card.Section>
                                     <Image src={item.image} alt="item image" height={90} />
                                 </Card.Section>
@@ -162,11 +182,7 @@ export default function PublicGroups() {
                                             }}
                                             withBorder
                                         >
-                                            {Icon(
-                                                ["public", "private", "protected"][
-                                                    Math.floor(Math.random() * 3)
-                                                ]
-                                            )}
+                                            {Icon(["public", "private", "protected"][Math.floor(Math.random() * 3)])}
                                         </Paper>
                                     </Flex>
                                 </Box>
@@ -184,9 +200,9 @@ export default function PublicGroups() {
                                     <Text my="xs" lineClamp={20} color="dummy" fz={"sm"}>
                                         {item.description}
                                     </Text>
-                                    <Text color="dummy" fz={"sm"}>
+                                    <Badge variant="light" color="orange" radius="xl">
                                         {item.members} members
-                                    </Text>
+                                    </Badge>
                                 </Box>
                                 <Group p={20} position="right">
                                     <Button
@@ -204,7 +220,7 @@ export default function PublicGroups() {
                                 </Group>
                             </Card>
                         </motion.div>
-                    </Box>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </Grid>
@@ -212,8 +228,11 @@ export default function PublicGroups() {
 }
 
 function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; onClick: any }) {
+    const { id, name, description, members, image } = group;
+    const Icon = get_icon(["public", "private", "protected"][Math.floor(Math.random() * 3)]);
+
     return (
-        <motion.div layoutId={group.id} onClick={onClick}>
+        <motion.div layoutId={id} onClick={onClick}>
             <Card
                 p={0}
                 radius="lg"
@@ -229,7 +248,7 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
                 })}
             >
                 <Card.Section>
-                    <Image src={group.image} alt="Group image" height={200} />
+                    <Image src={image} alt="Group image" height={200} />
                 </Card.Section>
                 <Box
                     sx={{
@@ -239,7 +258,7 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
                 >
                     <Flex w={50} h={50} align="center" justify="center">
                         <Paper radius="xl" p={10} bg="gray.9">
-                            {get_icon(["public", "private", "protected"][Math.floor(Math.random() * 3)])}
+                            {get_icon(Icon)}
                         </Paper>
                     </Flex>
                 </Box>
@@ -252,14 +271,14 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
                     })}
                 >
                     <Title order={3} color="gray.2">
-                        {group.name}
+                        {name}
                     </Title>
                     <Text my="xs" lineClamp={2} color="dummy" fz={"sm"}>
-                        {group.description}
+                        {description}
                     </Text>
-                    <Text color="dummy" fz={"sm"}>
-                        {group.members} members
-                    </Text>
+                    <Badge variant="light" color="orange" radius="xl">
+                        {members} members
+                    </Badge>
                 </Box>
             </Card>
         </motion.div>

@@ -20,7 +20,7 @@ export default function Profile() {
     return (
         <>
             <Head title="Profile" description="Profile" keywords="Profile" icon="/favicon.ico" />
-            <ProfileLayout />;
+            <ProfileLayout />
         </>
     );
 }

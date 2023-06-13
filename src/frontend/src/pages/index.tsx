@@ -83,6 +83,8 @@ export default function Home() {
     //         });
     // }, []);
 
+ 
+
     return (
         <Suspense fallback={<LoadingIcon />}>
             <Box className={cx(classes.container, classes.animation_apperance)}>

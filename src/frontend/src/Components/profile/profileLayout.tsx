@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Container, MantineTheme, Paper, Space, Title } from "@mantine/core";
+import { Avatar, Box, Button, Container, Grid, MantineTheme, Paper, Space, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
@@ -23,81 +23,82 @@ export function ProfileLayout({}: props) {
     }, []);
 
     return (
-        <AppShell
-            styles={{
-                main: {
-                    margin: 0,
-                    padding: 0,
-                    background: theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[0],
-                },
-            }}
-            header={<HeaderDashboard />}
-        >
-            <Container mt={70}>
+        <>
+            <HeaderDashboard />
+            <Container>
                 <Box
-                    sx={{
-                        background: `linear-gradient(180deg, ${theme.colors.orange[8]} 0%, ${theme.colors.red[9]} 100%)`,
+                    sx={(theme: MantineTheme) => ({
+                        background: `url(${"https://picsum.photos/3000"})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
                         width: "100%",
                         borderRadius: "0 0 50px 50px",
-                        height: "150px",
-                        borderBottom: "10px solid #fff",
-                    }}
+                        height: "300px",
+                        [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                            height: "150px",
+                        },
+                        borderBottom: `10px solid ${theme.colors.gray[4]}`,
+                        position: "relative",
+                    })}
                 >
                     <Box>
                         <Flex align="center" justify="right" p={20}>
-                            <Button size="xs" color="gray" radius="md" onClick={() => {}} leftIcon={<IconEdit size={20} />}>
+                            <Button
+                                size="xs"
+                                color="gray"
+                                radius="md"
+                                onClick={() => {}}
+                                leftIcon={<IconEdit size={20} />}
+                                sx={{
+                                    color: theme.colors.gray[1],
+                                }}
+                            >
                                 Edit Profile
                             </Button>
                         </Flex>
                     </Box>
                     <Box
-                        // sx={{
-                        //     transform: "translateY(62%)",
-                        // }}
+                        sx={(theme: MantineTheme) => ({
+                            position: "absolute",
+                            bottom: "-50%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                bottom: "-85%",
+                            },
+                        })}
                     >
                         <UserInfo profile={profile} />
                     </Box>
                 </Box>
-                {/* <Grid.Col
-                        xs={12}
-                        md={6}
-                        sx={(Theme: MantineTheme) => {
-                            return {
-                                // transform: "translateY(-40%)",
-                            };
-                        }}
-                    >
-                        <Box
-                            style={{
-                                height: 200,
-                                background:
-                                    theme.colorScheme === "dark"
-                                        ? theme.colors.dark[7]
-                                        : theme.colors.gray[0],
-                            }}
-                        />
-                    </Grid.Col> */}
-                {/* <Grid.Col
-                        xs={12}
-                        md={6}
-                        sx={(Theme: MantineTheme) => {
-                            return {
-                                // transform: "translateY(-40%)",
-                            };
-                        }}
-                    >
-                        <Box
-                            style={{
-                                height: 200,
-                                background:
-                                    theme.colorScheme === "dark"
-                                        ? theme.colors.dark[7]
-                                        : theme.colors.gray[0],
-                            }}
-                        />
-                    </Grid.Col> */}
+                <Box mt={100}>
+                    <Grid bg={'gray.9'}>
+                        <Grid.Col span={12}>
+                            <Paper radius={20} bg={"transparent"}>
+                                <Box p={20}>
+                                    <Title
+                                        order={2}
+                                        sx={(theme: MantineTheme) => ({
+                                            fontSize: "1.3rem",
+                                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                                fontSize: "1.2rem",
+                                            },
+                                            [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                                fontSize: "1rem",
+                                            },
+                                            color: theme.colors.gray[4],
+                                        })}
+                                    >
+                                        Match History
+                                    </Title>
+                                   
+                                </Box>
+                            </Paper>
+                        </Grid.Col>
+
+                    </Grid>
+                </Box>
             </Container>
-        </AppShell>
+        </>
     );
 }
-

@@ -8,7 +8,11 @@ const initialStateSocket = {
 const socketSlice = createSlice({
     name: "socket",
     initialState: initialStateSocket,
-    reducers: {},
+    reducers: {
+        setSocket: (state, action) => {
+            state.socket = action.payload;
+        }
+    },
 });
 
 export {

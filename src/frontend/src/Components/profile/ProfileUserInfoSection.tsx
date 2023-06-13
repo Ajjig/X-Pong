@@ -3,15 +3,28 @@ import { MantineTheme } from "@mantine/core"
 
 export function UserInfo({ profile }: { profile: any }) {
     return (
-        <Paper radius={20} bg={"transparent"}>
+        <Paper radius={20} bg={"transparent"} sx={(theme: MantineTheme) => ({
+            // add after that take the color of the background 
+            '&:after': {
+                content: '""',
+                position: 'absolute',
+                zIndex: -1,
+                top: '30%',
+                left: '-15%',
+                width: '130%',
+                height: '80%',
+                backgroundColor: `${theme.colors.dark[7]}`,
+                borderRadius: '50%',
+            },
+        })}>
             <Flex direction="column" justify="center" align="center">
                 <Box
-                    sx={{
-                        border: "8px solid #fff",
+                    sx={(theme: MantineTheme) => ({
+                        border: `8px solid ${theme.colors.gray[2]}`,
                         borderRadius: "100%",
                         width: "fit-content",
                         margin: "0px",
-                    }}
+                    })}
                 >
                     <Avatar
                         src={profile?.avatarUrl}
@@ -45,12 +58,12 @@ export function UserInfo({ profile }: { profile: any }) {
                         [theme.fn.smallerThan(theme.breakpoints.xs)]: {
                             fontSize: "1rem",
                         },
+                        color: theme.colors.gray[4],
                     })}
                 >
-                    {profile?.name}
+                    {profile?.name} mohamed ali zribi Dolta
                 </Title>
                 <Text
-                    color="gray.4"
                     sx={(theme: MantineTheme) => ({
                         fontSize: "1rem",
                         [theme.fn.smallerThan(theme.breakpoints.sm)]: {
@@ -59,6 +72,7 @@ export function UserInfo({ profile }: { profile: any }) {
                         [theme.fn.smallerThan(theme.breakpoints.xs)]: {
                             fontSize: "0.7rem",
                         },
+                        color: theme.colors.gray[6],
                     })}
                 >
                     @{profile?.username}
