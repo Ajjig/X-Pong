@@ -18,13 +18,26 @@ export default function Dashboard() {
                 window.location.href = "/";
             });
 
-        const socket = io("http://localhost:3000/chat", { withCredentials: true });
-
-        socket.connected && console.log("connected");
-
-        socket.on("connect", () => {
-            console.log("connected");
+        const socket = io("http://localhost:3000/chat", {
+            withCredentials: true,
         });
+
+        socket.on("disconnect", () => {
+            console.log("disconnected");
+        });
+
+        socket.on("error", (data: any) => {
+            console.log(data);
+        });
+        
+        socket.on("privateChat", (data) => {
+            console.log(data);
+        });
+
+        socket.on("publicChat", (data) => {
+            console.log(data);
+        });
+
     }, []);
 
     return (

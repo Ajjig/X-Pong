@@ -102,14 +102,24 @@ export class ChatService {
   ): Promise<string> {
     const senderID = await this.prisma.user.findUnique({
       where: { username: sender },
+      select: { id: true },
     });
     const receiverID = await this.prisma.user.findUnique({
       where: { username: receiver },
+      select: { id: true },
     });
 
-    let genid: number = +senderID.id + +receiverID.id + 1005;
+    if (!senderID || !receiverID) {
+      return null;
+    }
 
-    const id = `__private__${genid}`;
+    let genid = null;
+    if (senderID.id < receiverID.id)
+      genid = senderID.id + "+" + receiverID.id;
+    else
+      genid = receiverID.id + "+" + senderID.id;
+
+    const id = `__private__@${genid}`;
     return id;
   }
 
@@ -185,14 +195,12 @@ export class ChatService {
     // get token in cookie if exist else in header
     let token = null;
     try {
-      token = client.handshake.headers.cookie ||
-        client.handshake.query.jwt ||
-        client.handshake.headers['authorization'].split(' ')[1];
+ 
+      token = client.handshake.headers.cookie.split('=')[1];
       
     } catch { }
 
     if (!token) {
-      new Logger('CHAT').error('No token found');
       return null;
     }
     try {

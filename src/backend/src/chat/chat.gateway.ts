@@ -24,6 +24,7 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL,
+    credentials: true,
   },
   namespace: 'chat',
 })
@@ -58,6 +59,11 @@ export class ChatGateway {
       userdata.username,
       payload.receiver,
     );
+
+    if (!channelID) {
+      client.emit('error', 'Payload is not valid');
+      return;
+    }
 
     const channelcheck = await this.chatService.checkSingleChannelExsting(
       userdata.username,

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { Console } from 'console';
 
 @Injectable()
 export class UserChatHistoryService {
@@ -26,9 +27,30 @@ export class UserChatHistoryService {
             text: true,
             createdAt: true,
             privateChannelId: true,
+            senderId: true,
+            receiverId: true,
           },
         });
-        userConversations.push(...chat);
+        let ids = null;
+        try {
+          ids = id.split('@')[1].split('+');
+        } catch { return; }
+
+        if (ids.length != 2) {
+          return;
+        }
+
+        const otherUserId: number = parseInt(ids[0]) == user.id ? parseInt(ids[1]) : parseInt(ids[0]);
+        const otherUser = await this.prisma.user.findUnique({
+          where: { id: otherUserId },
+          select: {
+            username: true,
+            id: true,
+            avatarUrl: true,
+          },
+        });
+        const conv = { chat, otherUser };
+        userConversations.push(conv);
       }),
     );
 
