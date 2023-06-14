@@ -18,7 +18,9 @@ export default function Dashboard() {
                 window.location.href = "/";
             });
 
-        const socket = io("http://localhost:3000", { withCredentials: true });
+        const socket = io("http://localhost:3000/chat", { withCredentials: true });
+
+        socket.connected && console.log("connected");
 
         socket.on("connect", () => {
             console.log("connected");
