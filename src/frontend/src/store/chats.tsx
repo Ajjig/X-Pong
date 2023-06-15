@@ -1,36 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialStateProfile = {
-    PrivateChats: [
-        {
-            id: 0,
-            name: "Rashid",
-            last_message: "who are you doing",
-            time: "12:00",
-            avatar: "https://picsum.photos/200/300",
-        },
-        {
-            id: 1,
-            name: "John Doe",
-            last_message: "Wanna play?",
-            time: "12:00",
-            avatar: "https://picsum.photos/200/301",
-        },
-        {
-            id: 2,
-            name: "John Doe",
-            last_message: "Hello",
-            time: "12:00",
-            avatar: "https://picsum.photos/200/302",
-        },
-        {
-            id: 4,
-            name: "It's Batata",
-            last_message: "Hello",
-            time: "12:00",
-            avatar: "https://picsum.photos/200/303",
-        },
-    ],
+    PrivateChats: [],
     GroupChats: [],
     currentChat: null,
 };
@@ -51,6 +22,4 @@ const ChatsSlice = createSlice({
     },
 });
 
-export  {
-    ChatsSlice
-};
+export { ChatsSlice };

@@ -1,10 +1,55 @@
 import { Avatar, Box, Flex, useMantineTheme, Text, Divider } from "@mantine/core";
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import store, { setCurrentChat } from "@/store/store";
 
 export function Chat({ chat }: { chat: any }) {
     const theme = useMantineTheme();
+    const [date, setDate] = useState<string>("");
+
+    console.log("HERERERERER", chat);
+
+    function get_last_message() {
+        const last_message = chat.chat[0];
+        return last_message.text;
+    }
+
+    function date_last_message(): string {
+        const last_message = chat.chat[0];
+
+        const date = new Date(last_message.createdAt);
+        const date_now = new Date();
+
+        const date_diff = date_now.getTime() - date.getTime();
+
+        const days = Math.floor(date_diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(date_diff / (1000 * 60 * 60));
+        const minutes = Math.floor(date_diff / (1000 * 60));
+        const seconds = Math.floor(date_diff / 1000);
+
+        if (days > 0) {
+            return `${days} days ago`;
+        }
+        if (hours > 0) {
+            return `${hours} hours ago`;
+        }
+        if (minutes > 0) {
+            return `${minutes} minutes ago`;
+        }
+        if (seconds > 0) {
+            return `${seconds} seconds ago`;
+        }
+        return "now";
+    }
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDate(date_last_message());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+
     return (
         <motion.div
             drag
@@ -27,18 +72,18 @@ export function Chat({ chat }: { chat: any }) {
             }}
         >
             <Flex p="sm" align="center">
-                <Avatar src={chat.avatar} size="45px" radius="xl" />
+                <Avatar src={chat.otherUser.avatarUrl} size="45px" radius="xl" />
                 <Flex justify="space-between" w="100%">
                     <Box ml={15}>
                         <Text fz="md" fw="bold" color="gray.1">
-                            {chat.name}
+                            {chat.otherUser.username}
                         </Text>
                         <Text color="gray.5" fz="sm">
-                            {chat.last_message}
+                            {get_last_message()}
                         </Text>
                     </Box>
                     <Box color="gray" fz="xs">
-                        {chat.time}
+                        {date}
                     </Box>
                 </Flex>
             </Flex>

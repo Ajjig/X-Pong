@@ -3,7 +3,7 @@ import { DashboardLayout } from "@/Components/dashboard/dashboard_layout";
 import { Head } from "@/Components/head";
 import { useEffect } from "react";
 import api from "@/api";
-import store, { setProfile } from "@/store/store";
+import store, { setPrivateChats, setProfile } from "@/store/store";
 import { io } from "socket.io-client";
 
 export default function Dashboard() {
@@ -22,22 +22,36 @@ export default function Dashboard() {
             withCredentials: true,
         });
 
+        socket.on("connect", () => {
+            console.log("connected");
+        });
+
+        // socket.emit("message", {
+        //     receiver: "alo",
+        //     msg: "Hello",
+        // });
+
         socket.on("disconnect", () => {
             console.log("disconnected");
+        });
+
+        // listen to all events from server
+        socket.onAny((event, ...args) => {
+            console.log(event, args);
         });
 
         socket.on("error", (data: any) => {
             console.log(data);
         });
-        
+
         socket.on("privateChat", (data) => {
-            console.log(data);
+            console.log("privateChat: ", data);
+            store.dispatch(setPrivateChats(data));
         });
 
         socket.on("publicChat", (data) => {
-            console.log(data);
+            console.log("publicChat: ", data);
         });
-
     }, []);
 
     return (
