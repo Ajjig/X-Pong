@@ -3,7 +3,7 @@ import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import { ListChats } from "./components/ListChats";
 
-export default function Chats({ setChat }: { setChat: (chat: ReactElement) => void }) {
+export default function List_of_chats({ setChat }: { setChat: (chat: ReactElement) => void }) {
     const [value, setValue] = useState("Messages");
 
     useEffect(() => {

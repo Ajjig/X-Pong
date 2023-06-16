@@ -5,12 +5,12 @@ import { useMantineTheme, Flex } from "@mantine/core";
 
 import { AppShell, Navbar, Header, Footer, Aside, Text, MediaQuery, Burger } from "@mantine/core";
 import HeaderDashboard from "./header";
-import Chats from "./chat/chats";
+import Chats from "./list_of_chats/chats";
 import PublicGroups from "./public_groups";
 import store from "@/store/store";
 import { motion } from "framer-motion";
 import { IconArrowNarrowLeft, IconSend } from "@tabler/icons-react";
-import { PrivateChatMenu } from "./chat/components/privateChatMenu";
+import { PrivateChatMenu } from "./list_of_chats/components/privateChatMenu";
 import AsideChatInfo from "./aside";
 import { useMediaQuery } from "@mantine/hooks";
 
@@ -20,7 +20,6 @@ export function DashboardLayout() {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
     const [chat, setChat] = useState<any>(null);
-    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const AsideWidth = "300px";
 
@@ -44,7 +43,7 @@ export function DashboardLayout() {
             navbarOffsetBreakpoint="sm"
             asideOffsetBreakpoint="sm"
             navbar={
-                <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ xs: 300, lg: 400 }}>
+                <Navbar hiddenBreakpoint="xs" hidden={!opened} width={{ xs: 350, lg: 400 }}>
                     <Chats setChat={setChat} />
                 </Navbar>
             }

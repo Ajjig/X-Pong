@@ -4,7 +4,7 @@ import { Head } from "@/Components/head";
 import { useEffect } from "react";
 import api from "@/api";
 import store, { setPrivateChats, setProfile } from "@/store/store";
-import { io } from "socket.io-client";
+import socket from "@/socket";
 
 export default function Dashboard() {
     useEffect(() => {
@@ -18,9 +18,7 @@ export default function Dashboard() {
                 window.location.href = "/";
             });
 
-        const socket = io("http://localhost:3000/chat", {
-            withCredentials: true,
-        });
+        
 
         socket.on("connect", () => {
             console.log("connected");

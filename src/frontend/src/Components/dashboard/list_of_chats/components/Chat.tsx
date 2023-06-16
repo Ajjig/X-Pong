@@ -76,7 +76,7 @@ export function Chat({ chat }: { chat: any }) {
                 <Flex justify="space-between" w="100%">
                     <Box ml={15}>
                         <Text fz="md" fw="bold" color="gray.1">
-                            {chat.otherUser.username}
+                            {chat.otherUser.name}
                         </Text>
                         <Text color="gray.5" fz="sm">
                             {get_last_message()}

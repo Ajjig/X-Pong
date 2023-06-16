@@ -1,8 +1,9 @@
-import { Box, Divider, MantineTheme, Navbar, Space } from "@mantine/core";
+import { Box, Divider, MantineTheme, Navbar, Space, Text } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
 import { ButtonMenu } from "./ButtonMenu";
 import { Chat } from "./Chat";
+import { IconMoodEmpty } from "@tabler/icons-react";
 
 export function ListChats({}: {}) {
     const [chats, setChats] = useState<any>([]);
@@ -19,6 +20,23 @@ export function ListChats({}: {}) {
         <>
             <Box w={"100%"} h="100%" p="md">
                 <Navbar.Section>
+                    {chats.length == 0 && (
+                        <Box
+                            sx={(theme: MantineTheme) => ({
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "center",
+                                height: "30vh",
+                                width: "100%",
+                                color: theme.colors.gray[6],
+                                flexDirection: "column",
+                            })}
+                        >
+                            <IconMoodEmpty size={50} />
+                            <Space h={5} />
+                            <Text>No chats yet</Text>
+                        </Box>
+                    )}
                     {chats.map((chat: any, index: number) => (
                         <Box key={index}>
                             <Space py={2} />
