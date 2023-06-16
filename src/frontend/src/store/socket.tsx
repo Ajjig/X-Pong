@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import socket from "@/Components/socket/create_socket";
+import { io } from "socket.io-client";
 
 const initialStateSocket = {
-    socket: socket,
+    socket: io("http://localhost:3000/chat", {
+        withCredentials: true,
+    }),
 };
 
 const socketSlice = createSlice({
@@ -11,10 +13,8 @@ const socketSlice = createSlice({
     reducers: {
         setSocket: (state, action) => {
             state.socket = action.payload;
-        }
+        },
     },
 });
 
-export {
-    socketSlice
-}
+export { socketSlice };

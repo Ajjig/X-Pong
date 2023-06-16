@@ -27,7 +27,7 @@ export default function Dashboard() {
         });
 
         // socket.emit("message", {
-        //     receiver: "alo",
+        //     receiver: "BATATA",
         //     msg: "Hello",
         // });
 

@@ -47,6 +47,7 @@ export class UserChatHistoryService {
             username: true,
             id: true,
             avatarUrl: true,
+            name: true,
           },
         });
         const conv = { chat, otherUser };
