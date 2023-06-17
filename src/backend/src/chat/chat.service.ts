@@ -229,19 +229,21 @@ export class ChatService {
     if (check && check.onlineStatus === 'online') {
       return;
     }
-
-    const user = await this.prisma.user.update({
-      where: {
-        username: username,
-      },
-      data: {
-        onlineStatus: 'online',
-      },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          username: username,
+        },
+        data: {
+          onlineStatus: 'online',
+        },
+      });
+    } catch (error) {}
   }
 
   async set_user_offline(username: string): Promise<void> {
-    const user = await this.prisma.user.update({
+    try {
+      const user = await this.prisma.user.update({
       where: {
         username: username,
       },
@@ -249,7 +251,8 @@ export class ChatService {
         onlineStatus: 'offline',
       },
     });
-  }
+  } catch (error) {}
+}
 
   async get_user_status(username: string): Promise<string> {
     const user = await this.prisma.user.findUnique({
