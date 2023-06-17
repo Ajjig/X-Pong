@@ -74,7 +74,7 @@ export class InfoUserService {
         createdAt: true,
         updatedAt: true,
         owner: true,
-        isPublic: true,
+        type: true,
       },
     });
 

@@ -67,7 +67,7 @@ export class UserChatHistoryService {
         content: true,
         sender: true,
         createdAt: true,
-        channel: { select: { name: true, isPublic: true, owner: true } },
+        channel: { select: { name: true, type: true, owner: true } },
       },
     });
 

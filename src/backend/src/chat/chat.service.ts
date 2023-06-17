@@ -290,7 +290,7 @@ export class ChatService {
       select: {
         name: true,
         id: true,
-        isPublic: true,
+        type: true,
         owner: true,
       },
     });

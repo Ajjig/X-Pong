@@ -4,7 +4,7 @@ export class CreateChannelDto {
   name: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
-  isPublic?: boolean;
+  type?: string;
   password?: string | null;
   salt?: string | null;
   owner: string;

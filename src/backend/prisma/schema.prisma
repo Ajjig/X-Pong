@@ -50,7 +50,7 @@ model Channel {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  isPublic Boolean @default(true)
+  type     String? // public, private
   password String?
   salt     String?
   owner    String

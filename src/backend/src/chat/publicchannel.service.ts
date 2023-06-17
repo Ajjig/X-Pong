@@ -138,7 +138,7 @@ export class PublicChannelService {
         name: true,
         createdAt: true,
         owner: true,
-        isPublic: true,
+        type: true,
       },
     });
 

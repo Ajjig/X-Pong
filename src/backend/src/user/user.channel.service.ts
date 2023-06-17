@@ -16,7 +16,7 @@ export class UserChannelService {
 
   async createChannelByUsername(
     username: string,
-    channel: Prisma.ChannelCreateInput,
+    channel: any,
   ) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -30,18 +30,22 @@ export class UserChannelService {
       const check_password = this.UserPasswordService.validatePassword(
         channel.password,
       );
-      if (!channel.isPublic && (await check_password).validated == false) {
+      if (channel.password && (await check_password).validated == false) {
         throw new HttpException('Weak password', 400);
       }
 
+
+      if (['public', 'private'].includes(channel.type) == false) {
+        throw new HttpException('Invalid channel type', 400);
+      }
       const newChannel = await this.prisma.channel.create({
         data: {
           members: { connect: { id: user.id } },
           admins: { connect: { id: user.id } },
           name: channel.name,
-          isPublic: channel.isPublic,
-          password: channel.isPublic ? null : (await check_password).password,
-          salt: channel.isPublic ? null : (await check_password).salt,
+          type: channel.type,
+          password: channel.type == 'public' ? null : (await check_password).password,
+          salt: channel.type == 'public' ? null : (await check_password).salt,
           owner: channel.owner ? channel.owner : user.username,
         },
       });
@@ -215,7 +219,7 @@ export class UserChannelService {
         throw new HttpException('Channel does not exist', 400);
       }
 
-      if (channelcheck.isPublic == true) {
+      if (channelcheck.type == 'public') {
         throw new HttpException('Channel is public', 400);
       }
 
@@ -261,7 +265,7 @@ export class UserChannelService {
         where: { name: channelname },
         data: {
           password: null,
-          isPublic: true,
+          type: 'public',
         },
       });
       return { channel };
