@@ -1,16 +1,13 @@
-import Image from "next/image";
-import { useState, useEffect, Suspense, use } from "react";
-import styles from "@/styles/Home.module.css";
-import { Inter } from "@next/font/google";
-import { Box, Button, createStyles, Title, Text, Flex } from "@mantine/core";
+import { Suspense } from "react";
+import { Box, createStyles } from "@mantine/core";
 import { useRive } from "@rive-app/react-canvas";
-import { Head } from "@/Components/head";
 
+// components
+import { Head } from "@/Components/head";
 import { Scene } from "@/Components/scene";
 import { Canvas } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { Welcome } from "@/Components/welcome";
-import api from "@/api";
 
 const useStyles = createStyles((theme) => ({
     container: {
@@ -29,7 +26,6 @@ const useStyles = createStyles((theme) => ({
         width: "100%",
         height: "100%",
         zIndex: 1,
-        // background: ''
     },
 
     dom_content: {
@@ -82,8 +78,6 @@ export default function Home() {
     //             console.log(err);
     //         });
     // }, []);
-
- 
 
     return (
         <Suspense fallback={<LoadingIcon />}>

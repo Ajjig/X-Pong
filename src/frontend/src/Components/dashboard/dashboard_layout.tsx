@@ -1,8 +1,6 @@
 import { Avatar, Box, Button, Divider, Grid, Group, Input, MantineTheme, Space } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
-// import Header from "./header";
-
 import { AppShell, Navbar, Header, Footer, Aside, Text, MediaQuery, Burger } from "@mantine/core";
 import HeaderDashboard from "./header";
 import Chats from "./list_of_chats/chats";
@@ -11,8 +9,8 @@ import store from "@/store/store";
 import { motion } from "framer-motion";
 import { IconArrowNarrowLeft, IconSend } from "@tabler/icons-react";
 import { PrivateChatMenu } from "./list_of_chats/components/privateChatMenu";
-import AsideChatInfo from "./aside";
 import { useMediaQuery } from "@mantine/hooks";
+import socket from "@/socket";
 
 import { AnimatePresence } from "framer-motion";
 
@@ -27,7 +25,6 @@ export function DashboardLayout() {
         setChat(store.getState().chats.currentChat);
         store.subscribe(() => {
             setChat(store.getState().chats.currentChat);
-            console.log("chat", store.getState().chats.currentChat);
         });
     }, []);
 
@@ -69,12 +66,7 @@ export function DashboardLayout() {
                     </motion.div>
                 )}
                 {!chat && (
-                    <motion.div
-                        key="modal2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
+                    <motion.div key="modal2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <Box
                             p="md"
                             mah="90vh"
@@ -106,50 +98,23 @@ export function DashboardLayout() {
     );
 }
 
-function ChatContainer({
-    user,
-    setSelected,
-    AsideWidth,
-    opened,
-    chat,
-}: {
-    user: any;
-    setSelected: any;
-    AsideWidth: any;
-    opened: any;
-    chat: any;
-}) {
+function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: any; AsideWidth: any; opened: any; chat: any }) {
+    const [friend, setFriend] = useState<any>(chat.otherUser);
     const theme = useMantineTheme();
     const isMobile = useMediaQuery("(max-width: 768px)");
     // const [user, setUser] = useState(user);
 
-    const [messages, setMessages] = useState([
-        {
-            id: 0,
-            message: "Hello",
-            time: "12:00",
-            from: "me",
-        },
-        {
-            id: 1,
-            message: "Hello",
-            time: "12:00",
-            from: "other",
-        },
-        {
-            id: 2,
-            message: "fin awlad latifa? 💁👌🎍😍",
-            time: "12:00",
-            from: "me",
-        },
-    ]);
+    const [messages, setMessages] = useState<any>(chat.chat || []);
 
     const [message, setMessage] = useState("");
     const scrollRef = useRef<Readonly<HTMLDivElement> | null>(null);
 
     const sendMessage = (message: any) => {
         if (!message || message.message === "") return;
-        setMessages([...messages, message]);
+        socket.emit("message", {
+            receiver: friend.username,
+            msg: message.message,
+        });
         setMessage("");
     };
 
@@ -164,6 +129,9 @@ function ChatContainer({
         <Box>
             <Flex>
                 <motion.div
+                    style={{
+                        cursor: "pointer",
+                    }}
                     transition={{
                         duration: 0.1,
                     }}
@@ -197,14 +165,14 @@ function ChatContainer({
                 <Space w={10} />
                 <Flex justify="space-between" w="100%">
                     <Group w={"100%"}>
-                        <Avatar src={user.avatar} size="md" radius="xl" />
+                        <Avatar src={friend.avatarUrl} size="md" radius="xl" />
                         <Box ml={-6}>
                             <Text fw="bold" fz="md">
-                                {user.name}
+                                {friend.name}
                             </Text>
                         </Box>
                     </Group>
-                    {isMobile || 1 ? <PrivateChatMenu user={user} /> : null}
+                    {isMobile || 1 ? <PrivateChatMenu user={friend} /> : null}
                 </Flex>
             </Flex>
             <Divider mt="md" size="xs" color="gray.7" />
@@ -233,9 +201,9 @@ function ChatContainer({
                 }}
                 ref={scrollRef}
             >
-                {messages.map((message, index) => (
+                {messages.map((message: any, index: number) => (
                     <Box key={index} mb={10}>
-                        <Message message={message} username={user.name} />
+                        <Message message={message} friend={friend} />
                     </Box>
                 ))}
             </Box>
@@ -256,9 +224,7 @@ function ChatContainer({
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
                                 sendMessage({
-                                    id: 1,
                                     message: message,
-                                    time: "12:00",
                                     from: "me",
                                 });
                             }
@@ -271,9 +237,7 @@ function ChatContainer({
                         size="xs"
                         onClick={() => {
                             sendMessage({
-                                id: 1,
                                 message: message,
-                                time: "12:00",
                                 from: "me",
                             });
                         }}
@@ -286,20 +250,44 @@ function ChatContainer({
     );
 }
 
-function Message({ message, username }: { message: any; username: string }) {
+function Message({ message, friend }: { message: any; friend: any }) {
     const theme = useMantineTheme();
+    function date_last_message(): string {
+        const date = new Date(message.createdAt);
+        const date_now = new Date();
+        const date_diff = date_now.getTime() - date.getTime();
+        const days = Math.floor(date_diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(date_diff / (1000 * 60 * 60));
+        const minutes = Math.floor(date_diff / (1000 * 60));
+        const seconds = Math.floor(date_diff / 1000);
+
+        if (days > 0) {
+            return `${days} days ago`;
+        }
+        if (hours > 0) {
+            return `${hours} hours ago`;
+        }
+        if (minutes > 0) {
+            return `${minutes} minutes ago`;
+        }
+        if (seconds > 0) {
+            return `${seconds} seconds ago`;
+        }
+        return "now";
+    }
+
     return (
         <Box>
-            <Flex justify={message.from === "me" ? "flex-end" : "flex-start"}>
+            <Flex justify={friend.id !== message.senderId ? "flex-end" : "flex-start"}>
                 <Box
                     m={10}
                     p={10}
-                    bg={message.from === "me" ? "gray.9" : "gray.8"}
+                    bg={friend.id !== message.senderId ? "gray.9" : "gray.8"}
                     sx={{
                         borderRadius:
-                            message.from !== "me"
-                                ? `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.lg} ${0}`
-                                : `${theme.radius.lg} ${theme.radius.lg} ${0} ${theme.radius.lg}`,
+                            friend.id !== message.senderId
+                                ? `${theme.radius.lg} ${theme.radius.lg} ${0} ${theme.radius.lg}`
+                                : `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.lg} ${0}`,
                         maxWidth: "500px",
                         wordWrap: "break-word",
                     }}
@@ -307,14 +295,14 @@ function Message({ message, username }: { message: any; username: string }) {
                     {/* name and message */}
                     <Flex justify="space-between">
                         <Text fz="xs" color="gray.5">
-                            {message.from === "me" ? "Me" : username}
+                            {friend.id !== message.senderId ? "Me" : friend.username}
                         </Text>
                         <Space w={20} />
                         <Text fz="xs" color="gray.5">
-                            {message.time}
+                            {date_last_message()}
                         </Text>
                     </Flex>
-                    <Text fz="sm">{message.message}</Text>
+                    <Text fz="sm">{message.text}</Text>
                 </Box>
             </Flex>
         </Box>

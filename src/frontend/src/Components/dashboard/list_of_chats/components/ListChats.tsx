@@ -1,9 +1,11 @@
 import { Box, Divider, MantineTheme, Navbar, Space, Text } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
-import { ButtonMenu } from "./ButtonMenu";
 import { Chat } from "./Chat";
 import { IconMoodEmpty } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
+import Search from "./search";
+import { spotlight } from "@mantine/spotlight";
 
 export function ListChats({}: {}) {
     const [chats, setChats] = useState<any>([]);
@@ -55,7 +57,26 @@ export function ListChats({}: {}) {
                     right: theme.spacing.md,
                 })}
             >
-                <ButtonMenu />
+                <Box
+                    sx={(theme: MantineTheme) => ({
+                        borderRadius: "100%",
+                        background: theme.colors.orange[8],
+                        width: 50,
+                        height: 50,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        color: theme.colors.orange[1],
+                    })}
+                    onClick={() => {
+                        spotlight.open()
+                    }}
+                >
+                    <Search>
+                        <IconPlus size={25} />
+                    </Search>
+                </Box>
             </Box>
         </>
     );

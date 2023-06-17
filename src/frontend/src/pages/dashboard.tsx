@@ -34,9 +34,9 @@ export default function Dashboard() {
         });
 
         // listen to all events from server
-        socket.onAny((event, ...args) => {
-            console.log(event, args);
-        });
+        // socket.onAny((event, ...args) => {
+        //     console.log(event, args);
+        // });
 
         socket.on("error", (data: any) => {
             console.log(data);
