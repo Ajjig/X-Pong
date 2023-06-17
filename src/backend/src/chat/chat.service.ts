@@ -263,7 +263,7 @@ export class ChatService {
     return user.onlineStatus;
   }
 
-  async SearchQuery(query: string): Promise<any[]> {
+  async searchQuery(query: string): Promise<any[]> {
     const users = await this.prisma.user.findMany({
       where: {
         username: {
@@ -274,6 +274,9 @@ export class ChatService {
       select: {
         username: true,
         onlineStatus: true,
+        id: true,
+        avatarUrl: true,
+        name: true,
       },
     });
 

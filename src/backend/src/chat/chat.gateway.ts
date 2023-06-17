@@ -239,7 +239,7 @@ export class ChatGateway {
     client.to(payload.channelName).emit('PublicMessage', payload.msg);
   }
 
-  @SubscribeMessage('SearchQuery')
+  @SubscribeMessage('search')
   async SearchQuery(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
@@ -248,12 +248,12 @@ export class ChatGateway {
       client.emit('error', 'You must provide a payload');
       return;
     }
-    const result = await this.chatService.SearchQuery(payload.query);
+    const result = await this.chatService.searchQuery(payload.query);
     if (!result) {
       client.emit('error', 'No result found');
       return;
     }
-    client.emit('SearchQuery', result);
+    client.emit('search', result);
   }
 
   @SubscribeMessage('getPrivateChat')
