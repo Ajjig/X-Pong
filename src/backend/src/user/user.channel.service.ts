@@ -30,7 +30,7 @@ export class UserChannelService {
       const check_password = this.UserPasswordService.validatePassword(
         channel.password,
       );
-      if ((await check_password).validated == false) {
+      if (channel.isPublic && (await check_password).validated == false) {
         throw new HttpException('Weak password', 400);
       }
 
