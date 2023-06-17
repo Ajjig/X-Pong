@@ -9,7 +9,7 @@ CREATE TABLE "User" (
     "istwoFactor" BOOLEAN NOT NULL DEFAULT false,
     "twoFactorAuthSecret" TEXT,
     "onlineStatus" TEXT NOT NULL DEFAULT 'Offline',
-    "blockedUsernames" TEXT[],
+    "blockedIds" INTEGER[] DEFAULT ARRAY[]::INTEGER[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "confirmed" BOOLEAN NOT NULL DEFAULT false,
@@ -26,7 +26,7 @@ CREATE TABLE "Channel" (
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "isPublic" BOOLEAN NOT NULL DEFAULT true,
+    "type" TEXT,
     "password" TEXT,
     "salt" TEXT,
     "owner" TEXT NOT NULL,
@@ -253,7 +253,3 @@ ALTER TABLE "_Muted" ADD CONSTRAINT "_Muted_A_fkey" FOREIGN KEY ("A") REFERENCES
 
 -- AddForeignKey
 ALTER TABLE "_Muted" ADD CONSTRAINT "_Muted_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "blockedUsernames",
-ADD COLUMN     "blockedIds" INTEGER[] DEFAULT ARRAY[]::INTEGER[];
