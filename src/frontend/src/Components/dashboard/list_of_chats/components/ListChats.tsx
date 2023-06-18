@@ -2,10 +2,10 @@ import { Box, Divider, MantineTheme, Navbar, Space, Text } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
 import { Chat } from "./Chat";
-import { IconMoodEmpty } from "@tabler/icons-react";
 import { IconPlus } from "@tabler/icons-react";
 import Search from "./search";
 import { spotlight } from "@mantine/spotlight";
+import { IconMessage } from "@tabler/icons-react";
 
 export function ListChats({}: {}) {
     const [chats, setChats] = useState<any>([]);
@@ -34,7 +34,7 @@ export function ListChats({}: {}) {
                                 flexDirection: "column",
                             })}
                         >
-                            <IconMoodEmpty size={50} />
+                            <IconMessage size={50} />
                             <Space h={5} />
                             <Text>No chats yet</Text>
                         </Box>
@@ -70,12 +70,12 @@ export function ListChats({}: {}) {
                         color: theme.colors.orange[1],
                     })}
                     onClick={() => {
-                        spotlight.open()
+                        spotlight.open();
                     }}
                 >
-                    <Search>
+                    {/* <Search> */}
                         <IconPlus size={25} />
-                    </Search>
+                    {/* </Search> */}
                 </Box>
             </Box>
         </>

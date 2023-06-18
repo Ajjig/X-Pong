@@ -39,16 +39,16 @@ export default function Dashboard() {
         // });
 
         socket.on("error", (data: any) => {
-            console.log(data);
+            // console.log(data);
         });
 
         socket.on("privateChat", (data) => {
-            console.log("privateChat: ", data);
+            // console.log("privateChat: ", data);
             store.dispatch(setPrivateChats(data));
         });
 
         socket.on("publicChat", (data) => {
-            console.log("publicChat: ", data);
+            // console.log("publicChat: ", data);
         });
     }, []);
 
