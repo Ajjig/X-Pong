@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "init": "npm install --legacy-peer-deps"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
@@ -20,6 +21,7 @@
     "@mantine/form": "^6.0.6",
     "@mantine/hooks": "^6.0.6",
     "@mantine/next": "^6.0.6",
+    "@mantine/spotlight": "^6.0.13",
     "@next/font": "^13.2.4",
     "@react-three/cannon": "^6.5.2",
     "@react-three/drei": "^9.62.2",
@@ -46,6 +48,7 @@
     "react-redux": "^8.0.5",
     "redux": "^4.2.1",
     "socket.io-client": "^4.6.1",
+    "three": "^0.153.0",
     "three-to-cannon": "^4.3.0",
     "typescript": "^5.0.3"
   }

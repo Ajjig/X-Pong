@@ -23,13 +23,17 @@ export function PrivateChatMenu({ user }: any) {
             </Menu.Target>
 
             <Menu.Dropdown>
-                <Flex direction='column' mih="150px" justify='center' align='center'>
-                    <Avatar size="xl" src={user.avatar} radius="xl" />
-                    <Box mt={10}>
+                <Flex direction="column" mih="180px" justify="center" align="center">
+                    <Avatar size="xl" src={user.avatarUrl} radius="xl" />
+                    <Flex mt={10} direction={"column"} align="center">
                         <Text fw="bold" fz="md">
                             {user.name}
                         </Text>
-                    </Box>
+                        {/* username */}
+                        <Text fz="sm" color="gray.4">
+                            @{user.username}
+                        </Text>
+                    </Flex>
                 </Flex>
 
                 <Menu.Item icon={<IconUser size={14} />}>Profile</Menu.Item>

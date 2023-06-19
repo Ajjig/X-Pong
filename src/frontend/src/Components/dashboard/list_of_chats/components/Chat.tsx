@@ -7,8 +7,6 @@ export function Chat({ chat }: { chat: any }) {
     const theme = useMantineTheme();
     const [date, setDate] = useState<string>("");
 
-    console.log("HERERERERER", chat);
-
     function get_last_message() {
         const last_message = chat.chat[0];
         return last_message.text;
@@ -49,7 +47,6 @@ export function Chat({ chat }: { chat: any }) {
         return () => clearInterval(timer);
     }, []);
 
-
     return (
         <motion.div
             drag
@@ -71,7 +68,7 @@ export function Chat({ chat }: { chat: any }) {
                 store.dispatch(setCurrentChat(chat));
             }}
         >
-            <Flex p="sm" align="center">
+            <Flex p="sm" align="center" sx={{cursor: "pointer"}}>
                 <Avatar src={chat.otherUser.avatarUrl} size="45px" radius="xl" />
                 <Flex justify="space-between" w="100%">
                     <Box ml={15}>

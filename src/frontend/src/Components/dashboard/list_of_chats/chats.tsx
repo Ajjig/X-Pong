@@ -7,7 +7,7 @@ export default function List_of_chats({ setChat }: { setChat: (chat: ReactElemen
     const [value, setValue] = useState("Messages");
 
     useEffect(() => {
-        console.log(value);
+        // console.log(value);
     }, [value]);
 
     return (
