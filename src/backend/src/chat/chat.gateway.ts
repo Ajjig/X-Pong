@@ -258,33 +258,33 @@ export class ChatGateway {
 
   @SubscribeMessage('getPrivateChat')
   async getprivateconversations(@ConnectedSocket() client: Socket) {
-    let userdata: any = this.chatService.jwtdecoder(client);
-    if (!userdata) {
-      client.emit('error', 'Unauthorized user');
-      client.disconnect();
-      return;
-    }
+    // let userdata: any = this.chatService.jwtdecoder(client);
+    // if (!userdata) {
+    //   client.emit('error', 'Unauthorized user');
+    //   client.disconnect();
+    //   return;
+    // }
 
-    const result =
-      await this.userChatHistoryService.getUserPrivateConversationChatHistory(
-        userdata.username,
-      );
-    client.emit('privateChat', result);
+    // const result =
+    //   await this.userChatHistoryService.getUserPrivateConversationChatHistory(
+    //     userdata.username,
+    //   );
+    // client.emit('privateChat', result);
   }
 
   @SubscribeMessage('getPublicChat')
   async getchannelconversations(@ConnectedSocket() client: Socket) {
-    let userdata: any = this.chatService.jwtdecoder(client);
-    if (!userdata) {
-      client.emit('error', 'Unauthorized user');
-      client.disconnect();
-      return;
-    }
-    const result =
-      await this.userChatHistoryService.getUserChannelConversationChatHistory(
-        userdata.username,
-      );
-    client.emit('publicChat', result);
+    // let userdata: any = this.chatService.jwtdecoder(client);
+    // if (!userdata) {
+    //   client.emit('error', 'Unauthorized user');
+    //   client.disconnect();
+    //   return;
+    // }
+    // const result =
+    //   await this.userChatHistoryService.getUserChannelConversationChatHistory(
+    //     userdata.username,
+    //   );
+    // client.emit('publicChat', result);
   }
 
   @SubscribeMessage('getLatestChannels')
@@ -312,8 +312,8 @@ export class ChatGateway {
     }
     new Logger('Socket').log('Client connected: ' + userdata.username);
     this.connectedUsers[userdata.username] = client;
-    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username);
-    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username);
+    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username, 0);
+    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username, 0);
     client.emit('privateChat', privateChat);
     client.emit('publicChat', publicChat);
     await this.chatService.set_user_online(userdata.username);

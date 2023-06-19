@@ -6,7 +6,7 @@ import { Console } from 'console';
 export class UserChatHistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserPrivateConversationChatHistory(username: string): Promise<any> {
+  async getUserPrivateConversationChatHistory(username: string, page: number): Promise<any> {
     // get user private direct messages to other users, no duplicates allowed , show only the last message
 
     const user = await this.prisma.user.findUnique({
@@ -23,6 +23,7 @@ export class UserChatHistoryService {
         let chat = await this.prisma.directMessage.findMany({
           where: { privateChannelId: id },
           orderBy: { createdAt: 'desc' },
+          skip: page * 50,
           select: {
             text: true,
             createdAt: true,
@@ -59,10 +60,11 @@ export class UserChatHistoryService {
     return userConversations;
   }
 
-  async getUserChannelConversationChatHistory(username: string): Promise<any> {
+  async getUserChannelConversationChatHistory(username: string, page: number): Promise<any> {
     const chat = await this.prisma.message.findMany({
       where: { sender: username },
       orderBy: { createdAt: 'desc' },
+      skip: page * 50,
       select: {
         content: true,
         sender: true,
