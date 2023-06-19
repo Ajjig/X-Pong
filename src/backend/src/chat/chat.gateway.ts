@@ -99,7 +99,7 @@ export class ChatGateway {
     }
     // ---------------JOIN LOGIC
 
-    await this.chatService.saveprivatechatmessage({
+    const message = await this.chatService.saveprivatechatmessage({
       msg: payload.msg,
       sender: userdata.username,
       PrivateChannelId: channelID,
@@ -107,7 +107,7 @@ export class ChatGateway {
     });
 
     // send the message to the channel
-    client.to(channelID).emit('message', payload.msg);
+    client.to(channelID).emit('message', message);
   }
 
   @SubscribeMessage('findAllMessages')

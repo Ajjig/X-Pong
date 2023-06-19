@@ -156,7 +156,7 @@ export class ChatService {
     return genereatedChannelId;
   }
 
-  async saveprivatechatmessage(payload: DirectMessageDto): Promise<void> {
+  async saveprivatechatmessage(payload: DirectMessageDto): Promise<any> {
     const message = await this.prisma.directMessage.create({
       data: {
         text: payload.msg,
@@ -175,6 +175,8 @@ export class ChatService {
         },
       },
     });
+
+    return message;
   }
 
   async findAllPrivateMessagesByChannelID(channelId: any): Promise<any[]> {
