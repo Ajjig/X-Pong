@@ -271,10 +271,18 @@ export class ChatService {
   async searchQuery(query: string): Promise<any[]> {
     const users = await this.prisma.user.findMany({
       where: {
-        username: {
-          contains: query,
-          mode: 'insensitive',
-        },
+        OR: [{
+            username: {
+              contains: query,
+              mode: 'insensitive',
+            }
+          }, {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            }
+          }]
+
       },
       select: {
         username: true,
