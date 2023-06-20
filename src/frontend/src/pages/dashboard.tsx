@@ -18,14 +18,12 @@ export default function Dashboard() {
                 window.location.href = "/";
             });
 
-        
-
         socket.on("connect", () => {
             console.log("connected");
         });
 
         // socket.emit("message", {
-        //     receiver: "BATATA",
+        //     receiver: "roudouch",
         //     msg: "Hello",
         // });
 
@@ -34,23 +32,23 @@ export default function Dashboard() {
         });
 
         // listen to all events from server
-        // socket.onAny((event, ...args) => {
-        //     console.log(event, args);
-        // });
+        socket.onAny((event, ...args) => {
+            console.log(event, args);
+        });
 
         socket.on("error", (data: any) => {
-            // console.log(data);
+            console.log(data);
         });
 
         socket.on("privateChat", (data) => {
-            // console.log("privateChat: ", data);
+            console.log("privateChat: loaded");
             store.dispatch(setPrivateChats(data));
         });
 
         socket.on("publicChat", (data) => {
             // console.log("publicChat: ", data);
         });
-    }, []);
+    }, [socket]);
 
     return (
         <>

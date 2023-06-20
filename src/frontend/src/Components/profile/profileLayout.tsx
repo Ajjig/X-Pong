@@ -8,18 +8,33 @@ import HeaderDashboard from "../dashboard/header";
 import store from "@/store/store";
 import { IconEdit } from "@tabler/icons-react";
 import { UserInfo } from "./ProfileUserInfoSection";
+import { useRouter } from "next/router";
+import api from "@/api";
 
-interface props {}
-export function ProfileLayout({}: props) {
+interface props {id : string}
+
+export function ProfileLayout({id}: props) {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
     const [profile, setProfile] = useState<any>(null);
+    
 
     useEffect(() => {
-        setProfile(store.getState().profile.user);
-        store.subscribe(() => {
-            setProfile(store.getState().profile.user);
-        });
+        // console.log("Here", id);
+        // setProfile(store.getState().profile.user);
+        // store.subscribe(() => {
+        //     setProfile(store.getState().profile.user);
+        // });
+        api.get("/user/id/" + id)
+            .then((res: any) => {
+                console.log("Here" ,res.data);
+                if (res.status == 200) setProfile(res.data);
+                // else window.location.href = "/";
+            })
+            .catch((err: any) => {
+                // redirect to login
+                // window.location.href = "/";
+            });
     }, []);
 
     return (
@@ -75,7 +90,7 @@ export function ProfileLayout({}: props) {
                 <Box
                     px={20}
                     sx={(theme: MantineTheme) => ({
-                        marginTop: "50px"
+                        marginTop: "50px",
                     })}
                 >
                     <Paper radius={20} bg={"gray.8"}>

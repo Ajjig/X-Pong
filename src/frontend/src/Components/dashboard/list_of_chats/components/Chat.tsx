@@ -8,13 +8,13 @@ export function Chat({ chat }: { chat: any }) {
     const [date, setDate] = useState<string>("");
 
     function get_last_message() {
-        const last_message = chat.chat[0];
+        const last_message = chat.chat[chat.chat.length - 1];
         return last_message.text;
     }
 
     function date_last_message(): string {
-        const last_message = chat.chat[0];
-
+        const last_message = chat.chat[chat.chat.length - 1];
+        
         const date = new Date(last_message.createdAt);
         const date_now = new Date();
 
@@ -41,6 +41,7 @@ export function Chat({ chat }: { chat: any }) {
     }
 
     useEffect(() => {
+        setDate(date_last_message());
         const timer = setInterval(() => {
             setDate(date_last_message());
         }, 1000);

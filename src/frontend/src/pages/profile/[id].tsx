@@ -1,12 +1,18 @@
 import { ProfileLayout } from "@/Components/profile/profileLayout";
-import React, { useEffect } from "react";
+import React, { use, useEffect, useState } from "react";
 import store, { setProfile } from "@/store/store";
 import api from "@/api";
 import { Head } from "@/Components/head";
 import { useRouter } from "next/router";
+import { Loading } from "@/Components/loading/loading";
 
 export default function Profile() {
     const router = useRouter();
+    const [id, setId] = useState<string>("");
+
+    useEffect(() => {
+        if (router.query.id) setId(router.query.id as string);
+    }, [router]);
 
     useEffect(() => {
         // get id nextjs router
@@ -21,11 +27,12 @@ export default function Profile() {
             });
     }, []);
 
+    if (id == "") return <Loading />;
+
     return (
         <>
             <Head title="Profile" description="Profile" keywords="Profile" icon="/favicon.ico" />
-            <ProfileLayout />
-
+            <ProfileLayout id={id} />
         </>
     );
 }

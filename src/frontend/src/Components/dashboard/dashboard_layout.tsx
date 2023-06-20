@@ -115,8 +115,18 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
             receiver: friend.username,
             msg: message.message,
         });
+        // add message to messages
+        setMessages((prev: any) => [
+            ...prev,
+            {
+                receiverId: friend.id,
+                text: message.message,
+            },
+        ]);
         setMessage("");
     };
+
+    useEffect(() => {}, []);
 
     useEffect(() => {
         //get the last message
@@ -252,29 +262,6 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
 
 function Message({ message, friend }: { message: any; friend: any }) {
     const theme = useMantineTheme();
-    function date_last_message(): string {
-        const date = new Date(message.createdAt);
-        const date_now = new Date();
-        const date_diff = date_now.getTime() - date.getTime();
-        const days = Math.floor(date_diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(date_diff / (1000 * 60 * 60));
-        const minutes = Math.floor(date_diff / (1000 * 60));
-        const seconds = Math.floor(date_diff / 1000);
-
-        if (days > 0) {
-            return `${days} days ago`;
-        }
-        if (hours > 0) {
-            return `${hours} hours ago`;
-        }
-        if (minutes > 0) {
-            return `${minutes} minutes ago`;
-        }
-        if (seconds > 0) {
-            return `${seconds} seconds ago`;
-        }
-        return "now";
-    }
 
     return (
         <Box>
@@ -298,9 +285,6 @@ function Message({ message, friend }: { message: any; friend: any }) {
                             {friend.id !== message.senderId ? "Me" : friend.username}
                         </Text>
                         <Space w={20} />
-                        <Text fz="xs" color="gray.5">
-                            {date_last_message()}
-                        </Text>
                     </Flex>
                     <Text fz="sm">{message.text}</Text>
                 </Box>

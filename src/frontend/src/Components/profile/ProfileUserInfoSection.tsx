@@ -13,7 +13,7 @@ export function UserInfo({ profile }: { profile: any }) {
         <Paper radius={20} bg={"transparent"}>
             <Flex direction="row" justify="center" align="center">
                 <Indicator
-                    color="green"
+                    color={profile?.onlineStatus == "online" ? "green" : "red"}
                     size="20px"
                     position="bottom-end"
                     offset={10}

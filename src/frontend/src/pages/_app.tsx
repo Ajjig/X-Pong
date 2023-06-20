@@ -23,27 +23,6 @@ export default function App({ Component, pageProps }: AppProps) {
     // useHotkeys([["mod+J", () => toggleColorScheme()]]);
     const [query, setQuery] = useState("");
     const [actions, setActions] = useState<SpotlightAction[]>([]); // [
-    // const actions: SpotlightAction[] =
-    //     query !== "%%secret%%"
-    //         ? [
-    //               {
-    //                   title: "Reveal secret actions",
-    //                   description: "Click this action to reveal secret actions",
-    //                   onTrigger: () => setQuery("%%secret%%"),
-    //                   closeOnTrigger: false,
-    //               },
-    //           ]
-    //         : [
-    //               { title: "Super secret action", keywords: "%%secret%%", onTrigger: () => {} },
-    //               {
-    //                   title: "Rick roll",
-    //                   description: "Do not click",
-    //                   keywords: "%%secret%%",
-    //                   onTrigger: () => {
-    //                       window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    //                   },
-    //               },
-    //           ];
 
     useEffect(() => {
         socket.on("search", (data) => {
@@ -62,8 +41,10 @@ export default function App({ Component, pageProps }: AppProps) {
     }, []);
 
     useEffect(() => {
-        socket.emit("search", { query: query });
+        if (query == "") setActions([]);
+        else socket.emit("search", { query: query });
     }, [query]);
+
     return (
         <Provider store={store}>
             {/* <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}> */}
