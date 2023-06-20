@@ -22,7 +22,7 @@ export class UserChatHistoryService {
       user.privateChannels.map(async (id) => {
         let chat = await this.prisma.directMessage.findMany({
           where: { privateChannelId: id },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: 'asc' },
           skip: page * 50,
           select: {
             text: true,
@@ -63,7 +63,7 @@ export class UserChatHistoryService {
   async getUserChannelConversationChatHistory(username: string, page: number): Promise<any> {
     const chat = await this.prisma.message.findMany({
       where: { sender: username },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       skip: page * 50,
       select: {
         content: true,
