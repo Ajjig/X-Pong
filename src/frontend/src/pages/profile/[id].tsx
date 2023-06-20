@@ -19,11 +19,11 @@ export default function Profile() {
         api.get("/user/profile")
             .then((res: any) => {
                 if (res.status == 200) store.dispatch(setProfile(res.data));
-                else window.location.href = "/";
+                else router.push("/");
             })
             .catch((err: any) => {
                 // redirect to login
-                window.location.href = "/";
+                router.push("/");
             });
     }, []);
 
@@ -32,7 +32,7 @@ export default function Profile() {
     return (
         <>
             <Head title="Profile" description="Profile" keywords="Profile" icon="/favicon.ico" />
-            <ProfileLayout id={id} />
+            <ProfileLayout id={id} key={id}/>
         </>
     );
 }

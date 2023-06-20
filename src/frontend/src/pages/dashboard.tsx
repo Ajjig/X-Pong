@@ -22,6 +22,10 @@ export default function Dashboard() {
             console.log("connected");
         });
 
+        socket.on("message", (data: any) => {
+            console.log("New Message: ", data);
+        });
+
         // socket.emit("message", {
         //     receiver: "roudouch",
         //     msg: "Hello",

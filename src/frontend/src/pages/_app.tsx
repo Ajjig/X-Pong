@@ -8,6 +8,7 @@ import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useEffect, useState } from "react";
 import socket from "@/socket";
 import { IconSearch } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -22,7 +23,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
     // useHotkeys([["mod+J", () => toggleColorScheme()]]);
     const [query, setQuery] = useState("");
-    const [actions, setActions] = useState<SpotlightAction[]>([]); // [
+    const [actions, setActions] = useState<SpotlightAction[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         socket.on("search", (data) => {
@@ -33,7 +35,8 @@ export default function App({ Component, pageProps }: AppProps) {
                     title: action.name,
                     description: action.username,
                     onTrigger: () => {
-                        window.location.href = "/profile/" + action.id;
+                        console.log("/profile/" + action.id);
+                        router.push("/profile/" + action.id);
                     },
                 }));
             setActions(users);

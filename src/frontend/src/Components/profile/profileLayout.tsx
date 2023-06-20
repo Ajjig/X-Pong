@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Container, Grid, MantineTheme, Paper, Space, Title } from "@mantine/core";
+import { ActionIcon, Avatar, Box, Button, Container, Grid, Group, MantineTheme, Paper, Space, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
@@ -6,18 +6,20 @@ import { useMantineTheme, Flex } from "@mantine/core";
 import { AppShell, Text } from "@mantine/core";
 import HeaderDashboard from "../dashboard/header";
 import store from "@/store/store";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconFriends, IconMessage, IconUserPlus } from "@tabler/icons-react";
 import { UserInfo } from "./ProfileUserInfoSection";
 import { useRouter } from "next/router";
 import api from "@/api";
 
-interface props {id : string}
+interface props {
+    id: string;
+}
 
-export function ProfileLayout({id}: props) {
+export function ProfileLayout({ id }: props) {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
     const [profile, setProfile] = useState<any>(null);
-    
+    const user: any = store.getState().profile.user;
 
     useEffect(() => {
         // console.log("Here", id);
@@ -27,7 +29,7 @@ export function ProfileLayout({id}: props) {
         // });
         api.get("/user/id/" + id)
             .then((res: any) => {
-                console.log("Here" ,res.data);
+                console.log("Here", res.data);
                 if (res.status == 200) setProfile(res.data);
                 // else window.location.href = "/";
             })
@@ -56,24 +58,81 @@ export function ProfileLayout({id}: props) {
                         position: "relative",
                         // add drop shadow as a gradient
                         boxShadow: `inset 0px -100px 100px -60px ${theme.colors.gray[9]}`,
+                        display: "flex",
+                        alignItems: "end",
+                        justifyContent: "end",
                     })}
                 >
-                    <Box>
-                        <Flex align="center" justify="right" p={20}>
-                            <Button
-                                size="xs"
-                                color="gray"
-                                radius="md"
-                                onClick={() => {}}
-                                leftIcon={<IconEdit size={20} />}
-                                sx={{
-                                    color: theme.colors.gray[1],
-                                }}
-                            >
-                                Edit Profile
-                            </Button>
-                        </Flex>
-                    </Box>
+                    {/* buttons */}
+                    <Group position="right" spacing="xs" py={"xl"} pr={"xl"}>
+                        {
+                            // check if the profile is the current user
+                            // if so, show edit button
+                            // else, show add friend button
+                            profile && profile.id == user.id ? (
+                                <ActionIcon
+                                    variant="filled"
+                                    p={10}
+                                    size="xl"
+                                    color="gray"
+                                    radius="md"
+                                    onClick={() => {}}
+                                    sx={{
+                                        color: theme.colors.gray[1],
+                                    }}
+                                >
+                                    <IconEdit />
+                                </ActionIcon>
+                            ) : (
+                                <>
+                                    <Button
+                                        size="xs"
+                                        color="gray"
+                                        radius="md"
+                                        onClick={() => {}}
+                                        sx={{
+                                            color: theme.colors.gray[1],
+                                        }}
+                                    >
+                                        <IconUserPlus />
+                                    </Button>
+                                    <Button
+                                        size="xs"
+                                        color="gray"
+                                        radius="md"
+                                        onClick={() => {}}
+                                        sx={{
+                                            color: theme.colors.gray[1],
+                                        }}
+                                    >
+                                        <IconMessage />
+                                    </Button>
+                                </>
+                            )
+                        }
+                        {/* <Button
+                            size="xs"
+                            color="gray"
+                            radius="md"
+                            onClick={() => {}}
+                            sx={{
+                                color: theme.colors.gray[1],
+                            }}
+                        >
+                            Add Friend
+                        </Button>
+                        <Button
+                            size="xs"
+                            color="gray"
+                            radius="md"
+                            onClick={() => {}}
+                            sx={{
+                                color: theme.colors.gray[1],
+                            }}
+                        >
+                            Send Message
+                        </Button> */}
+                    </Group>
                     <Box
                         sx={(theme: MantineTheme) => ({
                             position: "absolute",
@@ -87,6 +146,7 @@ export function ProfileLayout({id}: props) {
                         <UserInfo profile={profile} />
                     </Box>
                 </Box>
+
                 <Box
                     px={20}
                     sx={(theme: MantineTheme) => ({
