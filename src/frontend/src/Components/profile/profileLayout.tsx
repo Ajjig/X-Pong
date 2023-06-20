@@ -32,13 +32,15 @@ export function ProfileLayout({}: props) {
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         width: "100%",
-                        borderRadius: "0 0 50px 50px",
+                        borderRadius: "0 0 30px 30px",
                         height: "300px",
                         [theme.fn.smallerThan(theme.breakpoints.sm)]: {
                             height: "150px",
                         },
-                        borderBottom: `10px solid ${theme.colors.gray[4]}`,
+                        borderBottom: `5px solid ${theme.colors.gray[4]}`,
                         position: "relative",
+                        // add drop shadow as a gradient
+                        boxShadow: `inset 0px -100px 100px -60px ${theme.colors.gray[9]}`,
                     })}
                 >
                     <Box>
@@ -60,43 +62,47 @@ export function ProfileLayout({}: props) {
                     <Box
                         sx={(theme: MantineTheme) => ({
                             position: "absolute",
-                            bottom: "-50%",
-                            left: "50%",
-                            transform: "translateX(-50%)",
+                            bottom: "-10%",
+                            left: "10%",
                             [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                                bottom: "-85%",
+                                bottom: "-15%",
                             },
                         })}
                     >
                         <UserInfo profile={profile} />
                     </Box>
                 </Box>
-                <Box mt={100}>
-                    <Grid bg={'gray.9'}>
-                        <Grid.Col span={12}>
-                            <Paper radius={20} bg={"transparent"}>
-                                <Box p={20}>
-                                    <Title
-                                        order={2}
-                                        sx={(theme: MantineTheme) => ({
-                                            fontSize: "1.3rem",
-                                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                                                fontSize: "1.2rem",
-                                            },
-                                            [theme.fn.smallerThan(theme.breakpoints.xs)]: {
-                                                fontSize: "1rem",
-                                            },
-                                            color: theme.colors.gray[4],
-                                        })}
-                                    >
-                                        Match History
-                                    </Title>
-                                   
-                                </Box>
-                            </Paper>
-                        </Grid.Col>
-
-                    </Grid>
+                <Box
+                    px={20}
+                    sx={(theme: MantineTheme) => ({
+                        marginTop: "50px"
+                    })}
+                >
+                    <Paper radius={20} bg={"gray.8"}>
+                        <Grid>
+                            <Grid.Col span={12}>
+                                <Paper radius={20} bg={"transparent"}>
+                                    <Box p={20}>
+                                        <Title
+                                            order={2}
+                                            sx={(theme: MantineTheme) => ({
+                                                fontSize: "1.3rem",
+                                                [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                                    fontSize: "1.2rem",
+                                                },
+                                                [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                                    fontSize: "1rem",
+                                                },
+                                                color: theme.colors.gray[4],
+                                            })}
+                                        >
+                                            Match History
+                                        </Title>
+                                    </Box>
+                                </Paper>
+                            </Grid.Col>
+                        </Grid>
+                    </Paper>
                 </Box>
             </Container>
         </>

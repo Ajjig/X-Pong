@@ -1,36 +1,31 @@
-import { Box, Flex, Paper, Title, Text, Avatar, Space } from "@mantine/core";
-import { MantineTheme } from "@mantine/core"
+import { Box, Flex, Paper, Title, Text, Avatar, Space, Indicator, createStyles } from "@mantine/core";
+import { MantineTheme } from "@mantine/core";
+
+const useStyleIndicator = createStyles((theme) => ({
+    indicator: {
+        border: "3px solid " + theme.colors.gray[3],
+    },
+}));
 
 export function UserInfo({ profile }: { profile: any }) {
+    const StyleIndicator = useStyleIndicator();
     return (
-        <Paper radius={20} bg={"transparent"} sx={(theme: MantineTheme) => ({
-            // add after that take the color of the background 
-            '&:after': {
-                content: '""',
-                position: 'absolute',
-                zIndex: -1,
-                top: '30%',
-                left: '-15%',
-                width: '130%',
-                height: '80%',
-                backgroundColor: `${theme.colors.dark[7]}`,
-                borderRadius: '50%',
-            },
-        })}>
-            <Flex direction="column" justify="center" align="center">
-                <Box
-                    sx={(theme: MantineTheme) => ({
-                        border: `8px solid ${theme.colors.gray[2]}`,
-                        borderRadius: "100%",
-                        width: "fit-content",
-                        margin: "0px",
-                    })}
+        <Paper radius={20} bg={"transparent"}>
+            <Flex direction="row" justify="center" align="center">
+                <Indicator
+                    color="green"
+                    size="20px"
+                    position="bottom-end"
+                    offset={10}
+                    processing
+                    withBorder
+                    classNames={StyleIndicator.classes}
                 >
                     <Avatar
                         src={profile?.avatarUrl}
                         alt={profile?.name}
-                        radius="100%"
-                        bg={'gray'}
+                        radius={"xl"}
+                        bg={"gray"}
                         sx={(theme: MantineTheme) => ({
                             width: "130px !important",
                             height: "130px !important",
@@ -39,44 +34,47 @@ export function UserInfo({ profile }: { profile: any }) {
                                 height: "100px !important",
                             },
                             [theme.fn.smallerThan(theme.breakpoints.xs)]: {
-                                width: "100px !important",
-                                height: "100px !important",
+                                width: "90px !important",
+                                height: "90px !important",
                             },
+                            border: "5px solid " + theme.colors.gray[3],
                         })}
                     />
-                </Box>
+                </Indicator>
 
-                <Space h={15} />
-                <Title
-                    color="gray.0"
-                    order={2}
-                    sx={(theme: MantineTheme) => ({
-                        fontSize: "1.3rem",
-                        [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                            fontSize: "1.2rem",
-                        },
-                        [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                <Space w={15} />
+                <Box>
+                    <Title
+                        color="gray.0"
+                        order={2}
+                        sx={(theme: MantineTheme) => ({
+                            fontSize: "1.3rem",
+                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                fontSize: "1.2rem",
+                            },
+                            [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                fontSize: "1rem",
+                            },
+                            color: theme.colors.gray[4],
+                        })}
+                    >
+                        {profile?.name}
+                    </Title>
+                    <Text
+                        sx={(theme: MantineTheme) => ({
                             fontSize: "1rem",
-                        },
-                        color: theme.colors.gray[4],
-                    })}
-                >
-                    {profile?.name} mohamed ali zribi Dolta
-                </Title>
-                <Text
-                    sx={(theme: MantineTheme) => ({
-                        fontSize: "1rem",
-                        [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                            fontSize: "0.8rem",
-                        },
-                        [theme.fn.smallerThan(theme.breakpoints.xs)]: {
-                            fontSize: "0.7rem",
-                        },
-                        color: theme.colors.gray[6],
-                    })}
-                >
-                    @{profile?.username}
-                </Text>
+                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                fontSize: "0.8rem",
+                            },
+                            [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                fontSize: "0.7rem",
+                            },
+                            color: theme.colors.gray[6],
+                        })}
+                    >
+                        @{profile?.username}
+                    </Text>
+                </Box>
             </Flex>
         </Paper>
     );

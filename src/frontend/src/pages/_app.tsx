@@ -47,18 +47,17 @@ export default function App({ Component, pageProps }: AppProps) {
 
     useEffect(() => {
         socket.on("search", (data) => {
-            console.log(data);
-
-            const users = data[0].map((action: any) => ({
-                icon: <Avatar size="lg" src={action.avatarUrl} />,
-                title: action.name,
-                description: action.username,
-                onTrigger: () => {
-                    window.location.href = "/profile/" + action.id;
-                },
-            }));
-
-            if (users && users.length > 0) setActions(users);
+            let users: [] = [];
+            if (data && data[0])
+                users = data[0].map((action: any) => ({
+                    icon: <Avatar size="lg" src={action.avatarUrl} />,
+                    title: action.name,
+                    description: action.username,
+                    onTrigger: () => {
+                        window.location.href = "/profile/" + action.id;
+                    },
+                }));
+            setActions(users);
         });
     }, []);
 
