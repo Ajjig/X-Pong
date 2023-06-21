@@ -701,4 +701,17 @@ export class UserChannelService {
 
     return { username };
   }
+
+  getAllPublicChannels(): Promise<any> {
+    return this.prisma.channel.findMany({
+      where: { type: 'public' },
+      select: {
+        name: true,
+        type: true,
+        owner: true,
+        id: true,
+        createdAt: true,
+      },
+    });
+  }
 }

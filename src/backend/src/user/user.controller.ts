@@ -467,4 +467,10 @@ export class UserController {
     await this.UploadService.updateUserAvatar(request.user.username, path);
     return path;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('public/channels')
+  async getChannels(@Req() request) {
+    return await this.UserChannelService.getAllPublicChannels();
+  }
 }
