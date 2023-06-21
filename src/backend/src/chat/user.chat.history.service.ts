@@ -50,6 +50,7 @@ export class UserChatHistoryService {
             avatarUrl: true,
             name: true,
             onlineStatus: true,
+            privateChannels: true,
           },
         });
         const conv = { chat, otherUser };
