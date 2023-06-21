@@ -1,4 +1,18 @@
-import { ActionIcon, Avatar, Box, Button, Container, Grid, Group, MantineTheme, Paper, Space, Title } from "@mantine/core";
+import {
+    ActionIcon,
+    Avatar,
+    Box,
+    Button,
+    Container,
+    Grid,
+    Group,
+    Input,
+    MantineTheme,
+    Paper,
+    Popover,
+    Space,
+    Title,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
@@ -10,6 +24,8 @@ import { IconEdit, IconFriends, IconMessage, IconUserPlus } from "@tabler/icons-
 import { UserInfo } from "./ProfileUserInfoSection";
 import { useRouter } from "next/router";
 import api from "@/api";
+import socket from "@/socket";
+import { IconSend } from "@tabler/icons-react";
 
 interface props {
     id: string;
@@ -39,6 +55,18 @@ export function ProfileLayout({ id }: props) {
             });
     }, []);
 
+    const [message, setMessage] = useState("");
+
+    const sendMessage = (message: any) => {
+        if (!message || message.message === "") return;
+        socket.emit("message", {
+            receiver: profile.username,
+            msg: message.message,
+        });
+
+        setMessage("");
+    };
+
     return (
         <>
             <HeaderDashboard />
@@ -59,7 +87,7 @@ export function ProfileLayout({ id }: props) {
                         // add drop shadow as a gradient
                         boxShadow: `inset 0px -100px 100px -60px ${theme.colors.gray[9]}`,
                         display: "flex",
-                        alignItems: "end",
+                        alignItems: "start",
                         justifyContent: "end",
                     })}
                 >
@@ -87,26 +115,73 @@ export function ProfileLayout({ id }: props) {
                                 <>
                                     <Button
                                         size="xs"
-                                        color="gray"
+                                        color="orange"
                                         radius="md"
                                         onClick={() => {}}
                                         sx={{
                                             color: theme.colors.gray[1],
                                         }}
                                     >
-                                        <IconUserPlus />
+                                        <IconUserPlus color="black" />
                                     </Button>
-                                    <Button
-                                        size="xs"
-                                        color="gray"
-                                        radius="md"
-                                        onClick={() => {}}
-                                        sx={{
-                                            color: theme.colors.gray[1],
-                                        }}
-                                    >
-                                        <IconMessage />
-                                    </Button>
+                                    <Popover>
+                                        <Popover.Target>
+                                            <Button
+                                                size="xs"
+                                                color="orange"
+                                                radius="md"
+                                                onClick={() => {}}
+                                                sx={{
+                                                    color: theme.colors.gray[1],
+                                                }}
+                                            >
+                                                <IconMessage color="black" />
+                                            </Button>
+                                        </Popover.Target>
+                                        <Popover.Dropdown>
+                                            <Flex align="center">
+                                                <Text>Say Hi to {profile && profile.name}</Text>
+                                            </Flex>
+                                            <Space h="xs" />
+                                            <Flex justify="center" align="center">
+                                                <Input
+                                                    sx={(theme: MantineTheme) => ({
+                                                        // change outline color on focus
+                                                        "&:focus": {
+                                                            outline: `1px solid ${theme.colors.orange[6]} !important`,
+                                                            outlineOffset: 2,
+                                                        },
+                                                    })}
+                                                    placeholder="Type a message..."
+                                                    value={message}
+                                                    onChange={(e: any) => setMessage(e.currentTarget.value)}
+                                                    onKeyDown={(e: any) => {
+                                                        if (e.key === "Enter") {
+                                                            sendMessage({
+                                                                message: message,
+                                                                from: "me",
+                                                            });
+                                                        }
+                                                    }}
+                                                    w="100%"
+                                                    rightSection={
+                                                        <IconSend
+                                                            style={{
+                                                                cursor: "pointer",
+                                                            }}
+                                                            size={20}
+                                                            onClick={() => {
+                                                                sendMessage({
+                                                                    message: message,
+                                                                    from: "me",
+                                                                });
+                                                            }}
+                                                        />
+                                                    }
+                                                />
+                                            </Flex>
+                                        </Popover.Dropdown>
+                                    </Popover>
                                 </>
                             )
                         }

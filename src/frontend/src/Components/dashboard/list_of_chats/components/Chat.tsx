@@ -8,11 +8,13 @@ export function Chat({ chat }: { chat: any }) {
     const [date, setDate] = useState<string>("");
 
     function get_last_message() {
+        if (chat.chat.length == 0) return "No messages";
         const last_message = chat.chat[chat.chat.length - 1];
         return last_message.text;
     }
 
     function date_last_message(): string {
+        if (chat.chat.length == 0) return "";
         const last_message = chat.chat[chat.chat.length - 1];
         
         const date = new Date(last_message.createdAt);
