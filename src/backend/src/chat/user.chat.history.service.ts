@@ -27,7 +27,6 @@ export class UserChatHistoryService {
           select: {
             text: true,
             createdAt: true,
-            privateChannelId: true,
             senderId: true,
             receiverId: true,
           },
@@ -53,7 +52,7 @@ export class UserChatHistoryService {
             privateChannels: true,
           },
         });
-        const conv = { chat, otherUser };
+        const conv = { chat, otherUser, privateChannelId: id };
         userConversations.push(conv);
       }),
     );
