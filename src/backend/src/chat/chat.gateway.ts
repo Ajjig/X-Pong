@@ -256,36 +256,22 @@ export class ChatGateway {
     client.emit('search', result);
   }
 
-  @SubscribeMessage('getPrivateChat')
-  async getprivateconversations(@ConnectedSocket() client: Socket) {
-    // let userdata: any = this.chatService.jwtdecoder(client);
-    // if (!userdata) {
-    //   client.emit('error', 'Unauthorized user');
-    //   client.disconnect();
-    //   return;
-    // }
+  @SubscribeMessage('reconnect')
+  async reconnect(@ConnectedSocket() client: Socket) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username, 0);
+    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username, 0);
+    
+    client.emit('publicChat', publicChat);
+    client.emit('privateChat', privateChat);
 
-    // const result =
-    //   await this.userChatHistoryService.getUserPrivateConversationChatHistory(
-    //     userdata.username,
-    //   );
-    // client.emit('privateChat', result);
   }
-
-  @SubscribeMessage('getPublicChat')
-  async getchannelconversations(@ConnectedSocket() client: Socket) {
-    // let userdata: any = this.chatService.jwtdecoder(client);
-    // if (!userdata) {
-    //   client.emit('error', 'Unauthorized user');
-    //   client.disconnect();
-    //   return;
-    // }
-    // const result =
-    //   await this.userChatHistoryService.getUserChannelConversationChatHistory(
-    //     userdata.username,
-    //   );
-    // client.emit('publicChat', result);
-  }
+  
 
   @SubscribeMessage('getLatestChannels')
   async getlastedchannels(@ConnectedSocket() client: Socket) {
