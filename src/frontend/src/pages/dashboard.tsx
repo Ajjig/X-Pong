@@ -20,11 +20,14 @@ export default function Dashboard() {
 
         socket.on("connect", () => {
             console.log("connected");
+            socket.on("message", (data: any) => {
+                console.log("New Message: ", data);
+                socket.emit('reconnect', {})
+            });
         });
 
-        socket.on("message", (data: any) => {
-            console.log("New Message: ", data);
-        });
+
+        console.log("chats: ", store.getState().chats);
 
         // socket.emit("message", {
         //     receiver: "roudouch",

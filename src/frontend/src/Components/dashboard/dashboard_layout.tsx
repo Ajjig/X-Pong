@@ -1,7 +1,7 @@
 import { Avatar, Box, Button, Divider, Grid, Group, Input, MantineTheme, Space } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
-import { AppShell, Navbar, Header, Footer, Aside, Text, MediaQuery, Burger } from "@mantine/core";
+import { AppShell, Navbar, Text } from "@mantine/core";
 import HeaderDashboard from "./header";
 import Chats from "./list_of_chats/chats";
 import PublicGroups from "./public_groups";
@@ -264,31 +264,33 @@ function Message({ message, friend }: { message: any; friend: any }) {
     const theme = useMantineTheme();
 
     return (
-        <Box>
-            <Flex justify={friend.id !== message.senderId ? "flex-end" : "flex-start"}>
-                <Box
-                    m={10}
-                    p={10}
-                    bg={friend.id !== message.senderId ? "gray.9" : "gray.8"}
-                    sx={{
-                        borderRadius:
-                            friend.id !== message.senderId
-                                ? `${theme.radius.lg} ${theme.radius.lg} ${0} ${theme.radius.lg}`
-                                : `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.lg} ${0}`,
-                        maxWidth: "500px",
-                        wordWrap: "break-word",
-                    }}
-                >
-                    {/* name and message */}
-                    <Flex justify="space-between">
-                        <Text fz="xs" color="gray.5">
-                            {friend.id !== message.senderId ? "Me" : friend.username}
-                        </Text>
-                        <Space w={20} />
-                    </Flex>
-                    <Text fz="sm">{message.text}</Text>
-                </Box>
-            </Flex>
-        </Box>
+        <Flex justify={friend.id !== message.senderId ? "flex-end" : "flex-start"}>
+            <Box
+                m={10}
+                p={10}
+                bg={friend.id !== message.senderId ? "gray.9" : "gray.8"}
+                sx={{
+                    borderRadius:
+                        friend.id !== message.senderId
+                            ? `${theme.radius.lg} ${theme.radius.lg} ${0} ${theme.radius.lg}`
+                            : `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.lg} ${0}`,
+                    maxWidth: "500px",
+                    wordWrap: "break-word",
+                    minWidth: "200px",
+                    [theme.fn.smallerThan("sm")]: {
+                        minWidth: "auto",
+                    },
+                }}
+            >
+                {/* name and message */}
+                <Flex justify="space-between">
+                    <Text fz="10px" color="gray.6">
+                        {friend.id !== message.senderId ? "Me" : friend.name}
+                    </Text>
+                    <Space h={20} />
+                </Flex>
+                <Text fz="sm">{message.text}</Text>
+            </Box>
+        </Flex>
     );
 }

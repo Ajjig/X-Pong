@@ -45,7 +45,6 @@ export function ProfileLayout({ id }: props) {
         // });
         api.get("/user/id/" + id)
             .then((res: any) => {
-                console.log("Here", res.data);
                 if (res.status == 200) setProfile(res.data);
                 // else window.location.href = "/";
             })
@@ -55,7 +54,7 @@ export function ProfileLayout({ id }: props) {
             });
     }, []);
 
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState<string | null>("");
 
     const sendMessage = (message: any) => {
         if (!message || message.message === "") return;
@@ -64,7 +63,7 @@ export function ProfileLayout({ id }: props) {
             msg: message.message,
         });
 
-        setMessage("");
+        setMessage(null);
     };
 
     return (
@@ -138,49 +137,59 @@ export function ProfileLayout({ id }: props) {
                                                 <IconMessage color="black" />
                                             </Button>
                                         </Popover.Target>
-                                        <Popover.Dropdown>
-                                            <Flex align="center">
-                                                <Text>Say Hi to {profile && profile.name}</Text>
-                                            </Flex>
-                                            <Space h="xs" />
-                                            <Flex justify="center" align="center">
-                                                <Input
-                                                    sx={(theme: MantineTheme) => ({
-                                                        // change outline color on focus
-                                                        "&:focus": {
-                                                            outline: `1px solid ${theme.colors.orange[6]} !important`,
-                                                            outlineOffset: 2,
-                                                        },
-                                                    })}
-                                                    placeholder="Type a message..."
-                                                    value={message}
-                                                    onChange={(e: any) => setMessage(e.currentTarget.value)}
-                                                    onKeyDown={(e: any) => {
-                                                        if (e.key === "Enter") {
-                                                            sendMessage({
-                                                                message: message,
-                                                                from: "me",
-                                                            });
-                                                        }
-                                                    }}
-                                                    w="100%"
-                                                    rightSection={
-                                                        <IconSend
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                            size={20}
-                                                            onClick={() => {
+                                        {message != null ? (
+                                            <Popover.Dropdown>
+                                                <Flex align="center" p={10}>
+                                                    <Text>Say Hi to {profile && profile.name}</Text>
+                                                </Flex>
+                                                <Space h="xs" />
+                                                <Flex justify="center" align="center">
+                                                    <Input
+                                                        sx={(theme: MantineTheme) => ({
+                                                            // change outline color on focus
+                                                            "&:focus": {
+                                                                outline: `1px solid ${theme.colors.orange[6]} !important`,
+                                                                outlineOffset: 2,
+                                                            },
+                                                        })}
+                                                        placeholder="Type a message..."
+                                                        value={message}
+                                                        onChange={(e: any) => setMessage(e.currentTarget.value)}
+                                                        onKeyDown={(e: any) => {
+                                                            if (e.key === "Enter") {
                                                                 sendMessage({
                                                                     message: message,
                                                                     from: "me",
                                                                 });
-                                                            }}
-                                                        />
-                                                    }
-                                                />
-                                            </Flex>
-                                        </Popover.Dropdown>
+                                                            }
+                                                        }}
+                                                        w="100%"
+                                                        rightSection={
+                                                            <IconSend
+                                                                style={{
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                size={20}
+                                                                onClick={() => {
+                                                                    sendMessage({
+                                                                        message: message,
+                                                                        from: "me",
+                                                                    });
+                                                                }}
+                                                            />
+                                                        }
+                                                    />
+                                                </Flex>
+                                            </Popover.Dropdown>
+                                        ) : (
+                                            <Popover.Dropdown>
+                                                <Flex direction="column" align="center" p={10}>
+                                                    <Text>Your message has been sent!</Text>
+                                                    <Space h="xs" />
+                                                    <Button variant="filled" onClick={() => setMessage("")}>Send another message</Button>
+                                                </Flex>
+                                            </Popover.Dropdown>
+                                        )}
                                     </Popover>
                                 </>
                             )
