@@ -87,10 +87,7 @@ export function ProfileLayout({ id }: props) {
                     {/* buttons */}
                     <Group position="right" spacing="xs" py={"xl"} pr={"xl"}>
                         {
-                            // check if the profile is the current user
-                            // if so, show edit button
-                            // else, show add friend button
-                            profile && profile.username !== user.username ? (
+                            profile && profile.username == user.username ? (
                                 <ActionIcon
                                     variant="filled"
                                     p={10}
