@@ -33,21 +33,21 @@ networks:
 
 services:
 
-  nestjs:
-    container_name: nestjs
-    build: ./src/backend
-    env_file:
-      - .env
-    networks:
-      - warper-network
-    # volumes:
-    #   - nestjs:/workspace
-    ports:
-      - "3000:3000"
-      - "5555:5555"
-    restart: unless-stopped
-    depends_on:
-      - postgres  
+  # nestjs:
+  #   container_name: nestjs
+  #   build: ./src/backend
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - warper-network
+  #   # volumes:
+  #   #   - nestjs:/workspace
+  #   ports:
+  #     - "3000:3000"
+  #     - "5555:5555"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres  
   postgres:
     container_name: postgres
     build: ./src/database

@@ -105,11 +105,11 @@ export default function PublicGroups() {
     function Icon(type: string) {
         switch (type) {
             case "private":
-                return <IconLock size={30} />;
+                return <IconLock size={15} />;
             case "protected":
-                return <IconShieldLock size={30} />;
+                return <IconShieldLock size={15} />;
             default:
-                return <IconUsersGroup size={30} />;
+                return <IconUsersGroup size={15} />;
         }
     }
 
@@ -234,7 +234,6 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
     return (
         <motion.div layoutId={id} onClick={onClick}>
             <Card
-                p={0}
                 radius="lg"
                 bg="gray.9"
                 sx={(theme: MantineTheme) => ({
@@ -247,23 +246,20 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
                     },
                 })}
             >
-                <Box px={"lg"} bg='red'>
-                    <Flex w={50} h={50} align="center" justify="center">
-                        <Paper radius="xl" p={10} bg="gray.9">
-                            {get_icon(Icon)}
-                        </Paper>
-                        <Title order={3} color="gray.2">
+                <Box bg="gray.9">
+                    <Flex h={50} align="center" justify="center">
+                        <Title fz="xl" order={3} color="gray.2">
                             {name}
                         </Title>
                     </Flex>
-                </Box>
-                <Box px="md" pb="lg" bg="gray.9">
-                    <Text my="xs" lineClamp={2} color="dummy" fz={"sm"}>
-                        {description}
-                    </Text>
-                    <Badge variant="light" color="orange" radius="xl">
-                        {members} members
-                    </Badge>
+                    <Group position="center">
+                        <Badge variant="light" color="orange" radius="xl">
+                            {members} members
+                        </Badge>
+                        <Badge variant="light" color="orange" radius="xl">
+                            Public
+                        </Badge>
+                    </Group>
                 </Box>
             </Card>
         </motion.div>
