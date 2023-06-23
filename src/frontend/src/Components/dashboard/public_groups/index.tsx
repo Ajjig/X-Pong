@@ -247,32 +247,17 @@ function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; o
                     },
                 })}
             >
-                <Card.Section>
-                    <Image src={image} alt="Group image" height={200} />
-                </Card.Section>
-                <Box
-                    sx={{
-                        transform: "translateY(-40%)",
-                    }}
-                    px={"lg"}
-                >
+                <Box px={"lg"} bg='red'>
                     <Flex w={50} h={50} align="center" justify="center">
                         <Paper radius="xl" p={10} bg="gray.9">
                             {get_icon(Icon)}
                         </Paper>
+                        <Title order={3} color="gray.2">
+                            {name}
+                        </Title>
                     </Flex>
                 </Box>
-                <Box
-                    px="md"
-                    pb="lg"
-                    bg="gray.9"
-                    sx={(theme: MantineTheme) => ({
-                        marginTop: "-20px",
-                    })}
-                >
-                    <Title order={3} color="gray.2">
-                        {name}
-                    </Title>
+                <Box px="md" pb="lg" bg="gray.9">
                     <Text my="xs" lineClamp={2} color="dummy" fz={"sm"}>
                         {description}
                     </Text>
