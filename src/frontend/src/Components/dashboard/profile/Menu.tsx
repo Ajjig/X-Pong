@@ -64,7 +64,7 @@ function UserButtonMenu({}: {}) {
             zIndex: 9999
         }}>
                     <Link
-                        href="/profile"
+                        href={"/profile/" + profile?.id}
                         style={{
                             textDecoration: "none",
                         }}

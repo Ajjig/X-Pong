@@ -38,11 +38,6 @@ export function ProfileLayout({ id }: props) {
     const user: any = store.getState().profile.user;
 
     useEffect(() => {
-        // console.log("Here", id);
-        // setProfile(store.getState().profile.user);
-        // store.subscribe(() => {
-        //     setProfile(store.getState().profile.user);
-        // });
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) setProfile(res.data);
@@ -62,7 +57,6 @@ export function ProfileLayout({ id }: props) {
             receiver: profile.username,
             msg: message.message,
         });
-
         setMessage(null);
     };
 
@@ -96,7 +90,7 @@ export function ProfileLayout({ id }: props) {
                             // check if the profile is the current user
                             // if so, show edit button
                             // else, show add friend button
-                            profile && profile.id == user.id ? (
+                            profile && profile.username !== user.username ? (
                                 <ActionIcon
                                     variant="filled"
                                     p={10}
@@ -112,30 +106,31 @@ export function ProfileLayout({ id }: props) {
                                 </ActionIcon>
                             ) : (
                                 <>
-                                    <Button
-                                        size="xs"
-                                        color="orange"
+                                    <ActionIcon
+                                        variant="filled"
+                                        p={10}
+                                        size="xl"
+                                        color="gray"
                                         radius="md"
                                         onClick={() => {}}
-                                        sx={{
-                                            color: theme.colors.gray[1],
-                                        }}
                                     >
-                                        <IconUserPlus color="black" />
-                                    </Button>
+                                        <IconUserPlus />
+                                    </ActionIcon>
                                     <Popover>
                                         <Popover.Target>
-                                            <Button
-                                                size="xs"
-                                                color="orange"
+                                            <ActionIcon
+                                                variant="filled"
+                                                p={10}
+                                                size="xl"
+                                                color="gray"
                                                 radius="md"
                                                 onClick={() => {}}
                                                 sx={{
                                                     color: theme.colors.gray[1],
                                                 }}
                                             >
-                                                <IconMessage color="black" />
-                                            </Button>
+                                                <IconMessage />
+                                            </ActionIcon>
                                         </Popover.Target>
                                         {message != null ? (
                                             <Popover.Dropdown>
