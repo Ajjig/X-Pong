@@ -105,11 +105,11 @@ export default function PublicGroups() {
     function Icon(type: string) {
         switch (type) {
             case "private":
-                return <IconLock size={15} />;
+                return <IconLock size={30} />;
             case "protected":
-                return <IconShieldLock size={15} />;
+                return <IconShieldLock size={30} />;
             default:
-                return <IconUsersGroup size={15} />;
+                return <IconUsersGroup size={30} />;
         }
     }
 

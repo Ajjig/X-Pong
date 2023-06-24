@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { IconArrowNarrowLeft, IconSend } from "@tabler/icons-react";
 import { PrivateChatMenu } from "./list_of_chats/components/privateChatMenu";
 import { useMediaQuery } from "@mantine/hooks";
-import socket from "@/socket";
+
 
 import { AnimatePresence } from "framer-motion";
 
@@ -111,7 +111,7 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
 
     const sendMessage = (message: any) => {
         if (!message || message.message === "") return;
-        socket.emit("message", {
+        store.getState().io.socket?.emit("message", {
             receiver: friend.username,
             msg: message.message,
         });

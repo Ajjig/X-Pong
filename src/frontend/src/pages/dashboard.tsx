@@ -4,7 +4,8 @@ import { Head } from "@/Components/head";
 import { useEffect } from "react";
 import api from "@/api";
 import store, { setPrivateChats, setProfile } from "@/store/store";
-import socket from "@/socket";
+import SocketComponent from "@/socket/SocketComponent";
+// import socket from "@/socket";
 
 export default function Dashboard() {
     useEffect(() => {
@@ -17,50 +18,13 @@ export default function Dashboard() {
                 // redirect to login
                 window.location.href = "/";
             });
-
-        socket.on("connect", () => {
-            console.log("connected");
-            socket.on("message", (data: any) => {
-                console.log("New Message: ", data);
-                socket.emit('reconnect', {})
-            });
-        });
-
-
-        console.log("chats: ", store.getState().chats);
-
-        // socket.emit("message", {
-        //     receiver: "roudouch",
-        //     msg: "Hello",
-        // });
-
-        socket.on("disconnect", () => {
-            console.log("disconnected");
-        });
-
-        // listen to all events from server
-        socket.onAny((event, ...args) => {
-            console.log(event, args);
-        });
-
-        socket.on("error", (data: any) => {
-            console.log(data);
-        });
-
-        socket.on("privateChat", (data) => {
-            console.log("privateChat: loaded");
-            store.dispatch(setPrivateChats(data));
-        });
-
-        socket.on("publicChat", (data) => {
-            // console.log("publicChat: ", data);
-        });
-    }, [socket]);
+    }, []);
 
     return (
         <>
             <Head title="70sPong - dashboard" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
             <Box w="100%" h={"100vh"}>
+                <SocketComponent />
                 <DashboardLayout />
             </Box>
         </>

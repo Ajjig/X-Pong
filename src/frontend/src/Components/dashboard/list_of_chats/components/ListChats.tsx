@@ -56,26 +56,26 @@ export function ListChats({}: {}) {
                     right: theme.spacing.md,
                 })}
             >
-                <Box
-                    sx={(theme: MantineTheme) => ({
-                        borderRadius: "100%",
-                        background: theme.colors.orange[8],
-                        width: 50,
-                        height: 50,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        color: theme.colors.orange[1],
-                    })}
-                    onClick={() => {
-                        spotlight.open();
-                    }}
-                >
-                    <Tooltip label="Search (mod + s)" position="top">
+                <Tooltip color="gray" label="Search (mod + s)" position="top">
+                    <Box
+                        sx={(theme: MantineTheme) => ({
+                            borderRadius: "100%",
+                            background: theme.colors.orange[8],
+                            width: 50,
+                            height: 50,
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            color: theme.colors.orange[1],
+                        })}
+                        onClick={() => {
+                            spotlight.open();
+                        }}
+                    >
                         <IconSearch size={25} />
-                    </Tooltip>
-                </Box>
+                    </Box>
+                </Tooltip>
             </Box>
         </>
     );
