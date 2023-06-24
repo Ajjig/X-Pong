@@ -1,4 +1,16 @@
-import { Box, Divider, Group, MantineTheme, Navbar, PasswordInput, Space, Text, TextInput, Tooltip, useMantineTheme } from "@mantine/core";
+import {
+    Box,
+    Divider,
+    Group,
+    MantineTheme,
+    Navbar,
+    PasswordInput,
+    Space,
+    Text,
+    TextInput,
+    Tooltip,
+    useMantineTheme,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
 import { Chat } from "./Chat";
@@ -84,16 +96,16 @@ export function ListGroups({}: {}) {
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import { Modal, Button, SegmentedControl } from "@mantine/core";
+import api from "@/api";
 
 function CreateNewGroup({ children }: { children: any }) {
     const [opened, { open, close }] = useDisclosure(false);
     const theme = useMantineTheme();
-    const [GroupType, setGroupType] = useState('Public');
-    
+    const [GroupType, setGroupType] = useState("Public");
+
     const form = useForm({
         initialValues: {
             name: "",
-            type: { value: "Public", label: "Public" },
             owner: store.getState()?.profile?.user?.username,
             password: "",
         },
@@ -105,13 +117,6 @@ function CreateNewGroup({ children }: { children: any }) {
                 }
                 return null;
             },
-            type: (value: any) => {
-                const types = ["Public", "Private", "Protected"];
-                if (!types.includes(value)) {
-                    return "Invalid type";
-                }
-                return null;
-            },
             password: (value) => {
                 if (GroupType === "Protected" && value.length < 8) {
                     return "Password must be at least 8 characters long";
@@ -119,6 +124,25 @@ function CreateNewGroup({ children }: { children: any }) {
                 return null;
             },
         },
+    });
+
+    const submit = form.onSubmit((values) => {
+        const { name, owner, password } = values;
+        const group = {
+            name,
+            owner,
+            password: GroupType === "Protected" ? password : "",
+            type: GroupType,
+        };
+        console.log(group);
+
+        api.post("/create_channel", group)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                console.log(err.response.data);
+            });
     });
 
     return (
@@ -135,20 +159,25 @@ function CreateNewGroup({ children }: { children: any }) {
                 centered
             >
                 <Box maw={300} mx="auto">
-                    <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                    <form onSubmit={submit}>
                         <SegmentedControl
                             fullWidth
-                            {...form.getInputProps("type")}
                             data={["Public", "Private", "Protected"]}
                             color="orange"
                             value={GroupType}
                             onChange={setGroupType}
-                            radius={20}
+                            radius={15}
                         />
                         <Space py={5} />
                         <TextInput label="Group Name" placeholder="Name" required {...form.getInputProps("name")} />
                         <Space py={5} />
-                        <PasswordInput label="Password" placeholder="Password" {...form.getInputProps("password")} disabled={GroupType !== "Protected"} />
+                        <PasswordInput
+                            label="Password"
+                            placeholder="Password"
+                            {...form.getInputProps("password")}
+                            disabled={GroupType !== "Protected"}
+                            withAsterisk={GroupType === "Protected"}
+                        />
                         <Space py={5} />
 
                         <Group position="right" mt="md">
