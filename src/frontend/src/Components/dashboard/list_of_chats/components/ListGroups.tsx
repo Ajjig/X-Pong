@@ -8,6 +8,7 @@ import {
     Space,
     Text,
     TextInput,
+    Title,
     Tooltip,
     useMantineTheme,
 } from "@mantine/core";
@@ -155,10 +156,12 @@ function CreateNewGroup({ children }: { children: any }) {
                 }}
                 opened={opened}
                 onClose={close}
-                title="New group"
                 centered
             >
-                <Box maw={300} mx="auto">
+                <Box maw={300} mx="auto" pb={20}>
+                    <Title order={3}>CREAT NEW GROUP</Title>
+                    <Space py={15} />
+
                     <form onSubmit={submit}>
                         <SegmentedControl
                             fullWidth
@@ -168,7 +171,7 @@ function CreateNewGroup({ children }: { children: any }) {
                             onChange={setGroupType}
                             radius={15}
                         />
-                        <Space py={5} />
+                        <Space py={8} />
                         <TextInput label="Group Name" placeholder="Name" required {...form.getInputProps("name")} />
                         <Space py={5} />
                         <PasswordInput
