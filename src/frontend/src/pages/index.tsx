@@ -8,6 +8,7 @@ import { Scene } from "@/Components/scene";
 import { Canvas } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { Welcome } from "@/Components/welcome";
+import { Loading } from "@/Components/loading/loading";
 
 const useStyles = createStyles((theme) => ({
     container: {
@@ -50,22 +51,6 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
-function LoadingIcon() {
-    const { classes, cx } = useStyles();
-    const { RiveComponent } = useRive({
-        src: "/loading.riv",
-        autoplay: true,
-    });
-
-    return (
-        <Box className={classes.container}>
-            <Box w="150px" h="150px">
-                <RiveComponent />
-            </Box>
-        </Box>
-    );
-}
-
 export default function Home() {
     const { classes, cx } = useStyles();
 
@@ -80,7 +65,7 @@ export default function Home() {
     // }, []);
 
     return (
-        <Suspense fallback={<LoadingIcon />}>
+        <Suspense fallback={<Loading />}>
             <Box className={cx(classes.container, classes.animation_apperance)}>
                 <Head title="70sPong" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
                 <Box className={classes.container_scene}>

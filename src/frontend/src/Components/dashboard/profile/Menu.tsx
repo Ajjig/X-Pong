@@ -73,9 +73,12 @@ function UserButtonMenu({}: {}) {
                     </Link>
 
                     <Menu.Item
-                        component="a"
-                        href="/logout"
-                        target="_blank"
+                     
+                        onClick={() => {
+                            // clear the jwt token from the cookies and redirect to the login page
+                            document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";   
+                            window.location.href = "/";  
+                        }}
                         icon={<IconLogout size={rem(14)} />}
                         color="red"
                     >
