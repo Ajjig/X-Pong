@@ -5,49 +5,23 @@ networks:
     name: warper-network
     driver: bridge
 
-# volumes:
-  
-#   nestjs:
-#     driver: local
-#     name: nestjs
-#     driver_opts:
-#       type: none
-#       device: /Users/majjig/Desktop/vl
-#       o: bind
-  
-  # # front:
-  # #   driver: local
-  # #   name: front
-  # #   driver_opts:
-  # #     type: none
-  # #     device: /Users/majjig/goinfre/ft_transcendence/src/front
-  # #     o: bind
-
-  # postgres:
-  #   driver: local
-  #   name: postgres
-  #   driver_opts:
-  #     type: none
-  #     device:  /Users/majjig/goinfre/ft_transcendence/src/postgres
-  #     o: bind
-
 services:
 
-  # nestjs:
-  #   container_name: nestjs
-  #   build: ./src/backend
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - warper-network
-  #   # volumes:
-  #   #   - nestjs:/workspace
-  #   ports:
-  #     - "3000:3000"
-  #     - "5555:5555"
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - postgres  
+  nestjs:
+    container_name: nestjs
+    build: ./src/backend
+    env_file:
+      - .env
+    networks:
+      - warper-network
+    volumes:
+      - ./src/backend/:/workspace
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    restart: unless-stopped
+    depends_on:
+      - postgres  
   postgres:
     container_name: postgres
     build: ./src/database
@@ -58,7 +32,7 @@ services:
     ports:
       - "5432:5432"
     # volumes:
-    #   - postgres:/docker-entrypoint-initdb.d
+    #   - ./src/database/:/docker-entrypoint-initdb.d
     environment:
       - PGDATA=/var/lib/postgresql/custom-data
     restart: unless-stopped
