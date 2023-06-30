@@ -20,6 +20,7 @@ import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
 import { Logger } from '@nestjs/common';
+import { emit } from 'process';
 
 @WebSocketGateway({
   cors: {
@@ -29,11 +30,11 @@ import { Logger } from '@nestjs/common';
   namespace: 'chat',
 })
 export class ChatGateway {
-  connectedUsers: Map<string, any>
+  connectedUsers: Map<string, any>;
   constructor(
     private readonly chatService: ChatService,
     private readonly publicChannelService: PublicChannelService,
-    private readonly userChatHistoryService: UserChatHistoryService
+    private readonly userChatHistoryService: UserChatHistoryService,
   ) {
     this.connectedUsers = new Map();
   }
@@ -141,62 +142,62 @@ export class ChatGateway {
     client.emit('findAllMessages', messages);
   }
 
-  @SubscribeMessage('joinChannelPublic')
-  async joinChannelPublic(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: JoinPublicChannelDto,
-  ) {
-    const userdata = await this.chatService.jwtdecoder(client);
-    if (!userdata) {
-      client.emit('error', 'User not found');
-      return;
-    }
-    if (!payload || !userdata.username || !payload.channelName) {
-      client.emit('error', 'You must provide a payload');
-      return;
-    }
+  // @SubscribeMessage('joinChannelPublic')
+  // async joinChannelPublic(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() payload: JoinPublicChannelDto,
+  // ) {
+  //   const userdata = await this.chatService.jwtdecoder(client);
+  //   if (!userdata) {
+  //     client.emit('error', 'User not found');
+  //     return;
+  //   }
+  //   if (!payload || !userdata.username || !payload.channelName) {
+  //     client.emit('error', 'You must provide a payload');
+  //     return;
+  //   }
 
-    if (
-      !(await this.publicChannelService.checkSingleUserExsting(
-        userdata.username,
-      ))
-    ) {
-      client.emit('error', 'User not found');
-      return;
-    }
+  //   if (
+  //     !(await this.publicChannelService.checkSingleUserExsting(
+  //       userdata.username,
+  //     ))
+  //   ) {
+  //     client.emit('error', 'User not found');
+  //     return;
+  //   }
 
-    if (
-      !(await this.publicChannelService.checkSingleChannelExsting(
-        payload.channelName,
-      ))
-    ) {
-      client.emit('error', 'Channel not found');
-      return;
-    }
+  //   if (
+  //     !(await this.publicChannelService.checkSingleChannelExsting(
+  //       payload.channelName,
+  //     ))
+  //   ) {
+  //     client.emit('error', 'Channel not found');
+  //     return;
+  //   }
 
-    if (
-      !(await this.publicChannelService.checkUsermemberofChannel(
-        userdata.username,
-        payload.channelName,
-      ))
-    ) {
-      client.emit('error', 'You are not authorized to join this channel');
-      return;
-    }
+  //   if (
+  //     !(await this.publicChannelService.checkUsermemberofChannel(
+  //       userdata.username,
+  //       payload.channelName,
+  //     ))
+  //   ) {
+  //     client.emit('error', 'You are not authorized to join this channel');
+  //     return;
+  //   }
 
-    // check if the user is already in the channel
-    const inChannel = client.rooms.has(payload.channelName);
-    if (inChannel) {
-      client.emit('error', 'You have already joined the channel');
-      return;
-    }
+  //   // check if the user is already in the channel
+  //   const inChannel = client.rooms.has(payload.channelName);
+  //   if (inChannel) {
+  //     client.emit('error', 'You have already joined the channel');
+  //     return;
+  //   }
 
-    // join the user to the channel
-    client.join(payload.channelName);
+  //   // join the user to the channel
+  //   client.join(payload.channelName);
 
-    // notify the user that he joined the channel
-    client.to(payload.channelName).emit('publicJoined', userdata.username);
-  }
+  //   // notify the user that he joined the channel
+  //   client.to(payload.channelName).emit('publicJoined', userdata.username);
+  // }
 
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
@@ -232,8 +233,7 @@ export class ChatGateway {
     // check if the user has joined the channel
     const inChannel = client.rooms.has(payload.channelName);
     if (!inChannel) {
-      client.emit('error', 'You have not joined the channel');
-      return;
+      client.join(payload.channelName);
     }
     await this.publicChannelService.saveprivatechatmessage(payload);
     client.to(payload.channelName).emit('PublicMessage', payload.msg);
@@ -264,14 +264,20 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
-    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username, 0);
-    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username, 0);
-    
+    const publicChat =
+      await this.userChatHistoryService.getUserChannelConversationChatHistory(
+        userdata.username,
+        0,
+      );
+    const privateChat =
+      await this.userChatHistoryService.getUserPrivateConversationChatHistory(
+        userdata.username,
+        0,
+      );
+
     client.emit('publicChat', publicChat);
     client.emit('privateChat', privateChat);
-
   }
-  
 
   @SubscribeMessage('getLatestChannels')
   async getlastedchannels(@ConnectedSocket() client: Socket) {
@@ -296,11 +302,20 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    await this.chatService.joinUsertohischannels(userdata.username, client);
     new Logger('Socket').log('Client connected: ' + userdata.username);
     this.connectedUsers[userdata.username] = client;
-    const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(userdata.username, 0);
-    const privateChat = await this.userChatHistoryService.getUserPrivateConversationChatHistory(userdata.username, 0);
-    client.emit('privateChat', privateChat);
+    const publicChat =
+      await this.userChatHistoryService.getUserChannelConversationChatHistory(
+        userdata.username,
+        0,
+      );
+    const privateChat =
+      await this.userChatHistoryService.getUserPrivateConversationChatHistory(
+        userdata.username,
+        0,
+      );
+    client.emit('privateChat', 2);
     client.emit('publicChat', publicChat);
     await this.chatService.set_user_online(userdata.username);
   }

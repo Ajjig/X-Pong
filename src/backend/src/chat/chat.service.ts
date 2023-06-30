@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
+import { channel } from 'diagnostics_channel';
 dotenv.config();
 
 @Injectable()
@@ -197,15 +198,23 @@ export class ChatService {
     // get token in cookie if exist else in header
     let token = null;
     try {
- 
+      
       token = client.handshake.headers.cookie.split('=')[1];
+      const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: number;
+      };
+      if (context) {
+        context.switchToWs().getData().userId = userdecoded.uid;
+      }
+      return userdecoded;
       
     } catch { }
 
-    if (!token) {
-      return null;
-    }
     try {
+      const token = client.handshake.headers.jwt as string;
+      if (!token) {
+        return null;
+      }
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
         uid: number;
       };
@@ -342,5 +351,45 @@ export class ChatService {
       }
     });
     return check;
+  }
+
+  async joinUsertohischannels(User : string, client : Socket)
+  {
+    // find all private channels names of a user
+    const privateChannels = await this.prisma.user.findUnique({
+      where: {
+        username: User,
+      },
+      select: {
+        privateChannels: true,
+      },
+    });
+
+    // find all public channels names of a user 
+    const publicChannels = await this.prisma.user.findUnique({
+      where: {
+        username: User,
+      },
+      select: {
+        channels: true,
+      },
+    });
+
+    // join user to all his private channels
+    for (const name of privateChannels.privateChannels) {
+      const inChannel = client.rooms.has(name);
+      if (!inChannel) {
+        client.join(name);
+      }
+    }
+    
+    // join user to all his public channels
+    for (const name of publicChannels.channels) {
+      const inChannel = client.rooms.has(name.name);
+      if (!inChannel) {
+        client.join(name.name);
+      }
+    }
+
   }
 }
