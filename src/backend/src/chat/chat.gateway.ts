@@ -106,41 +106,45 @@ export class ChatGateway {
       PrivateChannelId: channelID,
       receiver: payload.receiver,
     });
+    // add created at and updated at to the message
+    message.createdAt = new Date();
+    message.updatedAt = new Date();
 
     // send the message to the channel
+
     client.to(channelID).emit('message', message);
   }
 
-  @SubscribeMessage('findAllMessages')
-  async findALLmessages(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
-  ) {
-    const userdata = await this.chatService.jwtdecoder(client);
-    if (!userdata) {
-      client.emit('error', 'User not found');
-      return;
-    }
-    if (!payload || !payload.channelId || !userdata.username) {
-      client.emit('error', 'You must provide a payload');
-      return;
-    }
-    const channel = await this.chatService.checkSingleChannelExsting(
-      userdata.username,
-      payload.channelId,
-    );
-    if (!channel) {
-      client.emit(
-        'error',
-        'You are not authorized to send messages to this channel',
-      );
-      return;
-    }
-    const messages = await this.chatService.findAllPrivateMessagesByChannelID(
-      payload.channelId,
-    );
-    client.emit('findAllMessages', messages);
-  }
+  // @SubscribeMessage('findAllMessages')
+  // async findALLmessages(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() payload: any,
+  // ) {
+  //   const userdata = await this.chatService.jwtdecoder(client);
+  //   if (!userdata) {
+  //     client.emit('error', 'User not found');
+  //     return;
+  //   }
+  //   if (!payload || !payload.channelId || !userdata.username) {
+  //     client.emit('error', 'You must provide a payload');
+  //     return;
+  //   }
+  //   const channel = await this.chatService.checkSingleChannelExsting(
+  //     userdata.username,
+  //     payload.channelId,
+  //   );
+  //   if (!channel) {
+  //     client.emit(
+  //       'error',
+  //       'You are not authorized to send messages to this channel',
+  //     );
+  //     return;
+  //   }
+  //   const messages = await this.chatService.findAllPrivateMessagesByChannelID(
+  //     payload.channelId,
+  //   );
+  //   client.emit('findAllMessages', messages);
+  // }
 
   // @SubscribeMessage('joinChannelPublic')
   // async joinChannelPublic(
@@ -202,7 +206,7 @@ export class ChatGateway {
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: PublicChannelMessageDto,
+    @MessageBody() payload: any,
   ) {
     const userdata = await this.chatService.jwtdecoder(client);
     if (!userdata) {
@@ -235,8 +239,12 @@ export class ChatGateway {
     if (!inChannel) {
       client.join(payload.channelName);
     }
-    await this.publicChannelService.saveprivatechatmessage(payload);
-    client.to(payload.channelName).emit('PublicMessage', payload.msg);
+    await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
+    // add created at and updated at
+
+    payload.createdAt = new Date();
+    payload.updatedAt = new Date();
+    client.to(payload.channelName).emit('PublicMessage', payload);
   }
 
   @SubscribeMessage('search')
@@ -315,7 +323,7 @@ export class ChatGateway {
         userdata.username,
         0,
       );
-    client.emit('privateChat', 2);
+    client.emit('privateChat', privateChat);
     client.emit('publicChat', publicChat);
     await this.chatService.set_user_online(userdata.username);
   }
