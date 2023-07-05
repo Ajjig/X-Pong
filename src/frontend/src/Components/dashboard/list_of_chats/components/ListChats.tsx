@@ -11,9 +11,16 @@ export function ListChats({}: {}) {
 
     useEffect(() => {
         setChats(store.getState().chats.PrivateChats);
+    
         store.subscribe(() => {
             const chatsFromStore = store.getState().chats.PrivateChats;
-            setChats(chatsFromStore);
+            setChats(() => {
+                // filter chats that have no messages
+                const filteredChats = chatsFromStore.filter((chat: any) => {
+                    return chat.chat.length > 0;
+                });
+                return filteredChats;
+            });
         });
     }, []);
 
@@ -21,7 +28,7 @@ export function ListChats({}: {}) {
         <>
             <Box w={"100%"} h="100%" p="md">
                 <Navbar.Section>
-                    {chats.length == 0 && (
+                    {chats.length <= 0 && (
                         <Box
                             sx={(theme: MantineTheme) => ({
                                 display: "flex",
@@ -38,14 +45,17 @@ export function ListChats({}: {}) {
                             <Text>No chats yet</Text>
                         </Box>
                     )}
-                    {chats.map((chat: any, index: number) => (
-                        <Box key={index}>
-                            <Space py={2} />
-                            <Chat chat={chat} />
-                            <Space py={2} />
-                            <Divider />
-                        </Box>
-                    ))}
+                    {chats?.map((chat: any, index: number) => {
+                        if (chat.chat.length == 0) return null;
+                        return (
+                            <Box key={index}>
+                                <Space py={2} />
+                                <Chat chat={chat} />
+                                <Space py={2} />
+                                <Divider />
+                            </Box>
+                        );
+                    })}
                 </Navbar.Section>
             </Box>
             {/* floating add button in the buttom */}

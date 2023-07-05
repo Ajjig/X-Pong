@@ -7,10 +7,6 @@ import { ListGroups } from "./components/ListGroups";
 export default function List_of_chats({ setChat }: { setChat: (chat: ReactElement) => void }) {
     const [value, setValue] = useState("Messages");
 
-    useEffect(() => {
-        // console.log(value);
-    }, [value]);
-
     return (
         <Box w={"100%"} h="100%" p="md">
             <Navbar.Section>

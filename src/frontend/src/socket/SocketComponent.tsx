@@ -1,5 +1,5 @@
 // SocketComponent.js
-import store, { setPrivateChats, setSocket } from "@/store/store";
+import store, { setCurrentChat, setNewMessage, setPrivateChats, setSocket } from "@/store/store";
 import { useEffect } from "react";
 import io from "socket.io-client";
 
@@ -25,12 +25,15 @@ const SocketComponent = () => {
         // @@@@@@@@@@@@@@
 
         socket.on("message", (data: any) => {
-            console.log("New Message: ", data);
-            // socket.emit("reconnect", {});
+            // console.log("New Message: ", data);
+            socket.emit("reconnect", {});
+            console.warn("new message: ", data);
+            store.dispatch(setNewMessage(data));
+            
         });
 
         socket.on("privateChat", (data) => {
-            console.log("privateChat: loaded");
+            // console.log("privateChat: loaded");
             store.dispatch(setPrivateChats(data));
         });
 

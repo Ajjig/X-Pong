@@ -4,6 +4,7 @@ const initialStateProfile = {
     PrivateChats: [],
     GroupChats: [],
     currentChat: null,
+    newMessage: null,
 };
 
 const ChatsSlice = createSlice({
@@ -19,6 +20,10 @@ const ChatsSlice = createSlice({
         setCurrentChat: (state, action) => {
             state.currentChat = action.payload;
         },
+        setNewMessage: (state, action) => {
+            state.newMessage = action.payload;
+        }
+        
     },
 });
 

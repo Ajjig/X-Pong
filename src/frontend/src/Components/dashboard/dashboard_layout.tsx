@@ -5,26 +5,27 @@ import { AppShell, Navbar, Text } from "@mantine/core";
 import HeaderDashboard from "./header";
 import Chats from "./list_of_chats/chats";
 import PublicGroups from "./public_groups";
-import store from "@/store/store";
 import { motion } from "framer-motion";
 import { IconArrowNarrowLeft, IconSend } from "@tabler/icons-react";
 import { PrivateChatMenu } from "./list_of_chats/components/privateChatMenu";
 import { useMediaQuery } from "@mantine/hooks";
-
-
 import { AnimatePresence } from "framer-motion";
+
+import store, { setCurrentChat, setNewMessage } from "@/store/store";
 
 export function DashboardLayout() {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
-    const [chat, setChat] = useState<any>(null);
 
     const AsideWidth = "300px";
+    const [chat, setChat] = useState<any>(null);
 
     useEffect(() => {
         setChat(store.getState().chats.currentChat);
         store.subscribe(() => {
-            setChat(store.getState().chats.currentChat);
+            // console.log("container app just updated", store.getState().chats.currentChat);
+            const s = store.getState().chats.currentChat;
+            if (s) setChat(s);
         });
     }, []);
 
@@ -56,6 +57,7 @@ export function DashboardLayout() {
                     >
                         <Box p="md">
                             <ChatContainer
+                                // key={chat && chat.chat[chat.chat.length - 1].text}
                                 user={chat}
                                 setSelected={setChat}
                                 AsideWidth={AsideWidth}
@@ -102,9 +104,19 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
     const [friend, setFriend] = useState<any>(chat.otherUser);
     const theme = useMantineTheme();
     const isMobile = useMediaQuery("(max-width: 768px)");
-    // const [user, setUser] = useState(user);
+    const [messages, setMessages] = useState<any>(chat.chat ?? []);
 
-    const [messages, setMessages] = useState<any>(chat.chat || []);
+    useEffect(() => {
+        // subscribe to check if this store.getState().chats.newMessage has a new value
+        store.subscribe(() => {
+            let newMsg = store.getState().chats.newMessage;
+            if (newMsg != null) {
+                setMessages((prev: any) => [...prev, newMsg]);
+                // set new message to null
+                store.dispatch(setNewMessage(null));
+            }
+        });
+    }, []);
 
     const [message, setMessage] = useState("");
     const scrollRef = useRef<Readonly<HTMLDivElement> | null>(null);
@@ -126,13 +138,14 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
         setMessage("");
     };
 
-    useEffect(() => {}, []);
-
     useEffect(() => {
         //get the last message
         const lastMessage = scrollRef.current?.lastElementChild;
         // scroll to the last message
-        lastMessage?.scrollIntoView({ behavior: "smooth" });
+        lastMessage
+            ?.scrollIntoView
+            // { behavior: "smooth" }
+            ();
     }, [messages]);
 
     return (
@@ -210,12 +223,15 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
                     },
                 }}
                 ref={scrollRef}
+                key={chat && chat.chat[chat.chat.length - 1].text}
             >
-                {messages.map((message: any, index: number) => (
-                    <Box key={index} mb={10}>
-                        <Message message={message} friend={friend} />
-                    </Box>
-                ))}
+                {messages.map((message: any, index: number) => {
+                    return (
+                        <Box key={index + message.text} mb={10}>
+                            <Message message={message} friend={friend} />
+                        </Box>
+                    );
+                })}
             </Box>
             <Divider mb="xs" size="xs" color="gray.7" />
             <Box>
