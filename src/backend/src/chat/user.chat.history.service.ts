@@ -70,6 +70,7 @@ export class UserChatHistoryService {
         }
       },
       select: {
+        id: true,
         name: true,
         type: true,
         owner: true,
@@ -87,5 +88,6 @@ export class UserChatHistoryService {
   
     return channels;
   }
+  
   
 }
