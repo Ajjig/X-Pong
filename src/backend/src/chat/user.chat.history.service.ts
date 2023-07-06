@@ -63,7 +63,6 @@ export class UserChatHistoryService {
   async getUserChannelConversationChatHistory(username: string, page: number): Promise<any> {
     const channels = await this.prisma.channel.findMany({
       where: {
-        type: 'public',
         members: {
           some: {
             username: username
@@ -87,7 +86,6 @@ export class UserChatHistoryService {
     });
   
     return channels;
-
-  
   }
+  
 }
