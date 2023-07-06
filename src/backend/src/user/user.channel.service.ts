@@ -44,12 +44,23 @@ export class UserChannelService {
           admins: { connect: { id: user.id } },
           name: channel.name,
           type: channel.type,
-          password: channel.type == 'public' ? null : (await check_password).password,
-          salt: channel.type == 'public' ? null : (await check_password).salt,
+          password: channel.type === 'public' ? null : (await check_password).password,
+          salt: channel.type === 'public' ? null : (await check_password).salt,
           owner: channel.owner ? channel.owner : user.username,
         },
+        select: {
+          id: true,
+          members: true,
+          admins: true,
+          name: true,
+          type: true,
+          owner: true,
+        },
       });
+      
       return newChannel;
+      
+
     } catch (e) {
       console.log(e);
       throw new HttpException(e.meta, 400);
