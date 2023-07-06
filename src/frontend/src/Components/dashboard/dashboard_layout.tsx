@@ -109,8 +109,8 @@ function ChatContainer({ user, setSelected, chat }: { user: any; setSelected: an
     useEffect(() => {
         // subscribe to check if this store.getState().chats.newMessage has a new value
         store.subscribe(() => {
-            let newMsg = store.getState().chats.newMessage;
-            if (newMsg != null) {
+            let newMsg: any = store.getState().chats.newMessage;
+            if (newMsg != null && newMsg.privateChannelId == chat.privateChannelId) {
                 setMessages((prev: any) => [...prev, newMsg]);
                 // set new message to null
                 store.dispatch(setNewMessage(null));

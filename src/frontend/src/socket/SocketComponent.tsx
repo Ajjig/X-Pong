@@ -27,7 +27,6 @@ const SocketComponent = () => {
         socket.on("message", (data: any) => {
             // console.log("New Message: ", data);
             socket.emit("reconnect", {});
-            console.warn("new message: ", data);
             store.dispatch(setNewMessage(data));
             
         });
