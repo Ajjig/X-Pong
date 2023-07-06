@@ -38,6 +38,15 @@ export class UserChannelService {
       if (['public', 'private'].includes(channel.type) == false) {
         throw new HttpException('Invalid channel type', 400);
       }
+
+      const existingChannel = await this.prisma.channel.findFirst({
+        where: { name: channel.name },
+      });
+  
+      if (existingChannel) {
+        throw new HttpException('Channel name already exists', 400);
+      }
+
       const newChannel = await this.prisma.channel.create({
         data: {
           members: { connect: { id: user.id } },
