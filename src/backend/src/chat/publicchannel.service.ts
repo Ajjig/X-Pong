@@ -144,4 +144,14 @@ export class PublicChannelService {
 
     return lastestchannels;
   }
+
+  async getChannelNameById(channelId: number): Promise<string> {
+    const channel = await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+    });
+
+    return channel.name;
+  }
 }

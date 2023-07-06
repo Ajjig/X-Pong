@@ -213,18 +213,21 @@ export class ChatGateway {
       client.emit('error', 'User not found');
       return;
     }
-    if (
-      !payload ||
-      !payload.channelName ||
-      !userdata.username ||
-      !payload.msg
-    ) {
+    if (!payload || !payload.id || !userdata.username || !payload.msg) {
       client.emit('error', 'You must provide a payload');
       return;
     }
 
+    const channelName = await this.publicChannelService.getChannelNameById(
+      payload.id,
+    );
+    if (!channelName) {
+      client.emit('error', 'Channel not found');
+      return;
+    }
+
     const flaggedUsersCheck = await this.publicChannelService.limitFlagedUsers(
-      payload.channelName,
+      channelName,
       userdata.username,
     );
     if (flaggedUsersCheck) {
@@ -235,16 +238,16 @@ export class ChatGateway {
       return;
     }
     // check if the user has joined the channel
-    const inChannel = client.rooms.has(payload.channelName);
+    const inChannel = client.rooms.has(channelName);
     if (!inChannel) {
-      client.join(payload.channelName);
+      client.join(channelName);
     }
     await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
     // add created at and updated at
 
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
-    client.to(payload.channelName).emit('PublicMessage', payload);
+    client.to(channelName).emit('PublicMessage', payload);
   }
 
   @SubscribeMessage('search')

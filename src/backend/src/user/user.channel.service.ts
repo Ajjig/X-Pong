@@ -14,10 +14,7 @@ export class UserChannelService {
     private OrigineService: OrigineService,
   ) {}
 
-  async createChannelByUsername(
-    username: string,
-    channel: any,
-  ) {
+  async createChannelByUsername(username: string, channel: any) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { username: username },
@@ -34,17 +31,8 @@ export class UserChannelService {
         throw new HttpException('Weak password', 400);
       }
 
-
       if (['public', 'private'].includes(channel.type) == false) {
         throw new HttpException('Invalid channel type', 400);
-      }
-
-      const existingChannel = await this.prisma.channel.findFirst({
-        where: { name: channel.name },
-      });
-  
-      if (existingChannel) {
-        throw new HttpException('Channel name already exists', 400);
       }
 
       const newChannel = await this.prisma.channel.create({
@@ -53,7 +41,8 @@ export class UserChannelService {
           admins: { connect: { id: user.id } },
           name: channel.name,
           type: channel.type,
-          password: channel.type === 'public' ? null : (await check_password).password,
+          password:
+            channel.type === 'public' ? null : (await check_password).password,
           salt: channel.type === 'public' ? null : (await check_password).salt,
           owner: channel.owner ? channel.owner : user.username,
         },
@@ -66,10 +55,8 @@ export class UserChannelService {
           owner: true,
         },
       });
-      
-      return newChannel;
-      
 
+      return newChannel;
     } catch (e) {
       console.log(e);
       throw new HttpException(e.meta, 400);
