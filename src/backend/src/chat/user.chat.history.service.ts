@@ -61,18 +61,33 @@ export class UserChatHistoryService {
   }
 
   async getUserChannelConversationChatHistory(username: string, page: number): Promise<any> {
-    const chat = await this.prisma.message.findMany({
-      where: { sender: username },
-      orderBy: { createdAt: 'asc' },
-      skip: page * 50,
+    const channels = await this.prisma.channel.findMany({
+      where: {
+        type: 'public',
+        members: {
+          some: {
+            username: username
+          }
+        }
+      },
       select: {
-        content: true,
-        sender: true,
-        createdAt: true,
-        channel: { select: { name: true, type: true, owner: true } },
+        name: true,
+        type: true,
+        owner: true,
+        messages: {
+          select: {
+            content: true,
+            sender: true,
+            createdAt: true
+          },
+          orderBy: { createdAt: 'asc' },
+          skip: page * 50
+        }
       },
     });
+  
+    return channels;
 
-    return chat;
+  
   }
 }
