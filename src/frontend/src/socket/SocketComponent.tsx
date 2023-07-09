@@ -3,6 +3,14 @@ import store, { setCurrentChat, setNewMessage, setPrivateChats, setSocket } from
 import { useEffect } from "react";
 import io from "socket.io-client";
 
+type PrivateChat = [
+    {
+        chat: any[];
+        otherUser: {};
+        privateChannelId: string;
+    }
+];
+
 const SocketComponent = () => {
     useEffect(() => {
         // Connect to the socket server
@@ -25,10 +33,21 @@ const SocketComponent = () => {
         // @@@@@@@@@@@@@@
 
         socket.on("message", (data: any) => {
-            // console.log("New Message: ", data);
-            socket.emit("reconnect", {});
+            // add the message to the private chat
+            // make a deep copy of the private chats
+            const privateChats: PrivateChat = JSON.parse(JSON.stringify(store.getState().chats.PrivateChats));
+
+            console.warn("@> ", privateChats);
+            const newPrivateChats = privateChats.map((chat: any) => {
+                if (chat.privateChannelId == data.privateChannelId) {
+                    chat.chat.push(data);
+                }
+                return chat;
+            });
+            store.dispatch(setPrivateChats(newPrivateChats));
+
+            // socket.emit("reconnect", {});
             store.dispatch(setNewMessage(data));
-            
         });
 
         socket.on("privateChat", (data) => {

@@ -115,10 +115,8 @@ export class ChatService {
     }
 
     let genid = null;
-    if (senderID.id < receiverID.id)
-      genid = senderID.id + "+" + receiverID.id;
-    else
-      genid = receiverID.id + "+" + senderID.id;
+    if (senderID.id < receiverID.id) genid = senderID.id + '+' + receiverID.id;
+    else genid = receiverID.id + '+' + senderID.id;
 
     const id = `__private__@${genid}`;
     return id;
@@ -198,7 +196,6 @@ export class ChatService {
     // get token in cookie if exist else in header
     let token = null;
     try {
-      
       token = client.handshake.headers.cookie.split('=')[1];
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
         uid: number;
@@ -207,8 +204,7 @@ export class ChatService {
         context.switchToWs().getData().userId = userdecoded.uid;
       }
       return userdecoded;
-      
-    } catch { }
+    } catch {}
 
     try {
       const token = client.handshake.headers.jwt as string;
@@ -255,15 +251,15 @@ export class ChatService {
   async set_user_offline(username: string): Promise<void> {
     try {
       const user = await this.prisma.user.update({
-      where: {
-        username: username,
-      },
-      data: {
-        onlineStatus: 'offline',
-      },
-    });
-  } catch (error) {}
-}
+        where: {
+          username: username,
+        },
+        data: {
+          onlineStatus: 'offline',
+        },
+      });
+    } catch (error) {}
+  }
 
   async get_user_status(username: string): Promise<string> {
     const user = await this.prisma.user.findUnique({
@@ -280,18 +276,20 @@ export class ChatService {
   async searchQuery(query: string): Promise<any[]> {
     const users = await this.prisma.user.findMany({
       where: {
-        OR: [{
+        OR: [
+          {
             username: {
               contains: query,
               mode: 'insensitive',
-            }
-          }, {
+            },
+          },
+          {
             name: {
               contains: query,
               mode: 'insensitive',
-            }
-          }]
-
+            },
+          },
+        ],
       },
       select: {
         username: true,
@@ -353,8 +351,7 @@ export class ChatService {
     return check;
   }
 
-  async joinUsertohischannels(User : string, client : Socket)
-  {
+  async joinUsertohischannels(User: string, client: Socket) {
     // find all private channels names of a user
     const privateChannels = await this.prisma.user.findUnique({
       where: {
@@ -365,7 +362,7 @@ export class ChatService {
       },
     });
 
-    // find all public channels names of a user 
+    // find all public channels names of a user
     const publicChannels = await this.prisma.user.findUnique({
       where: {
         username: User,
@@ -376,20 +373,21 @@ export class ChatService {
     });
 
     // join user to all his private channels
-    for (const name of privateChannels.privateChannels) {
-      const inChannel = client.rooms.has(name);
-      if (!inChannel) {
-        client.join(name);
+    if (privateChannels)
+      for (const name of privateChannels.privateChannels) {
+        const inChannel = client.rooms.has(name);
+        if (!inChannel) {
+          client.join(name);
+        }
       }
-    }
-    
-    // join user to all his public channels
-    for (const name of publicChannels.channels) {
-      const inChannel = client.rooms.has(name.name);
-      if (!inChannel) {
-        client.join(name.name);
-      }
-    }
 
+    // join user to all his public channels
+    if (publicChannels)
+      for (const name of publicChannels.channels) {
+        const inChannel = client.rooms.has(name.name);
+        if (!inChannel) {
+          client.join(name.name);
+        }
+      }
   }
 }
