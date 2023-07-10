@@ -30,13 +30,13 @@ import { emit } from 'process';
   namespace: 'chat',
 })
 export class ChatGateway {
-  connectedUsers: Map<string, any>;
+  private connectedClients: Map<string, Socket> = new Map<string, Socket>();
   constructor(
     private readonly chatService: ChatService,
     private readonly publicChannelService: PublicChannelService,
     private readonly userChatHistoryService: UserChatHistoryService,
   ) {
-    this.connectedUsers = new Map();
+
   }
 
   @WebSocketServer()
@@ -305,6 +305,27 @@ export class ChatGateway {
 
     client.emit('letestChannels', result);
   }
+
+  @SubscribeMessage('accept_friend_request')
+  async acceptFriendRequest(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    if (!payload || !payload.friend_username) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+
+    const result = await this.chatService.acceptFriendRequest(userdata.username, payload.friend_username, this.server, this.connectedClients);
+    if (!result) {
+      client.emit('error', 'eith the user or friend is not found');
+      return;
+    }
+  }
+
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     let userdata: any = this.chatService.jwtdecoder(client);
@@ -315,7 +336,8 @@ export class ChatGateway {
     }
     await this.chatService.joinUsertohischannels(userdata.username, client);
     new Logger('Socket').log('Client connected: ' + userdata.username);
-    this.connectedUsers[userdata.username] = client;
+    this.connectedClients.set(userdata.username, client);
+
     const publicChat =
       await this.userChatHistoryService.getUserChannelConversationChatHistory(
         userdata.username,
@@ -338,7 +360,7 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
-    this.connectedUsers.delete(userdata.username);
+    this.connectedClients.delete(userdata.username);
     await this.chatService.set_user_offline(userdata.username);
   }
 }

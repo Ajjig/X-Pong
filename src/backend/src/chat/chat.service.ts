@@ -390,4 +390,87 @@ export class ChatService {
         }
       }
   }
+
+  async acceptFriendRequest(username: string, friendRequest: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username
+      },
+      include: {
+        Friends: true
+      }
+    })
+
+    const friendUser = await this.prisma.user.findUnique({
+      where: {
+        username: friendRequest
+      },
+      include: {
+        Friends: true
+      }
+    })
+
+    if (!user || !friendUser) {
+      return null
+    }
+
+    // update user and friendUser friendship status
+    const userFriend = await this.prisma.friends.update({
+      where: {
+        username: username,
+      },
+      data: {
+        friendshipStatus: 'Accepted'
+      }
+    })
+
+    const friendFriend = await this.prisma.friends.update({
+      where: {
+        username: friendRequest,
+      },
+      data: {
+        friendshipStatus: 'Accepted'
+      }
+    })
+
+    // create a new channel for the two users
+    const channel = await this.makePrivateChannelId(username, friendRequest);
+    const check_channel = await this.checkSingleChannelExsting(username, channel);
+    if (!check_channel) {
+      await this.createprivatechannel(
+        username,
+        friendRequest,
+        Server,
+        channel,
+      );
+    }
+
+    // join the two users to the channel
+    const userClient = connectedClients.get(user.username);
+    const friendClient = connectedClients.get(friendUser.username);
+
+    if (userClient && !userClient.rooms.has(channel)) {
+      userClient.join(channel);
+    }
+
+    if (friendClient && !friendClient.rooms.has(channel)) {
+      friendClient.join(channel);
+    }
+
+    // send notification to the two users emiting the event
+    userClient.emit('notifications', `You are now friends with ${friendRequest}`);
+    friendClient.emit('notifications', `You are now friends with ${username}`);
+
+    const res = await this.prisma.user.findUnique({
+      where: {
+        username: username
+      },
+      include: {
+        Friends: true,
+        channels : true,
+      }
+    })
+    
+    return res;
+  }
 }
