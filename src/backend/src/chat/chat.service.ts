@@ -427,7 +427,7 @@ export class ChatService {
     // create friend on the receiver side
     const friend = await this.prisma.friends.create({
       data: {
-        user: { connect: { id: friendUser.id } },
+        user: { connect: { id: user.id } },
         username: friendUser.username,
         friendshipStatus: 'Accepted',
       },

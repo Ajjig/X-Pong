@@ -130,7 +130,7 @@ export class UserService {
 
       const my_side = await this.prisma.friends.create({
         data: {
-          user: { connect: { id: friend.id } },
+          user: { connect: { id: user.id } },
           username: friend.username,
         },
       });
