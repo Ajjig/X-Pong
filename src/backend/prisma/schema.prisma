@@ -107,10 +107,8 @@ model Friends {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  username String? @unique // username of the friend
+  username String @unique// username of the friend
   friendshipStatus String @default("Pending") // Pending, Accepted, Declined, Blocked
-  onlineStatus String @default("Offline") // Online, Offline, InGame, lookingForMatch
-  ladder String @default("Novice")
 
   // relations
   user   User @relation("UserFriends", fields: [userId], references: [id])

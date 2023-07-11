@@ -108,47 +108,34 @@ export class UserService {
   }
 
   async addFriendByUsername(username: string, friendUsername: string) {
-    try {
+    
       const user = await this.prisma.user.findUnique({
         where: { username: username },
-        include: { Userstats: true },
       });
 
       const friend = await this.prisma.user.findUnique({
         where: { username: friendUsername },
-        include: { Userstats: true },
       });
 
-      const findexist = await this.prisma.friends.findUnique({
-        // check if friend already added
+      if (!friend) {
+        throw new HttpException('Friend not found', 400);
+      }
+
+      const existingFriendship = await this.prisma.friends.findUnique({
         where: { username: friend.username },
       });
-      if (findexist) {
+      if (existingFriendship) {
         throw new HttpException('Friend already added', 400);
       }
 
-      const other_side = await this.prisma.friends.create({
+      const my_side = await this.prisma.friends.create({
         data: {
           user: { connect: { id: friend.id } },
-          username: user.username,
-          ladder: user.Userstats.ladder ? user.Userstats.ladder : 'Bronze',
-          onlineStatus: user.onlineStatus,
-        },
-      });
-
-      const newFriend = await this.prisma.friends.create({
-        data: {
-          user: { connect: { id: user.id } },
           username: friend.username,
-          ladder: friend.Userstats.ladder ? friend.Userstats.ladder : 'Bronze',
-          onlineStatus: friend.onlineStatus,
         },
       });
-      return newFriend;
-    } catch (e) {
-      console.log(e);
-      throw new HttpException(e.meta, 400);
-    }
+      return my_side;
+    
   }
 
   async acceptFriendRequestByUsername(
