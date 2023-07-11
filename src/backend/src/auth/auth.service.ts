@@ -52,7 +52,32 @@ export class AuthService {
     });
   }
 
-  async findUserById(id: string): Promise<any> {
+  async findUserById(username : string , id: string): Promise<any> {
+    const userSTR = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+
+    const userID = await this.prisma.user.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (userSTR.id === userID.id) {
+      return this.prisma.user.findUnique({
+        where: { id: parseInt(id) },
+        select: {
+          email: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+          onlineStatus: true,
+          confirmed: true,
+          istwoFactor: true,
+          id: true,
+          Friends : true,
+        },
+      });
+    }
+
     return this.prisma.user.findUnique({
       where: { id: parseInt(id) },
       select: {
@@ -61,8 +86,8 @@ export class AuthService {
         username: true,
         avatarUrl: true,
         onlineStatus: true,
-        confirmed: true,
-        istwoFactor: true,
+        id: true,
+        Friends : true,
       },
     });
   }

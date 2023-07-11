@@ -424,14 +424,15 @@ export class ChatService {
       }
     })
 
-    const friendFriend = await this.prisma.friends.update({
-      where: {
-        username: friendRequest,
-      },
+    // create friend on the receiver side
+    const friend = await this.prisma.friends.create({
       data: {
-        friendshipStatus: 'Accepted'
-      }
-    })
+        user: { connect: { id: friendUser.id } },
+        username: friendUser.username,
+        friendshipStatus: 'Accepted',
+      },
+    });
+
 
     // create a new channel for the two users
     const channel = await this.makePrivateChannelId(username, friendRequest);
