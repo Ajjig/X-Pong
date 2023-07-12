@@ -313,8 +313,11 @@ export class ChatGateway {
         userdata.username,
         0,
       );
+
+    const UserNotifications = await this.chatService.loadUserNotifications(userdata.username);
     client.emit('privateChat', privateChat);
     client.emit('publicChat', publicChat);
+    client.emit('notifications', UserNotifications);
     await this.chatService.set_user_online(userdata.username);
   }
 

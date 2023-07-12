@@ -39,10 +39,22 @@ model User {
   mutedFrom        Channel[]       @relation("Muted")
   sentMessages     DirectMessage[] @relation("SentMessages")
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
-
+  notifications Notification[] @relation("UserNotifications")
 }
 
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String   // Type of notification (e.g., friendRequest)
+  from      String   // Sender's username
+  to        String   // Receiver's username
+  status    String   // Status of the notification (e.g., Accepted)
+  msg       String   // Notification message
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+  userId    Int
+}
 
 model Channel {
   id        Int      @id @default(autoincrement())

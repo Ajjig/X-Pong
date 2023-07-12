@@ -472,17 +472,18 @@ export class ChatService {
       {
         userClient.join(channel);
       }
-      const notif = {
-        type: 'friendRequest',
-        from: user.username,
-        to: friendUser.username,
-        status: 'Accepted',
-        msg: 'You Have accepted ' + friendUser.username + ' friend request',
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
-      }
-      userClient.emit('notifications', notif);
       // save the notification in the database
+      const notification = await this.prisma.notification.create({
+        data: {
+          type: 'friendRequest',
+          from: user.username,
+          to: friendUser.username,
+          status: 'Accepted',
+          msg: 'You Have accepted ' + friendUser.username + ' friend request',
+          user: { connect: { id: user.id } },
+        },
+      });
+      userClient.emit('notifications', notification);
     }
 
     if (friendClient) {
@@ -490,17 +491,18 @@ export class ChatService {
       {
         friendClient.join(channel);
       }
-      const notif = {
-        type: 'friendRequest',
-        from: user.username,
-        to: friendUser.username,
-        status: 'Accepted',
-        msg:  friendUser.username + ' accepted your friend request',
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
-      }
-      friendClient.emit('notifications', notif);
       // save the notification in the database
+      const notification = await this.prisma.notification.create({
+        data: {
+          type: 'friendRequest',
+          from: user.username,
+          to: friendUser.username,
+          status: 'Accepted',
+          msg: user.username + ' accepted your friend request',
+          user: { connect: { id: friendUser.id } },
+        },
+      });
+      friendClient.emit('notifications', notification);
     }
 
     // send notification to the two users emiting the event
@@ -549,36 +551,59 @@ export class ChatService {
     const friendClient = connectedClients.get(friend.username);
 
     if (userClient) {
-      const notif = {
-        type: 'friendRequest',
-        from: user.username,
-        to: friend.username,
-        status: 'pending',
-        msg: 'You sent a friend request to ' + friend.username,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
-      }
+      const notification = await this.prisma.notification.create({
+        data: {
+          type: 'friendRequest',
+          from: user.username,
+          to: friend.username,
+          status: 'pending',
+          msg: 'You sent a friend request to ' + friend.username,
+          user: { connect: { id: user.id } },
+        },
+      });
 
-      userClient.emit('notifications', notif);
+      userClient.emit('notifications', notification);
       // save to user notifications table <- TODO
+
     }
 
     if (friendClient) {
-      const notif = {
-        type: 'friendRequest',
-        from: user.username,
-        to: friend.username,
-        status: 'pending',
-        msg: user.username + ' sent you a friend request',
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
-      }
-      friendClient.emit('notifications', notif);
+      const notification = await this.prisma.notification.create({
+        data: {
+          type: 'friendRequest',
+          from: user.username,
+          to: friend.username,
+          status: 'pending',
+          msg: user.username + ' sent you a friend request',
+          user: { connect: { id: friend.id } },
+        },
+      });
+
+      friendClient.emit('notifications', notification);
       // save to user notifications table <- TODO
     }
-
-
     return my_side;
   }
+  
+  async loadUserNotifications(username: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username
+      },
+      include: {
+        notifications: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      }
+    })
 
+    if (!user) {
+      return null;
+    }
+
+    return user.notifications;
+  }
+  
 }
