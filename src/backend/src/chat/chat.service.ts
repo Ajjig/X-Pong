@@ -411,20 +411,38 @@ export class ChatService {
     })
 
     if (!user || !friendUser) {
-      return null
+      return false
     }
 
-    // update user and friendUser friendship status
+    // using user find if the friend request is pending
+    let check: boolean = false;
+    friendUser.Friends.forEach((friend) => {
+      if (friend.username === username) {
+        if (friend.friendshipStatus === 'Pending') {
+          check = true;
+        }
+      }
+    });
+
+    if (!check) {
+      const userClient = connectedClients.get(user.username);
+      if (userClient) {
+        userClient.emit('error', 'No friend request found');
+      }
+      return undefined;
+    }
+
+    // update the friendship status to accepted
     const userFriend = await this.prisma.friends.update({
       where: {
         username: username,
       },
       data: {
-        friendshipStatus: 'Accepted'
-      }
-    })
+        friendshipStatus: 'Accepted',
+      },
+    });
 
-    // create friend on the receiver side
+    // CREATE A NEW FRIENDSHIP
     const friend = await this.prisma.friends.create({
       data: {
         user: { connect: { id: user.id } },
@@ -432,7 +450,6 @@ export class ChatService {
         friendshipStatus: 'Accepted',
       },
     });
-
 
     // create a new channel for the two users
     const channel = await this.makePrivateChannelId(username, friendRequest);
@@ -450,17 +467,43 @@ export class ChatService {
     const userClient = connectedClients.get(user.username);
     const friendClient = connectedClients.get(friendUser.username);
 
-    if (userClient && !userClient.rooms.has(channel)) {
-      userClient.join(channel);
+    if (userClient) {
+      if (!userClient.rooms.has(channel))
+      {
+        userClient.join(channel);
+      }
+      const notif = {
+        type: 'friendRequest',
+        from: user.username,
+        to: friendUser.username,
+        status: 'Accepted',
+        msg: 'You Have accepted ' + friendUser.username + ' friend request',
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+      }
+      userClient.emit('notifications', notif);
+      // save the notification in the database
     }
 
-    if (friendClient && !friendClient.rooms.has(channel)) {
-      friendClient.join(channel);
+    if (friendClient) {
+      if (!friendClient.rooms.has(channel))
+      {
+        friendClient.join(channel);
+      }
+      const notif = {
+        type: 'friendRequest',
+        from: user.username,
+        to: friendUser.username,
+        status: 'Accepted',
+        msg:  friendUser.username + ' accepted your friend request',
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+      }
+      friendClient.emit('notifications', notif);
+      // save the notification in the database
     }
 
     // send notification to the two users emiting the event
-    userClient.emit('notifications', `You are now friends with ${friendRequest}`);
-    friendClient.emit('notifications', `You are now friends with ${username}`);
 
     const res = await this.prisma.user.findUnique({
       where: {
@@ -474,4 +517,68 @@ export class ChatService {
     
     return res;
   }
+
+  async addFriend(username: string, friendUsername: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+
+    const friend = await this.prisma.user.findUnique({
+      where: { username: friendUsername },
+    });
+
+    if (!user || !friend) {
+      return null;
+    }
+
+    const existingFriendship = await this.prisma.friends.findUnique({
+      where: { username: friend.username },
+    });
+    if (existingFriendship) {
+      return null;
+    }
+
+    const my_side = await this.prisma.friends.create({
+      data: {
+        user: { connect: { id: user.id } },
+        username: friend.username,
+      },
+    });
+
+    const userClient = connectedClients.get(user.username);
+    const friendClient = connectedClients.get(friend.username);
+
+    if (userClient) {
+      const notif = {
+        type: 'friendRequest',
+        from: user.username,
+        to: friend.username,
+        status: 'pending',
+        msg: 'You sent a friend request to ' + friend.username,
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+      }
+
+      userClient.emit('notifications', notif);
+      // save to user notifications table <- TODO
+    }
+
+    if (friendClient) {
+      const notif = {
+        type: 'friendRequest',
+        from: user.username,
+        to: friend.username,
+        status: 'pending',
+        msg: user.username + ' sent you a friend request',
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+      }
+      friendClient.emit('notifications', notif);
+      // save to user notifications table <- TODO
+    }
+
+
+    return my_side;
+  }
+
 }

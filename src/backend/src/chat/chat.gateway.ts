@@ -146,63 +146,6 @@ export class ChatGateway {
   //   client.emit('findAllMessages', messages);
   // }
 
-  // @SubscribeMessage('joinChannelPublic')
-  // async joinChannelPublic(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() payload: JoinPublicChannelDto,
-  // ) {
-  //   const userdata = await this.chatService.jwtdecoder(client);
-  //   if (!userdata) {
-  //     client.emit('error', 'User not found');
-  //     return;
-  //   }
-  //   if (!payload || !userdata.username || !payload.channelName) {
-  //     client.emit('error', 'You must provide a payload');
-  //     return;
-  //   }
-
-  //   if (
-  //     !(await this.publicChannelService.checkSingleUserExsting(
-  //       userdata.username,
-  //     ))
-  //   ) {
-  //     client.emit('error', 'User not found');
-  //     return;
-  //   }
-
-  //   if (
-  //     !(await this.publicChannelService.checkSingleChannelExsting(
-  //       payload.channelName,
-  //     ))
-  //   ) {
-  //     client.emit('error', 'Channel not found');
-  //     return;
-  //   }
-
-  //   if (
-  //     !(await this.publicChannelService.checkUsermemberofChannel(
-  //       userdata.username,
-  //       payload.channelName,
-  //     ))
-  //   ) {
-  //     client.emit('error', 'You are not authorized to join this channel');
-  //     return;
-  //   }
-
-  //   // check if the user is already in the channel
-  //   const inChannel = client.rooms.has(payload.channelName);
-  //   if (inChannel) {
-  //     client.emit('error', 'You have already joined the channel');
-  //     return;
-  //   }
-
-  //   // join the user to the channel
-  //   client.join(payload.channelName);
-
-  //   // notify the user that he joined the channel
-  //   client.to(payload.channelName).emit('publicJoined', userdata.username);
-  // }
-
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
@@ -320,11 +263,33 @@ export class ChatGateway {
     }
 
     const result = await this.chatService.acceptFriendRequest(userdata.username, payload.friend_username, this.server, this.connectedClients);
+    if (result == false) {
+      client.emit('error', 'The user or friend is not found');
+      return;
+    }
+  }
+
+  @SubscribeMessage('add_friend')
+  async addFriend(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
+    let userdata: any = this.chatService.jwtdecoder(client);
+    if (!userdata) {
+      client.emit('error', 'Unauthorized user');
+      client.disconnect();
+      return;
+    }
+    if (!payload || !payload.friend_username) {
+      client.emit('error', 'You must provide a payload');
+      return;
+    }
+
+    const result = await this.chatService.addFriend(userdata.username, payload.friend_username, this.server, this.connectedClients);
     if (!result) {
       client.emit('error', 'eith the user or friend is not found');
       return;
     }
+    client.emit('add_friend', result);
   }
+
 
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
