@@ -16,7 +16,6 @@ import {
   GetPrivateConversationsDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
-import { joinPrivateChannel } from './entities/chat.entity';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
 import { Logger } from '@nestjs/common';
@@ -293,7 +292,7 @@ export class ChatGateway {
 
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user to connect');
       client.disconnect();

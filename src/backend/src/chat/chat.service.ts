@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import { channel } from 'diagnostics_channel';
+
 dotenv.config();
 
 @Injectable()
@@ -192,16 +192,30 @@ export class ChatService {
     return messages;
   }
 
-  jwtdecoder(client: Socket, context?: ExecutionContext): any {
+  async finduserbyusername(username: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+    return user;
+  }
+
+  async jwtdecoder(client: Socket, context?: ExecutionContext): Promise<any> {
     // get token in cookie if exist else in header
     let token = null;
     try {
       token = client.handshake.headers.cookie.split('=')[1];
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
-        uid: number;
+        uid: number,
+        username: string,
+        iat: number,
+        exp: number;
       };
       if (context) {
         context.switchToWs().getData().userId = userdecoded.uid;
+      }
+      const usecheck = await this.finduserbyusername(userdecoded.username);
+      if (!usecheck) {
+        return null;
       }
       return userdecoded;
     } catch {}
@@ -212,13 +226,21 @@ export class ChatService {
         return null;
       }
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
-        uid: number;
+        uid: number,
+        username: string,
+        iat: number,
+        exp: number;
       };
       if (context) {
         context.switchToWs().getData().userId = userdecoded.uid;
       }
+      const usecheck = await this.finduserbyusername(userdecoded.username);
+      if (!usecheck) {
+        return null;
+      }
       return userdecoded;
-    } catch {
+    } catch  {
+      
       return null;
     }
   }
@@ -563,7 +585,6 @@ export class ChatService {
       });
 
       userClient.emit('notifications', notification);
-      // save to user notifications table <- TODO
 
     }
 
@@ -580,7 +601,6 @@ export class ChatService {
       });
 
       friendClient.emit('notifications', notification);
-      // save to user notifications table <- TODO
     }
     return my_side;
   }
