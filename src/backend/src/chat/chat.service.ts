@@ -552,6 +552,10 @@ export class ChatService {
     });
 
     if (!user || !friend) {
+      const userClient = connectedClients.get(user.username);
+      if (userClient) {
+        userClient.emit('error', 'User or friend usename not found');
+      }
       return null;
     }
 
@@ -559,6 +563,10 @@ export class ChatService {
       where: { username: friend.username },
     });
     if (existingFriendship) {
+      const userClient = connectedClients.get(user.username);
+      if (userClient) {
+        userClient.emit('error', 'You have already sent a friend request to this user');
+      }
       return null;
     }
 

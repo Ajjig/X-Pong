@@ -282,10 +282,6 @@ export class ChatGateway {
     }
 
     const result = await this.chatService.addFriend(userdata.username, payload.friend_username, this.server, this.connectedClients);
-    if (!result) {
-      client.emit('error', 'eith the user or friend is not found');
-      return;
-    }
     client.emit('add_friend', result);
   }
 
