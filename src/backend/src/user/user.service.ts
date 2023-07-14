@@ -132,6 +132,8 @@ export class UserService {
         data: {
           user: { connect: { id: user.id } },
           username: friend.username,
+          requestSentBy : username,
+          requestSentTo : friendUsername,
         },
       });
       return my_side;

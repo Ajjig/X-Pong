@@ -266,6 +266,7 @@ export class ChatGateway {
       client.emit('error', 'The user or friend is not found');
       return;
     }
+    client.emit('accept_friend_request', result);
   }
 
   @SubscribeMessage('add_friend')

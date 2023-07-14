@@ -414,6 +414,9 @@ export class ChatService {
   }
 
   async acceptFriendRequest(username: string, friendRequest: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+    const userClient = connectedClients.get(username);
+    const friendClient = connectedClients.get(friendRequest);
+
     const user = await this.prisma.user.findUnique({
       where: {
         username: username
@@ -436,39 +439,32 @@ export class ChatService {
       return false
     }
 
-    // using user find if the friend request is pending
-    let check: boolean = false;
-    friendUser.Friends.forEach((friend) => {
-      if (friend.username === username) {
-        if (friend.friendshipStatus === 'Pending') {
-          check = true;
-        }
-      }
+    // update the friendship status to accepted
+    const userFriend = await this.prisma.friends.updateMany({
+      where: {
+        username: username,
+        requestSentBy: friendRequest,
+        friendshipStatus: 'Pending',
+      },
+      data: {
+        friendshipStatus: 'Accepted',
+      },
     });
-
-    if (!check) {
-      const userClient = connectedClients.get(user.username);
+  
+    if (userFriend.count === 0) {
       if (userClient) {
         userClient.emit('error', 'No friend request found');
       }
       return undefined;
     }
 
-    // update the friendship status to accepted
-    const userFriend = await this.prisma.friends.update({
+    const friendFriend = await this.prisma.friends.updateMany({
       where: {
-        username: username,
+        username: friendRequest,
+        requestSentBy: friendRequest,
+        friendshipStatus: 'Pending',
       },
       data: {
-        friendshipStatus: 'Accepted',
-      },
-    });
-
-    // CREATE A NEW FRIENDSHIP
-    const friend = await this.prisma.friends.create({
-      data: {
-        user: { connect: { id: user.id } },
-        username: friendUser.username,
         friendshipStatus: 'Accepted',
       },
     });
@@ -486,8 +482,7 @@ export class ChatService {
     }
 
     // join the two users to the channel
-    const userClient = connectedClients.get(user.username);
-    const friendClient = connectedClients.get(friendUser.username);
+
 
     if (userClient) {
       if (!userClient.rooms.has(channel))
@@ -527,15 +522,18 @@ export class ChatService {
       friendClient.emit('notifications', notification);
     }
 
-    // send notification to the two users emiting the event
 
     const res = await this.prisma.user.findUnique({
       where: {
         username: username
       },
-      include: {
-        Friends: true,
-        channels : true,
+      select :
+      {
+        email : true,
+        username : true,
+        Friends : true,
+        onlineStatus : true,
+        id : true,
       }
     })
     
@@ -574,6 +572,18 @@ export class ChatService {
       data: {
         user: { connect: { id: user.id } },
         username: friend.username,
+        requestSentBy : username,
+        requestSentTo : friendUsername,
+      },
+    });
+
+    const friend_side = await this.prisma.friends.create({
+      data: {
+        user: { connect: { id: friend.id } },
+        username: user.username,
+        requestSentBy : username,
+        requestSentTo : friendUsername,
+
       },
     });
 
