@@ -442,8 +442,8 @@ export class ChatService {
     // update the friendship status to accepted
     const userFriend = await this.prisma.friends.updateMany({
       where: {
-        username: username,
-        requestSentBy: friendRequest,
+        requestSentTo: username,
+        requestSentBy : friendRequest,
         friendshipStatus: 'Pending',
       },
       data: {
@@ -460,7 +460,7 @@ export class ChatService {
 
     const friendFriend = await this.prisma.friends.updateMany({
       where: {
-        username: friendRequest,
+        requestSentTo: username,
         requestSentBy: friendRequest,
         friendshipStatus: 'Pending',
       },
@@ -557,8 +557,10 @@ export class ChatService {
       return null;
     }
 
-    const existingFriendship = await this.prisma.friends.findUnique({
-      where: { username: friend.username },
+    const existingFriendship = await this.prisma.friends.findFirst({
+      where: { username: friend.username,
+        requestSentBy: username, 
+       },
     });
     if (existingFriendship) {
       const userClient = connectedClients.get(user.username);

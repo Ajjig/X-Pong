@@ -119,7 +119,7 @@ model Friends {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  username String @unique// username of the friend
+  username String// username of the friend
   friendshipStatus String @default("Pending") // Pending, Accepted, Declined, Blocked
 
   requestSentBy String // username of the user who sent the request
