@@ -211,7 +211,7 @@ export class ChatGateway {
 
   @SubscribeMessage('reconnect')
   async reconnect(@ConnectedSocket() client: Socket) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
       client.disconnect();
@@ -234,7 +234,7 @@ export class ChatGateway {
 
   @SubscribeMessage('getLatestChannels')
   async getlastedchannels(@ConnectedSocket() client: Socket) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
       client.disconnect();
@@ -250,7 +250,7 @@ export class ChatGateway {
 
   @SubscribeMessage('accept_friend_request')
   async acceptFriendRequest(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
       client.disconnect();
@@ -270,7 +270,7 @@ export class ChatGateway {
 
   @SubscribeMessage('add_friend')
   async addFriend(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
       client.disconnect();
@@ -321,7 +321,7 @@ export class ChatGateway {
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-    let userdata: any = this.chatService.jwtdecoder(client);
+    let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
       client.disconnect();
