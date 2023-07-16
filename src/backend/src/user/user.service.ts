@@ -121,7 +121,7 @@ export class UserService {
         throw new HttpException('Friend not found', 400);
       }
 
-      const existingFriendship = await this.prisma.friends.findUnique({
+      const existingFriendship = await this.prisma.friends.findFirst({
         where: { username: friend.username },
       });
       if (existingFriendship) {
@@ -153,7 +153,7 @@ export class UserService {
         include: { Friends: true },
       });
 
-      const findexist = await this.prisma.friends.findUnique({
+      const findexist = await this.prisma.friends.findFirst({
         // check if friend exists
         where: { username: friend.username },
       });
@@ -161,12 +161,12 @@ export class UserService {
         return { user };
       }
 
-      const otherside = await this.prisma.friends.update({
+      const otherside = await this.prisma.friends.updateMany({
         where: { username: user.username },
         data: { friendshipStatus: 'Accepted' },
       });
 
-      const newFriend = await this.prisma.friends.update({
+      const newFriend = await this.prisma.friends.updateMany({
         where: { username: friend.username },
         data: { friendshipStatus: 'Accepted' },
       });
@@ -294,7 +294,12 @@ export class UserService {
         where: { username: friendUsername },
       });
 
-      const findexist = await this.prisma.friends.findUnique({
+      if (!user || !friend)
+      {
+        return  new HttpException('User does not exist', 400);
+      }
+
+      const findexist = await this.prisma.friends.findFirst({
         // check if friend exists
         where: { username: friend.username },
       });
@@ -302,18 +307,23 @@ export class UserService {
         throw new HttpException('Friend not found', 400);
       }
 
-      const otherside = await this.prisma.friends.update({
-        where: { username: user.username },
+      const otherside = await this.prisma.friends.updateMany({
+        where: { 
+          userId : user.id,
+          username : friendUsername,
+          friendshipStatus : 'Accepted', 
+        },
         data: { friendshipStatus: 'Blocked' },
       });
 
-      const newFriend = await this.prisma.friends.update({
-        where: { username: friend.username },
-        data: { friendshipStatus: 'Blocked' },
-      });
-      return newFriend;
+      if ( otherside.count == 0)
+      {
+        return new HttpException('You are not a friend or already blocked', 400);
+      }
+
+      return new HttpException('user blocked' , 200)
     } catch (e) {
-      console.log(e);
+      console.log(e)
       throw new HttpException(e.meta, 400);
     }
   }
