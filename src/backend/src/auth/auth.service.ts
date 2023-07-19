@@ -78,6 +78,8 @@ export class AuthService {
       });
     }
 
+    
+
     return this.prisma.user.findUnique({
       where: { id: parseInt(id) },
       select: {
@@ -87,7 +89,22 @@ export class AuthService {
         avatarUrl: true,
         onlineStatus: true,
         id: true,
-        Friends : true,
+        Friends : {
+          where : {
+            userId : parseInt(id),
+            username : username,
+          },
+          select : {
+            createdAt : true,
+            updatedAt : true,
+            username : true,
+            friendshipStatus : true,
+            requestSentBy : true,
+            requestSentTo : true,
+
+          },
+          take : 1,
+        }
       },
     });
   }
