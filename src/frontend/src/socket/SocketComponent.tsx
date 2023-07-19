@@ -50,6 +50,11 @@ const SocketComponent = () => {
             store.dispatch(setNewMessage(data));
         });
 
+        socket.on("notifications", (data) => {
+            console.log("notifications: ", data);
+        });
+
+
         socket.on("privateChat", (data) => {
             // console.log("privateChat: loaded");
             store.dispatch(setPrivateChats(data));
@@ -65,11 +70,6 @@ const SocketComponent = () => {
         });
 
         // @@@@@@@@@@@@@@
-
-        // socket.emit("message", {
-        //     receiver: "roudouch",
-        //     msg: "Hello",
-        // });
 
         // Clean up the socket connection when component unmounts
         return () => {

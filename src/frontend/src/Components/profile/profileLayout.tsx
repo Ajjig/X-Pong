@@ -24,6 +24,7 @@ import { UserInfo } from "./ProfileUserInfoSection";
 import api from "@/api";
 import socket from "@/socket";
 import { IconSend } from "@tabler/icons-react";
+import Message from "./buttons/message";
 
 interface props {
     id: string;
@@ -39,12 +40,18 @@ export function ProfileLayout({ id }: props) {
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) setProfile(res.data);
+                console.log(res.data);
                 // else window.location.href = "/";
             })
             .catch((err: any) => {
                 // redirect to login
                 // window.location.href = "/";
             });
+
+        store.getState().io.socket?.on("add_friend", (data: any) => {
+            console.log("add_friend: ", data);
+        });
+
     }, []);
 
     const [message, setMessage] = useState<string | null>("");
@@ -58,30 +65,51 @@ export function ProfileLayout({ id }: props) {
         setMessage(null);
     };
 
+    const addUser = () => {
+        console.log("addUser: ", profile.username)
+        store.getState().io.socket?.emit("add_friend", {
+            friend_username: profile.username,
+        });
+    };
+
     return (
         <>
             <HeaderDashboard />
             <Container>
                 <Box
                     sx={(theme: MantineTheme) => ({
-                        background: `url(${"https://picsum.photos/3000"})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
+                        // background: `url(${"https://picsum.photos/3000"})`,
+                        // backgroundSize: "cover",
+                        // backgroundPosition: "center",
                         width: "100%",
                         borderRadius: "0 0 30px 30px",
-                        height: "300px",
-                        [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                            height: "150px",
-                        },
+                        // height: "300px",
+                        // [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                        //     height: "150px",
+                        // },
                         borderBottom: `5px solid ${theme.colors.gray[4]}`,
-                        position: "relative",
+                        // position: "relative",
                         // add drop shadow as a gradient
                         boxShadow: `inset 0px -100px 100px -60px ${theme.colors.gray[9]}`,
                         display: "flex",
-                        alignItems: "start",
-                        justifyContent: "end",
+                        justifyContent: "space-between",
+                        padding: "20px",
+                        // alignItems: "start",
+                        // justifyContent: "end",
                     })}
                 >
+                     <Box
+                        sx={(theme: MantineTheme) => ({
+                            // position: "absolute",
+                            // bottom: "-10%",
+                            // left: "10%",
+                            // [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                            //     bottom: "-15%",
+                            // },
+                        })}
+                    >
+                        <UserInfo profile={profile} />
+                    </Box>
                     {/* buttons */}
                     <Group position="right" spacing="xs" py={"xl"} pr={"xl"}>
                         {profile && profile.username == user.username ? (
@@ -100,96 +128,14 @@ export function ProfileLayout({ id }: props) {
                             </ActionIcon>
                         ) : (
                             <>
-                                <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md" onClick={() => {}}>
+                                <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md" onClick={addUser}>
                                     <IconUserPlus />
                                 </ActionIcon>
-                                <Popover>
-                                    <Popover.Target>
-                                        <ActionIcon
-                                            variant="filled"
-                                            p={10}
-                                            size="xl"
-                                            color="gray"
-                                            radius="md"
-                                            onClick={() => {}}
-                                            sx={{
-                                                color: theme.colors.gray[1],
-                                            }}
-                                        >
-                                            <IconMessage />
-                                        </ActionIcon>
-                                    </Popover.Target>
-                                    {message != null ? (
-                                        <Popover.Dropdown>
-                                            <Flex align="center" p={10}>
-                                                <Text>Say Hi to {profile && profile.name}</Text>
-                                            </Flex>
-                                            <Space h="xs" />
-                                            <Flex justify="center" align="center">
-                                                <Input
-                                                    sx={(theme: MantineTheme) => ({
-                                                        // change outline color on focus
-                                                        "&:focus": {
-                                                            outline: `1px solid ${theme.colors.orange[6]} !important`,
-                                                            outlineOffset: 2,
-                                                        },
-                                                    })}
-                                                    placeholder="Type a message..."
-                                                    value={message}
-                                                    onChange={(e: any) => setMessage(e.currentTarget.value)}
-                                                    onKeyDown={(e: any) => {
-                                                        if (e.key === "Enter") {
-                                                            sendMessage({
-                                                                message: message,
-                                                                from: "me",
-                                                            });
-                                                        }
-                                                    }}
-                                                    w="100%"
-                                                    rightSection={
-                                                        <IconSend
-                                                            style={{
-                                                                cursor: "pointer",
-                                                            }}
-                                                            size={20}
-                                                            onClick={() => {
-                                                                sendMessage({
-                                                                    message: message,
-                                                                    from: "me",
-                                                                });
-                                                            }}
-                                                        />
-                                                    }
-                                                />
-                                            </Flex>
-                                        </Popover.Dropdown>
-                                    ) : (
-                                        <Popover.Dropdown>
-                                            <Flex direction="column" align="center" p={10}>
-                                                <Text>Your message has been sent!</Text>
-                                                <Space h="xs" />
-                                                <Button variant="filled" onClick={() => setMessage("")}>
-                                                    Send another message
-                                                </Button>
-                                            </Flex>
-                                        </Popover.Dropdown>
-                                    )}
-                                </Popover>
+                                <Message message={message} setMessage={setMessage} profile={profile} sendMessage={sendMessage} />
                             </>
                         )}
                     </Group>
-                    <Box
-                        sx={(theme: MantineTheme) => ({
-                            position: "absolute",
-                            bottom: "-10%",
-                            left: "10%",
-                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                                bottom: "-15%",
-                            },
-                        })}
-                    >
-                        <UserInfo profile={profile} />
-                    </Box>
+                   
                 </Box>
 
                 <Box

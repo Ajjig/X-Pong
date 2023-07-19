@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import socket from "@/socket";
 import { IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
+import SocketComponent from "@/socket/SocketComponent";
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -60,6 +61,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 withNormalizeCSS
                 inherit
             >
+                <SocketComponent />
                 <SpotlightProvider
                     actions={actions}
                     query={query}
