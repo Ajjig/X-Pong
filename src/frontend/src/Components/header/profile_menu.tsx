@@ -11,39 +11,37 @@ interface UserButtonProps extends React.ComponentPropsWithoutRef<"button"> {
     icon?: React.ReactNode;
 }
 
-const UserButton = forwardRef<HTMLButtonElement, UserButtonProps>(
-    ({ image, name, email, icon, ...others }: UserButtonProps, ref) => (
-        <UnstyledButton
-            ref={ref}
-            sx={(theme) => ({
-                display: "block",
-                width: "100%",
-                height: "100%",
-                padding: theme.spacing.md,
-                color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
-            })}
-            {...others}
-        >
-            <Group>
-                <Avatar src={image} radius="xl" />
+const UserButton = forwardRef<HTMLButtonElement, UserButtonProps>(({ image, name, email, icon, ...others }: UserButtonProps, ref) => (
+    <UnstyledButton
+        ref={ref}
+        sx={(theme) => ({
+            display: "block",
+            width: "100%",
+            height: "100%",
+            padding: theme.spacing.md,
+            color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
+        })}
+        {...others}
+    >
+        <Group>
+            <Avatar src={image} radius="xl" />
 
-                <div style={{ flex: 1 }}>
-                    <Text size="sm" weight={500} transform="capitalize">
-                        {name}
-                    </Text>
+            <div style={{ flex: 1 }}>
+                <Text size="sm" weight={500} transform="capitalize">
+                    {name}
+                </Text>
 
-                    <Text color="dimmed" size="xs">
-                        {email}
-                    </Text>
-                </div>
+                <Text color="dimmed" size="xs">
+                    {email}
+                </Text>
+            </div>
 
-                {icon || <IconChevronRight size="1rem" />}
-            </Group>
-        </UnstyledButton>
-    )
-);
+            {icon || <IconChevronRight size="1rem" />}
+        </Group>
+    </UnstyledButton>
+));
 
-function UserButtonMenu({}: {}) {
+function ProfileSection({}: {}) {
     const [profile, setProfile] = useState<any>(null);
 
     useEffect(() => {
@@ -59,25 +57,25 @@ function UserButtonMenu({}: {}) {
                 <Menu.Target>
                     <UserButton image={profile?.avatarUrl} name={profile?.name} email={profile?.email} />
                 </Menu.Target>
-                <Menu.Dropdown  sx={{
-            
-            zIndex: 9999
-        }}>
+                <Menu.Dropdown
+                    sx={{
+                        zIndex: 9999,
+                    }}
+                >
                     <Link
                         href={"/profile/" + profile?.id}
                         style={{
                             textDecoration: "none",
                         }}
                     >
-                        <Menu.Item icon={<IconPacman size={rem(14)} />}>My account</Menu.Item>
+                        <Menu.Item icon={<IconPacman size={rem(14)} />} miw={"200px"}>My account</Menu.Item>
                     </Link>
 
                     <Menu.Item
-                     
                         onClick={() => {
                             // clear the jwt token from the cookies and redirect to the login page
-                            document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";   
-                            window.location.href = "/";  
+                            document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            window.location.href = "/";
                         }}
                         icon={<IconLogout size={rem(14)} />}
                         color="red"
@@ -90,4 +88,4 @@ function UserButtonMenu({}: {}) {
     );
 }
 
-export default UserButtonMenu;
+export default ProfileSection;

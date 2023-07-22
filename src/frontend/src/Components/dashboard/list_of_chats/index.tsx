@@ -1,19 +1,21 @@
-import { Box, Navbar, SegmentedControl } from "@mantine/core";
-import React, { ReactElement, useEffect } from "react";
+import { Box, Navbar, Paper, SegmentedControl } from "@mantine/core";
+import React from "react";
 import { useState } from "react";
 import { ListChats } from "./private_chats/ListChats";
 import { ListGroups } from "./group_chats/ListGroups";
 
-export default function List_of_chats({ setChat }: { setChat: (chat: ReactElement) => void }) {
+export default function List_of_chats({}: {}) {
     const [value, setValue] = useState("Messages");
 
     return (
-        <Box w={"100%"} h="100%" p="md">
-            <Navbar.Section>
+        <Box w={"100%"} h="100%">
+            <Paper radius="lg" p="md" bg="dark.5">
                 <SegmentedControl
+                    radius={"lg"}
                     fullWidth
                     value={value}
                     onChange={setValue}
+                    color="orange"
                     data={[
                         { value: "Messages", label: "Messages" },
                         { value: "Groups", label: "Groups" },
@@ -21,7 +23,7 @@ export default function List_of_chats({ setChat }: { setChat: (chat: ReactElemen
                 ></SegmentedControl>
 
                 {value === "Messages" ? <ListChats /> : <ListGroups />}
-            </Navbar.Section>
+            </Paper>
         </Box>
     );
 }
