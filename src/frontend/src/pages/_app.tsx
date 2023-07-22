@@ -11,6 +11,13 @@ import { IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import SocketComponent from "@/socket/SocketComponent";
 
+import { Prompt } from "next/font/google";
+
+const font = Prompt({
+    subsets: ["latin"],
+    weight: "400",
+});
+
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     //     key: "mantine-color-scheme",
@@ -55,7 +62,16 @@ export default function App({ Component, pageProps }: AppProps) {
             <MantineProvider
                 theme={{
                     colorScheme: "dark",
-                    primaryColor: "gray",
+                    primaryColor: "orange",
+                    // change background color
+                    colors: {
+                        "ocean-blue": ["#7AD1DD", "#5FCCDB", "#44CADC", "#2AC9DE", "#1AC2D9", "#11B7CD", "#09ADC3", "#0E99AC", "#128797", "#147885"],
+                        "bright-pink": ["#F0BBDD", "#ED9BCF", "#EC7CC3", "#ED5DB8", "#F13EAF", "#F71FA7", "#FF00A1", "#E00890", "#C50E82", "#AD1374"],
+                    },
+                    // fontFamily: font.className,
+                    // headings: {
+                    //     fontFamily: font.className,
+                    // },
                 }}
                 withGlobalStyles
                 withNormalizeCSS
@@ -73,7 +89,9 @@ export default function App({ Component, pageProps }: AppProps) {
                     closeOnEscape
                     closeOnClickOutside
                 >
-                    <Component {...pageProps} />
+                    <main className={font.className}>
+                        <Component {...pageProps} />
+                    </main>
                     {/* </ColorSchemeProvider> */}
                 </SpotlightProvider>
             </MantineProvider>

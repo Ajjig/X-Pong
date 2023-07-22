@@ -1,20 +1,7 @@
-import {
-    Box,
-    Divider,
-    Group,
-    MantineTheme,
-    Navbar,
-    PasswordInput,
-    Space,
-    Text,
-    TextInput,
-    Title,
-    Tooltip,
-    useMantineTheme,
-} from "@mantine/core";
+import { Box, Divider, Group, MantineTheme, Navbar, PasswordInput, Space, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
-import { Chat } from "./Chat";
+import { Chat } from "../private_chats/Chat";
 import { spotlight } from "@mantine/spotlight";
 import { IconMessage, IconPlus } from "@tabler/icons-react";
 import { IconSearch } from "@tabler/icons-react";

@@ -1,8 +1,8 @@
 import { Box, Navbar, SegmentedControl } from "@mantine/core";
 import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
-import { ListChats } from "./components/ListChats";
-import { ListGroups } from "./components/ListGroups";
+import { ListChats } from "./private_chats/ListChats";
+import { ListGroups } from "./group_chats/ListGroups";
 
 export default function List_of_chats({ setChat }: { setChat: (chat: ReactElement) => void }) {
     const [value, setValue] = useState("Messages");

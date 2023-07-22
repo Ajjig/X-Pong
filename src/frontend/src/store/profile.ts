@@ -10,10 +10,8 @@ const profileSlice = createSlice({
     reducers: {
         setProfile: (state, action) => {
             state.user = action.payload;
-        }
+        },
     },
 });
 
-export  {
-    profileSlice
-};
+export { profileSlice };

@@ -17,7 +17,7 @@ import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
 
 import { Text } from "@mantine/core";
-import HeaderDashboard from "../dashboard/header";
+import HeaderDashboard from "../header";
 import store from "@/store/store";
 import { IconEdit, IconMessage, IconUserPlus } from "@tabler/icons-react";
 import { UserInfo } from "./ProfileUserInfoSection";
