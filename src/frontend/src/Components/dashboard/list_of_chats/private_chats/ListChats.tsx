@@ -6,12 +6,12 @@ import { spotlight } from "@mantine/spotlight";
 import { IconMessage } from "@tabler/icons-react";
 import { IconSearch } from "@tabler/icons-react";
 
-export function ListChats({}: {}) {
+export function ListChats({ SegRef }: { SegRef: any }) {
     const [chats, setChats] = useState<any>([]);
 
     useEffect(() => {
         setChats(store.getState().chats.PrivateChats);
-    
+
         store.subscribe(() => {
             const chatsFromStore = store.getState().chats.PrivateChats;
             setChats(() => {
@@ -26,37 +26,32 @@ export function ListChats({}: {}) {
 
     return (
         <>
-            <Box w={"100%"} h="100%" p="md">
-                <Navbar.Section>
-                    {chats.length <= 0 && (
-                        <Box
-                            sx={(theme: MantineTheme) => ({
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                alignItems: "center",
-                                height: "30vh",
-                                width: "100%",
-                                color: theme.colors.gray[6],
-                                flexDirection: "column",
-                            })}
-                        >
-                            <IconMessage size={50} />
-                            <Space h={5} />
-                            <Text>No chats yet</Text>
+            <Box w={"100%"} h={`calc(100% - ${SegRef.current?.clientHeight}px)`} p={"12px"}>
+                {chats.length <= 0 && (
+                    <Box
+                        sx={(theme: MantineTheme) => ({
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "100%",
+                            color: theme.colors.gray[6],
+                            flexDirection: "column",
+                        })}
+                    >
+                        <IconMessage size={50} />
+                    </Box>
+                )}
+                {chats?.map((chat: any, index: number) => {
+                    if (chat.chat.length == 0) return null;
+                    return (
+                        <Box key={index}>
+                            <Space py={2} />
+                            <Chat chat={chat} />
+                            <Space py={2} />
+                            <Divider />
                         </Box>
-                    )}
-                    {chats?.map((chat: any, index: number) => {
-                        if (chat.chat.length == 0) return null;
-                        return (
-                            <Box key={index}>
-                                <Space py={2} />
-                                <Chat chat={chat} />
-                                <Space py={2} />
-                                <Divider />
-                            </Box>
-                        );
-                    })}
-                </Navbar.Section>
+                    );
+                })}
             </Box>
             {/* floating add button in the buttom */}
             <Box
@@ -66,7 +61,7 @@ export function ListChats({}: {}) {
                     right: theme.spacing.md,
                 })}
             >
-                <Tooltip color="gray" label="Search (mod + s)" position="top">
+                {/* <Tooltip color="gray" label="Search (mod + s)" position="top">
                     <Box
                         sx={(theme: MantineTheme) => ({
                             borderRadius: "100%",
@@ -85,7 +80,7 @@ export function ListChats({}: {}) {
                     >
                         <IconSearch size={25} />
                     </Box>
-                </Tooltip>
+                </Tooltip> */}
             </Box>
         </>
     );

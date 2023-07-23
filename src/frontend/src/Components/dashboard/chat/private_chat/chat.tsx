@@ -8,7 +8,7 @@ import { PrivateChatMenu } from "../../list_of_chats/private_chats/privateChatMe
 import { Message } from "./message";
 
 
-export function Chat({ user, setSelected, chat }: { user: any; setSelected: any; AsideWidth: any; opened: any; chat: any }) {
+export function Chat({ user, setSelected, chat }: { user: any; setSelected: any; opened: any; chat: any }) {
     const [friend, setFriend] = useState<any>(chat.otherUser);
     const theme = useMantineTheme();
     const isMobile = useMediaQuery("(max-width: 768px)");

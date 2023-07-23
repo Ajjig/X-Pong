@@ -4,12 +4,12 @@ import ProfileSection from "./profile_menu";
 import Link from "next/link";
 import DrawerMobile from "./drawer";
 
-export default function HeaderDashboard() {
+export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any}) {
     const [opened, setOpened] = React.useState(false);
     const theme = useMantineTheme();
 
     return (
-        <Header height="auto" w="100%" p="md" withBorder={false}>
+        <Header height="auto" w="100%" p="md" withBorder={false} bg='none' ref={HeaderRef}>
             <Paper px="md" bg="dark.5" radius={"lg"}>
                 <Flex w="100%" justify="space-between" align="center">
                     <Flex w="100%" justify="space-between">

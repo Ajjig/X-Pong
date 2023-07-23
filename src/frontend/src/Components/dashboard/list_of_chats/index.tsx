@@ -6,11 +6,13 @@ import { ListGroups } from "./group_chats/ListGroups";
 
 export default function List_of_chats({}: {}) {
     const [value, setValue] = useState("Messages");
+    const SegRef = React.useRef<HTMLDivElement>(null);
 
     return (
-        <Box w={"100%"} h="100%">
-            <Paper radius="lg" p="md" bg="dark.5">
+        <Box w="100%" h="100%">
+            <Paper radius="lg" p="md" bg="dark.5" h="100%">
                 <SegmentedControl
+                    ref={SegRef}
                     radius={"lg"}
                     fullWidth
                     value={value}
@@ -22,7 +24,7 @@ export default function List_of_chats({}: {}) {
                     ]}
                 ></SegmentedControl>
 
-                {value === "Messages" ? <ListChats /> : <ListGroups />}
+                {value === "Messages" ? <ListChats SegRef={SegRef} /> : <ListGroups />}
             </Paper>
         </Box>
     );
