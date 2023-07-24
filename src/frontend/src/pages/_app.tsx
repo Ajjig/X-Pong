@@ -10,6 +10,7 @@ import socket from "@/socket";
 import { IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import SocketComponent from "@/socket/SocketComponent";
+import { SpotlightStyles } from "@/Components/spotlight/spotlight.styles";
 
 import { Prompt } from "next/font/google";
 
@@ -33,17 +34,17 @@ export default function App({ Component, pageProps }: AppProps) {
     const [query, setQuery] = useState("");
     const [actions, setActions] = useState<SpotlightAction[]>([]);
     const router = useRouter();
+    const useSpotlightStyles = SpotlightStyles();
 
     useEffect(() => {
         socket.on("search", (data) => {
             let users: [] = [];
             if (data && data[0])
                 users = data[0].map((action: any) => ({
-                    icon: <Avatar size="lg" src={action.avatarUrl} />,
+                    icon: <Avatar size="lg" src={action.avatarUrl} radius={20} />,
                     title: action.name,
                     description: action.username,
                     onTrigger: () => {
-                        console.log("/profile/" + action.id);
                         router.push("/profile/" + action.id);
                     },
                 }));
@@ -62,16 +63,16 @@ export default function App({ Component, pageProps }: AppProps) {
             <MantineProvider
                 theme={{
                     colorScheme: "dark",
-                    primaryColor: "orange",
+                    primaryColor: "purple",
                     // change background color
                     colors: {
-                        "ocean-blue": ["#7AD1DD", "#5FCCDB", "#44CADC", "#2AC9DE", "#1AC2D9", "#11B7CD", "#09ADC3", "#0E99AC", "#128797", "#147885"],
-                        "bright-pink": ["#F0BBDD", "#ED9BCF", "#EC7CC3", "#ED5DB8", "#F13EAF", "#F71FA7", "#FF00A1", "#E00890", "#C50E82", "#AD1374"],
+                        purple: ["#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA"],
                     },
                     // fontFamily: font.className,
                     // headings: {
                     //     fontFamily: font.className,
                     // },
+                
                 }}
                 withGlobalStyles
                 withNormalizeCSS
@@ -88,6 +89,8 @@ export default function App({ Component, pageProps }: AppProps) {
                     nothingFoundMessage="Nothing found..."
                     closeOnEscape
                     closeOnClickOutside
+                    radius={20}
+                    classNames={useSpotlightStyles.classes}
                 >
                     <main className={font.className}>
                         <Component {...pageProps} />

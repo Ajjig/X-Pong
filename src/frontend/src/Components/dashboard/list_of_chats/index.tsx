@@ -10,14 +10,14 @@ export default function List_of_chats({}: {}) {
 
     return (
         <Box w="100%" h="100%">
-            <Paper radius="lg" p="md" bg="dark.5" h="100%">
+            <Paper radius="lg" p="md" bg="dark.9" h="100%">
                 <SegmentedControl
                     ref={SegRef}
                     radius={"lg"}
                     fullWidth
                     value={value}
                     onChange={setValue}
-                    color="orange"
+                    color="purple"
                     data={[
                         { value: "Messages", label: "Messages" },
                         { value: "Groups", label: "Groups" },

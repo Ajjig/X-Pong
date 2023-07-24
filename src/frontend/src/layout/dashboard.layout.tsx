@@ -17,6 +17,9 @@ export function DashboardLayout() {
     const [opened, setOpened] = useState(false);
     const [chat, setChat] = useState<any>(null);
     const HeaderRef = useRef<HTMLDivElement>(null);
+    const [fullHeight, setFullHeight] = useState<any>({
+        height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
+    });
 
     useEffect(() => {
         setChat(store.getState().chats.currentChat);
@@ -24,15 +27,14 @@ export function DashboardLayout() {
             const s = store.getState().chats.currentChat;
             if (s) setChat(s);
         });
+        setFullHeight({
+            height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
+        });
         // console.log("Header Height: ", HeaderRef.current?.clientHeight);
     }, []);
 
-    const fullHeight = {
-        height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
-    };
-
     return (
-        <Box mih="100vh">
+        <Box mih="100vh" bg="black">
             <Box
                 w="100%"
                 bg={"blue"}
@@ -48,7 +50,10 @@ export function DashboardLayout() {
             <Grid gutter="0" w={"100%"} px="lg" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
                     <Grid.Col span={5} lg={4} xl={3} sx={fullHeight} p="md" pt={0}>
+                        {/* <List_of_chats /> */}
                         <List_of_chats />
+
+
                     </Grid.Col>
                 </MediaQuery>
 
@@ -57,7 +62,6 @@ export function DashboardLayout() {
                             <Chat user={chat} setSelected={setChat} opened={opened} chat={chat} />
                         ) : (
                             <Box
-                                bg={"red"}
                                 p="md"
                                 sx={{
                                     overflowY: "scroll",
@@ -78,7 +82,7 @@ export function DashboardLayout() {
                                     },
                                 }}
                             >
-                                <PublicGroups />
+                                {/* <PublicGroups /> */}
                             </Box>
                         )}
                 </Grid.Col>

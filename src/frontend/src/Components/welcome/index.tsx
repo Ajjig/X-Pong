@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Box, Flex, Text, Button, createStyles, Title, Input, Container } from "@mantine/core";
+import { Box, Flex, Text, Button, createStyles, Title, Input, Container, MantineTheme } from "@mantine/core";
 import { useFrame } from "@react-three/fiber";
 import Link from "next/link";
 import { useMediaQuery } from "@mantine/hooks";
 import Login from "./login";
 import Team from "../team";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme: MantineTheme) => ({
     container: {
         height: "100vh",
         width: "100vw",

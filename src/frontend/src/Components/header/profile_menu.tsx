@@ -18,15 +18,15 @@ const UserButton = forwardRef<HTMLButtonElement, UserButtonProps>(({ image, name
             display: "block",
             width: "100%",
             height: "100%",
-            padding: theme.spacing.md,
+            padding: 0,
             color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
         })}
         {...others}
     >
         <Group>
-            <Avatar src={image} radius="xl" />
+            <Avatar src={image} radius="xl" size={43} />
 
-            <div style={{ flex: 1 }}>
+            {/* <div style={{ flex: 1 }}>
                 <Text size="sm" weight={500} transform="capitalize">
                     {name}
                 </Text>
@@ -34,9 +34,9 @@ const UserButton = forwardRef<HTMLButtonElement, UserButtonProps>(({ image, name
                 <Text color="dimmed" size="xs">
                     {email}
                 </Text>
-            </div>
+            </div> */}
 
-            {icon || <IconChevronRight size="1rem" />}
+            {/* {icon || <IconChevronRight size="1rem" />} */}
         </Group>
     </UnstyledButton>
 ));
