@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { MantineProvider, MantineTheme, ColorSchemeProvider, ColorScheme, Avatar } from "@mantine/core";
+import { MantineProvider, MantineTheme, ColorSchemeProvider, ColorScheme, Avatar, CSSObject } from "@mantine/core";
 import { Provider } from "react-redux";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import store from "@/store/store";
@@ -12,12 +12,11 @@ import { useRouter } from "next/router";
 import SocketComponent from "@/socket/SocketComponent";
 import { SpotlightStyles } from "@/Components/spotlight/spotlight.styles";
 
-import { Prompt } from "next/font/google";
+// import font for title from 'next/font/google'
+import { Russo_One, Kanit } from 'next/font/google';
 
-const font = Prompt({
-    subsets: ["latin"],
-    weight: "400",
-});
+const fontHeadings = Russo_One({ weight: "400", subsets: ["latin"] })
+const font = Kanit({ weight: "400", subsets: ["latin"] })
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -67,12 +66,60 @@ export default function App({ Component, pageProps }: AppProps) {
                     // change background color
                     colors: {
                         purple: ["#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA"],
+                        cos_black: ["#292932", "#242428", "#15151A", "#121214"]
                     },
-                    // fontFamily: font.className,
-                    // headings: {
-                    //     fontFamily: font.className,
-                    // },
-                
+                    fontFamily: font.style.fontFamily,
+                    headings: {
+                        fontFamily: fontHeadings.style.fontFamily,
+                    },
+                    components: {
+                        SegmentedControl: {
+                            styles: {   
+                                root: {
+                                    borderRadius: 40,
+                                    background: "#000000",
+                                },
+                                indicator: {
+                                    borderRadius: 40,
+                                },
+                            },
+                        },
+                        Input: {
+                            styles: {
+                                input: {
+                                    borderRadius: 40,
+                                },
+                            },
+                        },
+                        Button: {
+                            styles: {
+                                root: {
+                                    borderRadius: 40,
+                                },
+                            },
+                        },
+                        Paper: {
+                            styles: {
+                                root: {
+                                    
+                                },
+                            },
+                        },
+                        Popover: {
+                            styles: {
+                                body: {
+                                    borderRadius: 40,
+                                },
+                            },
+                        },
+                        Select: {
+                            styles: {
+                                root: {
+                                    borderRadius: 40,
+                                },
+                            },
+                        },
+                    },
                 }}
                 withGlobalStyles
                 withNormalizeCSS

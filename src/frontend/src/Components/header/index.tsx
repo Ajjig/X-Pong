@@ -25,6 +25,10 @@ import { useDisclosure } from "@mantine/hooks";
 import socket from "@/socket";
 import { useRouter } from "next/router";
 import { spotlight } from "@mantine/spotlight";
+// import font for title from 'next/font/google'
+import { Russo_One } from "next/font/google";
+
+const titleFont = Russo_One({ weight: "400", subsets: ["latin"] });
 
 export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const [opened, setOpened] = React.useState(false);
@@ -32,25 +36,29 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
 
     return (
         <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
-            <Paper px="md" bg="dark.9">
+            <Paper px="md" bg="cos_black.2">
                 <Flex w="100%" justify="space-between" align="center">
                     <Flex w="100%" justify="space-between">
                         <Group py="md">
-                            <Image src="/favicon.svg" width={40} height={40} />
                             <Link
                                 href="/dashboard"
                                 style={{
                                     textDecoration: "none",
                                 }}
                             >
-                                <Title color="gray.0" fz="xl" underline={false}>
-                                    70sPong
-                                </Title>
+                                <Flex align="center" justify="center">
+                                    <Image src="/logo.svg" width={40} height={40} />
+                                    <Space w={theme.spacing.xs} />
+                                    <Title fw="bolder" color="gray.0" fz="26px" underline={false}>
+                                        Xping
+                                    </Title>
+                                </Flex>
                             </Link>
                         </Group>
                         <Flex align="center">
                             <Search />
-                            <Space w={theme.spacing.md} />
+                        </Flex>
+                        <Flex align="center">
                             <NotificationPopover />
                             <Space w={theme.spacing.md} />
                             <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
@@ -72,7 +80,7 @@ function Search() {
                 <ActionIcon variant="transparent" p={8} color="dark" radius={100} size="45">
                     <IconSearch size={23} />
                 </ActionIcon>
-                <Box top="50%" left="50%" bg="dark.9" p="sx" w={200}>
+                <Box top="50%" left="50%" p="sx" w={"300px"}>
                     <Text size="sm" weight={"bold"}>
                         Search
                     </Text>

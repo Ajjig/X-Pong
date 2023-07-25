@@ -1,4 +1,4 @@
-import { Box, Divider, Group, MantineTheme, Navbar, PasswordInput, Space, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core";
+import { Box, Divider, Group, MantineTheme, Navbar, PasswordInput, Space, Text, TextInput, Title, Tooltip, createStyles, useMantineTheme } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import store from "@/store/store";
 import { Chat } from "../private_chats/Chat";
@@ -144,20 +144,14 @@ function CreateNewGroup({ children }: { children: any }) {
                 opened={opened}
                 onClose={close}
                 centered
+                radius={30}
             >
                 <Box maw={300} mx="auto" pb={20}>
                     <Title order={3}>CREAT NEW GROUP</Title>
                     <Space py={15} />
 
                     <form onSubmit={submit}>
-                        <SegmentedControl
-                            fullWidth
-                            data={["Public", "Private", "Protected"]}
-                            color="orange"
-                            value={GroupType}
-                            onChange={setGroupType}
-                            radius={15}
-                        />
+                        <SegmentedControl fullWidth data={["Public", "Private", "Protected"]} color="" value={GroupType} onChange={setGroupType} radius={15} />
                         <Space py={8} />
                         <TextInput label="Group Name" placeholder="Name" required {...form.getInputProps("name")} />
                         <Space py={5} />

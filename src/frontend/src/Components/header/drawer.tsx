@@ -1,7 +1,8 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Button, Group, Burger, useMantineTheme, MediaQuery, List } from "@mantine/core";
+import { Drawer, Button, Group, Burger, useMantineTheme, MediaQuery, List, Space } from "@mantine/core";
 import ProfileSection from "./profile_menu";
 import List_of_chats from "../dashboard/list_of_chats";
+import UserInfo from "../dashboard/userInfo";
 
 interface props {}
 
@@ -13,7 +14,8 @@ function DrawerMobile({}: props) {
         <>
             <Drawer opened={opened} onClose={close}>
                 {/* Drawer content */}
-                <ProfileSection />
+                <UserInfo />
+                <Space h="15px" />
                 <List_of_chats />
             </Drawer>
 

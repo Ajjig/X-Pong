@@ -14,19 +14,38 @@ export function ListChats({ SegRef }: { SegRef: any }) {
 
         store.subscribe(() => {
             const chatsFromStore = store.getState().chats.PrivateChats;
+
             setChats(() => {
                 // filter chats that have no messages
                 const filteredChats = chatsFromStore.filter((chat: any) => {
                     return chat.chat.length > 0;
                 });
-                return filteredChats;
-            });
+                return chatsFromStore;
+            });     
         });
     }, []);
 
     return (
         <>
-            <Box w={"100%"} h={`calc(100% - ${SegRef.current?.clientHeight}px)`} p={"12px"}>
+            <Box w={"100%"} h={`calc(100% - ${SegRef.current?.clientHeight}px)`} p={"12px"} sx={(theme: MantineTheme) => ({
+               
+                overflowY: "scroll",
+                /* ===== Scrollbar CSS ===== */
+                /* Firefox */
+                scrollbarColor: `${theme.colors.gray[8]} transparent`,
+                scrollbarWidth: "thin",
+                /* Chrome, Edge, and Safari */
+                "&::-webkit-scrollbar": {
+                    width: "5px",
+                },
+                "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                    background: theme.colors.gray[8],
+                    borderRadius: theme.radius.md,
+                },
+            })}>
                 {chats.length <= 0 && (
                     <Box
                         sx={(theme: MantineTheme) => ({
@@ -42,7 +61,7 @@ export function ListChats({ SegRef }: { SegRef: any }) {
                     </Box>
                 )}
                 {chats?.map((chat: any, index: number) => {
-                    if (chat.chat.length == 0) return null;
+                    // if (chat.chat.length == 0) return null;
                     return (
                         <Box key={index}>
                             <Space py={2} />

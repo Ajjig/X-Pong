@@ -10,10 +10,9 @@ export default function List_of_chats({}: {}) {
 
     return (
         <Box w="100%" h="100%">
-            <Paper radius="lg" p="md" bg="dark.9" h="100%">
+            <Paper radius="lg" p="md" bg="cos_black.2" h="100%">
                 <SegmentedControl
                     ref={SegRef}
-                    radius={"lg"}
                     fullWidth
                     value={value}
                     onChange={setValue}
