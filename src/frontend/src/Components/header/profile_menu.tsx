@@ -53,11 +53,11 @@ function ProfileSection({}: {}) {
 
     return (
         <Group position="center">
-            <Menu withArrow>
+            <Menu withArrow shadow="md" arrowPosition="side" arrowSize={15}>
                 <Menu.Target>
                     <UserButton image={profile?.avatarUrl} name={profile?.name} email={profile?.email} />
                 </Menu.Target>
-                <Menu.Dropdown
+                <Menu.Dropdown bg={"cos_black.3"}
                     sx={{
                         zIndex: 9999,
                     }}

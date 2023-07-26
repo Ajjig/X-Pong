@@ -1,5 +1,5 @@
 // SocketComponent.js
-import store, { setCurrentChat, setNewMessage, setPrivateChats, setSocket } from "@/store/store";
+import store, { setCurrentChat, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
 import { useEffect } from "react";
 import io from "socket.io-client";
 
@@ -52,6 +52,8 @@ const SocketComponent = () => {
 
         socket.on("notifications", (data) => {
             console.log("notifications: ", data);
+            // add the notification to the store
+            store.dispatch(setNotifications(data));
         });
 
 
@@ -64,10 +66,10 @@ const SocketComponent = () => {
             // console.log("publicChat: ", data);
         });
 
-        // listen to all events from server
-        socket.onAny((event, ...args) => {
-            console.log(event, args);
-        });
+        // // listen to all events from server
+        // socket.onAny((event, ...args) => {
+        //     console.log(event, args);
+        // });
 
         // @@@@@@@@@@@@@@
 
