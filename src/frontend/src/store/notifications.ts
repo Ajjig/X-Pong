@@ -1,15 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialNotifications = {
-    Notifications: null,
+    friend_requests: null,
 };
 
 const NotificationsSlice = createSlice({
     name: "notifications",
-    initialState: initialNotifications as { Notifications: any },
+    initialState: initialNotifications,
     reducers: {
         setNotifications: (state, action) => {
-            state.Notifications = action.payload;
+            state.friend_requests = action.payload;
         },
     },
 });
