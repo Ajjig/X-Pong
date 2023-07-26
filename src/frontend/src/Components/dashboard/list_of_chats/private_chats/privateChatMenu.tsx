@@ -1,7 +1,7 @@
 import { Avatar, Flex, Menu } from "@mantine/core";
 import React from "react";
-import { IconSettings, IconUser } from "@tabler/icons-react";
-import { Button, Text, Box, Center } from "@mantine/core";
+import { IconUser } from "@tabler/icons-react";
+import { Text, Box } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
 import { IconBan } from "@tabler/icons-react";
 
