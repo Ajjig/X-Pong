@@ -12,7 +12,7 @@ import {
     Space,
     Title,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
 
@@ -72,9 +72,11 @@ export function ProfileLayout({ id }: props) {
         });
     };
 
+    const HeaderRef = React.useRef(null);
+
     return (
         <>
-            <HeaderDashboard />
+            <HeaderDashboard HeaderRef={HeaderRef} />
             <Container>
                 <Box
                     sx={(theme: MantineTheme) => ({
