@@ -473,4 +473,20 @@ export class UserController {
   async getChannels(@Req() request) {
     return await this.UserChannelService.getAllPublicChannels();
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/reject_friend_request')
+  async rejectFriendRequestByUsername(
+    @Req() request: any,
+    @Body() body: any,
+  ) {
+    if (!body || !body.friend_username) {
+      throw new HttpException('Missing username or friend_username', 400);
+    }
+    return this.userService.rejectFriendRequestByUsername(
+      request.user.username,
+      body.friend_username,
+    );
+  
+  }
 }

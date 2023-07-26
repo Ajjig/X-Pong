@@ -21,7 +21,7 @@ export type userStatstype = {
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async setProfileUsernameByusername(
     username: string,
@@ -108,36 +108,36 @@ export class UserService {
   }
 
   async addFriendByUsername(username: string, friendUsername: string) {
-    
-      const user = await this.prisma.user.findUnique({
-        where: { username: username },
-      });
 
-      const friend = await this.prisma.user.findUnique({
-        where: { username: friendUsername },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
 
-      if (!friend) {
-        throw new HttpException('Friend not found', 400);
-      }
+    const friend = await this.prisma.user.findUnique({
+      where: { username: friendUsername },
+    });
 
-      const existingFriendship = await this.prisma.friends.findFirst({
-        where: { username: friend.username },
-      });
-      if (existingFriendship) {
-        throw new HttpException('Friend already added', 400);
-      }
+    if (!friend) {
+      throw new HttpException('Friend not found', 400);
+    }
 
-      const my_side = await this.prisma.friends.create({
-        data: {
-          user: { connect: { id: user.id } },
-          username: friend.username,
-          requestSentBy : username,
-          requestSentTo : friendUsername,
-        },
-      });
-      return my_side;
-    
+    const existingFriendship = await this.prisma.friends.findFirst({
+      where: { username: friend.username },
+    });
+    if (existingFriendship) {
+      throw new HttpException('Friend already added', 400);
+    }
+
+    const my_side = await this.prisma.friends.create({
+      data: {
+        user: { connect: { id: user.id } },
+        username: friend.username,
+        requestSentBy: username,
+        requestSentTo: friendUsername,
+      },
+    });
+    return my_side;
+
   }
 
   async acceptFriendRequestByUsername(
@@ -294,9 +294,8 @@ export class UserService {
         where: { username: friendUsername },
       });
 
-      if (!user || !friend)
-      {
-        return  new HttpException('User does not exist', 400);
+      if (!user || !friend) {
+        return new HttpException('User does not exist', 400);
       }
 
       const findexist = await this.prisma.friends.findFirst({
@@ -308,23 +307,61 @@ export class UserService {
       }
 
       const otherside = await this.prisma.friends.updateMany({
-        where: { 
-          userId : user.id,
-          username : friendUsername,
-          friendshipStatus : 'Accepted', 
+        where: {
+          userId: user.id,
+          username: friendUsername,
+          friendshipStatus: 'Accepted',
         },
         data: { friendshipStatus: 'Blocked' },
       });
 
-      if ( otherside.count == 0)
-      {
+      if (otherside.count == 0) {
         return new HttpException('You are not a friend or already blocked', 400);
       }
 
-      return new HttpException('user blocked' , 200)
+      return new HttpException('user blocked', 200)
     } catch (e) {
       console.log(e)
       throw new HttpException(e.meta, 400);
     }
+  }
+
+  async rejectFriendRequestByUsername(username: string, friendUsername: string) {
+    if (username === friendUsername) {
+      throw new HttpException('Cannot reject yourself', 400);
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+    const friend = await this.prisma.user.findUnique({
+      where: { username: friendUsername },
+    });
+    if (!user || !friend) {
+      throw new HttpException('User does not exist', 400);
+    }
+
+    const friend_request = await this.prisma.friends.deleteMany({
+      where: {
+        requestSentBy: friendUsername,
+        requestSentTo: username,
+        friendshipStatus: 'Pending',
+      },
+    });
+
+    if (friend_request.count == 0) {
+      throw new HttpException('Friend request not found', 400);
+    }
+
+    const wipe_notification = await this.prisma.notification.deleteMany({
+      where: {
+        from: friendUsername,
+        to: username,
+        type: 'friendRequest',
+      },
+    });
+
+    return new HttpException('Friend request rejected', 200);
+
+
   }
 }
