@@ -54,6 +54,7 @@ model Notification {
 
   user      User     @relation("UserNotifications", fields: [userId], references: [id])
   userId    Int
+  avatarUrl String @default("https://w7.pngwing.com/pngs/494/808/png-transparent-internet-bot-digital-marketing-telegram-chatbots-computer-network-text-smiley.png")
 }
 
 model Channel {

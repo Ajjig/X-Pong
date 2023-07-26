@@ -498,6 +498,7 @@ export class ChatService {
           status: 'Accepted',
           msg: 'You Have accepted ' + friendUser.username + ' friend request',
           user: { connect: { id: user.id } },
+          avatarUrl: friendUser.avatarUrl,
         },
       });
       userClient.emit('notifications', notification);
@@ -517,6 +518,7 @@ export class ChatService {
           status: 'Accepted',
           msg: user.username + ' accepted your friend request',
           user: { connect: { id: friendUser.id } },
+          avatarUrl: friendUser.avatarUrl,
         },
       });
       friendClient.emit('notifications', notification);
@@ -541,6 +543,14 @@ export class ChatService {
   }
 
   async addFriend(username: string, friendUsername: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+    if (username === friendUsername) {
+      const userClient = connectedClients.get(username);
+      if (userClient) {
+        userClient.emit('error', "You can't send a friend request to yourself");
+      }
+      return null;
+    }
+    
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
@@ -601,6 +611,7 @@ export class ChatService {
           status: 'pending',
           msg: 'You sent a friend request to ' + friend.username,
           user: { connect: { id: user.id } },
+          avatarUrl: friend.avatarUrl,
         },
       });
 
@@ -617,6 +628,7 @@ export class ChatService {
           status: 'pending',
           msg: user.username + ' sent you a friend request',
           user: { connect: { id: friend.id } },
+          avatarUrl: friend.avatarUrl,
         },
       });
 
