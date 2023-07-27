@@ -1,10 +1,11 @@
-import { ProfileLayout } from "@/Components/profile/profileLayout";
+import { ProfileLayout } from "@/layout/profile.layout";
 import React, { use, useEffect, useState } from "react";
 import store, { setProfile } from "@/store/store";
 import api from "@/api";
 import { Head } from "@/Components/head";
 import { useRouter } from "next/router";
 import { Loading } from "@/Components/loading/loading";
+import { Box } from "@mantine/core";
 
 export default function Profile() {
     const router = useRouter();
@@ -30,9 +31,9 @@ export default function Profile() {
     if (id == "") return <Loading />;
 
     return (
-        <>
+        <Box bg="cos_black.3"  mih="100vh">
             <Head title="Profile" description="Profile" keywords="Profile" icon="/favicon.ico" />
-            <ProfileLayout id={id} key={id}/>
-        </>
+            <ProfileLayout id={id} key={id} />
+        </Box>
     );
 }

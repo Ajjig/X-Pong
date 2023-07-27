@@ -1,30 +1,17 @@
-import {
-    ActionIcon,
-    Box,
-    Button,
-    Container,
-    Grid,
-    Group,
-    Input,
-    MantineTheme,
-    Paper,
-    Popover,
-    Space,
-    Title,
-} from "@mantine/core";
+import { ActionIcon, Avatar, Box, Button, Container, Grid, Group, Input, MantineTheme, Paper, Popover, Space, Title } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
 // import Header from "./header";
 
 import { Text } from "@mantine/core";
-import HeaderDashboard from "../header";
+import HeaderDashboard from "../Components/header";
 import store from "@/store/store";
 import { IconEdit, IconMessage, IconUserPlus } from "@tabler/icons-react";
-import { UserInfo } from "./ProfileUserInfoSection";
+import { UserInfo } from "../Components/profile/ProfileUserInfoSection";
 import api from "@/api";
 import socket from "@/socket";
 import { IconSend } from "@tabler/icons-react";
-import Message from "./buttons/message";
+import Message from "../Components/profile/buttons/message";
 
 interface props {
     id: string;
@@ -51,7 +38,6 @@ export function ProfileLayout({ id }: props) {
         store.getState().io.socket?.on("add_friend", (data: any) => {
             console.log("add_friend: ", data);
         });
-
     }, []);
 
     const [message, setMessage] = useState<string | null>("");
@@ -66,7 +52,7 @@ export function ProfileLayout({ id }: props) {
     };
 
     const addUser = () => {
-        console.log("addUser: ", profile.username)
+        console.log("addUser: ", profile.username);
         store.getState().io.socket?.emit("add_friend", {
             friend_username: profile.username,
         });
@@ -100,7 +86,7 @@ export function ProfileLayout({ id }: props) {
                         // justifyContent: "end",
                     })}
                 >
-                     <Box
+                    <Box
                         sx={(theme: MantineTheme) => ({
                             // position: "absolute",
                             // bottom: "-10%",
@@ -137,16 +123,13 @@ export function ProfileLayout({ id }: props) {
                             </>
                         )}
                     </Group>
-                   
                 </Box>
 
                 <Box
                     px={20}
-                    sx={(theme: MantineTheme) => ({
-                        marginTop: "50px",
-                    })}
+                    mt={50}
                 >
-                    <Paper radius={20} bg={"gray.8"}>
+                    <Paper radius={20} bg="cos_black.2">
                         <Grid>
                             <Grid.Col span={12}>
                                 <Paper radius={20} bg={"transparent"}>
@@ -166,13 +149,54 @@ export function ProfileLayout({ id }: props) {
                                         >
                                             Match History
                                         </Title>
+                                        <Space h={20} />
+                                        <Grid>
+                                            <Grid.Col span={12}>
+                                                <Match />
+                                            </Grid.Col>
+                                            <Grid.Col span={12}>
+                                                <Match />
+                                            </Grid.Col>
+                                            <Grid.Col span={12}>
+                                                <Match />
+                                            </Grid.Col>
+                                        </Grid>
                                     </Box>
                                 </Paper>
                             </Grid.Col>
                         </Grid>
                     </Paper>
+                    <Space h={30} />
                 </Box>
             </Container>
         </>
+    );
+}
+
+function Match() {
+    return (
+        <Paper radius={20} bg={"cos_black.3"}>
+            <Flex p={20} align="center" justify="space-between">
+                <Flex align="center">
+                    <Avatar size={50} radius="xl" src="https://picsum.photos/201" />
+                    <Space w={10} />
+                    <Title color="gray.4" fz="md">
+                        Username
+                    </Title>
+                </Flex>
+                <Flex align="center">
+                    <Title color="gray.4" fz="lg">
+                        1 - 0
+                    </Title>
+                </Flex>
+                <Flex align="center">
+                    <Title color="gray.4" fz="md">
+                        Username
+                    </Title>
+                    <Space w={10} />
+                    <Avatar size={50} radius="xl" src="https://picsum.photos/200" />
+                </Flex>
+            </Flex>
+        </Paper>
     );
 }

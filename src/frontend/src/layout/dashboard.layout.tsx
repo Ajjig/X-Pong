@@ -21,6 +21,10 @@ export function DashboardLayout() {
     const [fullHeight, setFullHeight] = useState<any>({
         height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
     });
+    const userInfoCardRef = useRef<HTMLDivElement>(null);
+    const [List_chats_heigth, setList_chats_heigth] = useState<any>({
+        maxHeight: `calc(100% - ${userInfoCardRef.current?.clientHeight ?? 0 + 15}px)`,
+    });
 
     useEffect(() => {
         setChat(store.getState().chats.currentChat);
@@ -31,7 +35,9 @@ export function DashboardLayout() {
         setFullHeight({
             height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
         });
-        // console.log("Header Height: ", HeaderRef.current?.clientHeight);
+        setList_chats_heigth({
+            height: `calc(100% - ${userInfoCardRef.current?.clientHeight ?? 0 + 15}px)`,
+        });
     }, []);
 
     return (
@@ -39,12 +45,12 @@ export function DashboardLayout() {
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Grid gutter="0" w={"100%"} px="lg" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                    <Grid.Col span={5} lg={4} xl={3} sx={fullHeight} p="md" pt={0}>
-                        <Box h="25%">
+                    <Grid.Col span={5} lg={4} xl={3} sx={{display: 'flex', flexDirection: 'column'}} p={"md"} pt={0}>
+                        <Box>
                             <UserInfo />
                         </Box>
                         <Space h="15px" />
-                        <Box h="calc(100% - 25% - 15px)">
+                        <Box sx={{flex: 1}}>
                             <List_of_chats />
                         </Box>
                     </Grid.Col>
