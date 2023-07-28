@@ -21,6 +21,22 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Notification" (
+    "id" SERIAL NOT NULL,
+    "type" TEXT NOT NULL,
+    "from" TEXT NOT NULL,
+    "to" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "msg" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "avatarUrl" TEXT NOT NULL DEFAULT 'https://w7.pngwing.com/pngs/494/808/png-transparent-internet-bot-digital-marketing-telegram-chatbots-computer-network-text-smiley.png',
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Channel" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -66,10 +82,10 @@ CREATE TABLE "Friends" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "username" TEXT,
+    "username" TEXT NOT NULL,
     "friendshipStatus" TEXT NOT NULL DEFAULT 'Pending',
-    "onlineStatus" TEXT NOT NULL DEFAULT 'Offline',
-    "ladder" TEXT NOT NULL DEFAULT 'Novice',
+    "requestSentBy" TEXT NOT NULL,
+    "requestSentTo" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Friends_pkey" PRIMARY KEY ("id")
@@ -156,9 +172,6 @@ CREATE UNIQUE INDEX "User_twoFactorAuthSecret_key" ON "User"("twoFactorAuthSecre
 CREATE UNIQUE INDEX "Channel_name_key" ON "Channel"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Friends_username_key" ON "Friends"("username");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Userstats_userId_key" ON "Userstats"("userId");
 
 -- CreateIndex
@@ -196,6 +209,9 @@ CREATE UNIQUE INDEX "_Muted_AB_unique" ON "_Muted"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_Muted_B_index" ON "_Muted"("B");
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "Channel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
