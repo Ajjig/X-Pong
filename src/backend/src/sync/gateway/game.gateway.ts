@@ -1,19 +1,23 @@
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io';
 import { InitEventDto } from '../dto/init.event.dto';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
 import { GameService } from './game.service';
+import { Logger } from '@nestjs/common';
 
-@WebSocketGateway(3069,{
+@WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
   },
+  namespace: 'game',
 })
 export class GameGateway {
   constructor(private readonly gameService: GameService) {}
@@ -22,7 +26,7 @@ export class GameGateway {
 
   @SubscribeMessage('join')
   handleMatchmaking(client: Socket, data: JoinEventDto): void {
-    this.gameService.handleMatchmaking(client, data);
+    this.gameService.handleMatchmaking(client);
   }
 
   @SubscribeMessage('move')
@@ -35,11 +39,6 @@ export class GameGateway {
     this.gameService.handleMessage(client, data);
   }
 
-  @SubscribeMessage('init')
-  handleInit(client: Socket, data: InitEventDto): void {
-    this.gameService.handleInit(client, data);
-  }
-
   @SubscribeMessage('disconnect')
   handleDisconnect(client: Socket): void {
     this.gameService.handleDisconnect(client);
@@ -48,5 +47,15 @@ export class GameGateway {
   @SubscribeMessage('endgame')
   handleEndGame(client: Socket, data: { room: string }): void {
     this.gameService.handleEndGame(client, data);
+  }
+
+  async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
+    const userdata = await this.gameService.getUserData(client)
+
+    if (!userdata) {
+      client.disconnect();
+      return;
+    }
+    this.gameService.handleInit(client, userdata.username);
   }
 }

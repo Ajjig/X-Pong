@@ -1,25 +1,26 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { Socket } from 'socket.io-client';
 import { DataDto } from '../dto/data.dto';
 import { InitEventDto } from '../dto/init.event.dto';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
 import { makeId } from '../utils/generate.id';
 import { Game } from './game';
+import { Server, Socket } from 'socket.io';
+import * as dotenv from 'dotenv';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class GameService {
   constructor(/* private readonly authService : AuthService */) {}
 
   private games = new Map<string, Game>();
-  private queue = [];
+  private queue : {client : Socket, username : string}[] = [];
   private readonly logger = new Logger('MATCH-MAKING');
   private readonly players = new Map<string, Socket>();
 
@@ -27,9 +28,10 @@ export class GameService {
     this.logger.log('GAME GATEWAY INIT');
   }
 
-  handleMatchmaking(client: Socket, data: JoinEventDto): void {
-    this.queue.push({ client, data });
-    this.logger.log(`Player ${data.username} waiting for an opponent`);
+  handleMatchmaking(client: Socket): void {
+    const username = this.getUserNameBySocket(client);
+    this.queue.push({ username, client });
+    this.logger.log(`Player ${username} waiting for an opponent`);
     if (this.queue.length >= 2) {
       let p1 = this.queue.shift();
       let p2 = this.queue.shift();
@@ -41,8 +43,8 @@ export class GameService {
           id,
           client1: p1.client,
           client2: p2.client,
-          player1Username: p1.data.username,
-          player2Username: p2.data.username,
+          player1Username: p1.username,
+          player2Username: p2.username,
         }),
       );
     }
@@ -65,9 +67,9 @@ export class GameService {
     this.logger.log(`Message from ${client.id} : ${data}`);
   }
 
-  handleInit(client: Socket, data: InitEventDto): void {
-    this.players.set(data.username, client);
-    this.logger.log(`Player ${data.username} connected to the game`);
+  handleInit(client: Socket, username: string): void {
+    this.players.set(username, client);
+    this.logger.log(`Player ${username} connected to the game`);
   }
 
   handleDisconnect(client: Socket): void {
@@ -75,6 +77,7 @@ export class GameService {
     let username = this.getUserNameBySocket(client);
     if (username) {
       this.players.delete(username);
+      this.queue = this.queue.filter((p) => p.username !== username);
       this.logger.log(`Player ${username} disconnected`);
     }
   }
@@ -98,4 +101,36 @@ export class GameService {
     });
     return username;
   }
+
+  async getUserData(client: Socket): Promise<any> {
+    // get token in cookie if exist else in header
+    let token = null;
+    try {
+      token = client.handshake.headers.cookie.split('=')[1];
+      const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: number,
+        username: string,
+        iat: number,
+        exp: number;
+      };
+      return userdecoded;
+    } catch {}
+
+    try {
+      const token = client.handshake.headers.jwt as string;
+      if (!token) {
+        return null;
+      }
+      const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        uid: number,
+        username: string,
+        iat: number,
+        exp: number;
+      };
+      return userdecoded;
+    } catch  {   
+      return null;
+    }
+  }
+
 }

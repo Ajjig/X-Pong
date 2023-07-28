@@ -29,25 +29,23 @@ export class Game {
     this.player2Username = data.player2Username;
     this.client1 = data.client1;
     this.client2 = data.client2;
-    try {
-      this.client1.join(this.id);
-      this.client2.join(this.id);
-    } catch (e) {
-      // console.log(e);
-    }
+    // try {
+    //   this.client1.join(this.id);
+    //   this.client2.join(this.id);
+    // } catch (e) {
+    //   // console.log(e);
+    // }
     this.emitMatch();
   }
 
   emitMatch() {
     this.client1
-      .to(this.id)
       .emit('match', {
         roomName: this.id,
         player: 1,
         opponentName: this.player2Username,
       });
     this.client2
-      .to(this.id)
       .emit('match', {
         roomName: this.id,
         player: 2,
@@ -57,12 +55,12 @@ export class Game {
   }
 
   emitter(client: any, data: MoveEventDto): void {
+    this.client1.emit('move', data);
+    this.client2.emit('move', data);
     if (client === this.client1) {
       this.logger.log(`Player 1 '${this.player1Username}' moved`);
-      this.client1.to(this.id).emit('move', data.data);
     } else {
       this.logger.log(`Player 2 '${this.player2Username}' moved`);
-      this.client2.to(this.id).emit('move', data.data);
     }
   }
 }
