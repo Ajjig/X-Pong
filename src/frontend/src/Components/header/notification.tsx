@@ -17,6 +17,10 @@ export function NotificationPopover() {
         });
     }, []);
 
+    const acceptFriendRequest = (username: string) => {
+        console.log("@> Accepting friend request from: ", username);
+    }
+
     return (
         <Popover position="bottom" withArrow shadow="md" arrowPosition="side" arrowSize={15}>
             <Popover.Target>
@@ -51,12 +55,13 @@ export function NotificationPopover() {
                                     <Title size="sm" weight={700}>
                                         {notification.from}
                                     </Title>
-                                    <Text size="sm">@{notification.from} sent you a friend request</Text>
+                                    {/* <Text size="sm">@{notification.from} sent you a friend request</Text> */}
+                                    <Text size="sm">{notification.msg}</Text>
                                 </Stack>
                             </Flex>
                             {/* button accept/reject */}
                             <Flex justify="flex-end" align="center" py="md">
-                                <Button size="xs" color="purple" variant="filled">
+                                <Button size="xs" color="purple" variant="filled" onClick={() => acceptFriendRequest(notification.from)}>
                                     Accept
                                 </Button>
                                 <Space w={10} />

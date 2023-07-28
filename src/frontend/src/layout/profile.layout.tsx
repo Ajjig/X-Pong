@@ -35,9 +35,9 @@ export function ProfileLayout({ id }: props) {
                 // window.location.href = "/";
             });
 
-        store.getState().io.socket?.on("add_friend", (data: any) => {
-            console.log("add_friend: ", data);
-        });
+        // store.getState().io.socket?.on("add_friend", (data: any) => {
+        //     console.log("add_friend: ", data);
+        // });
     }, []);
 
     const [message, setMessage] = useState<string | null>("");

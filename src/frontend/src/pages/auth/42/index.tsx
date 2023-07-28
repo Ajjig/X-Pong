@@ -27,7 +27,7 @@ export default function callback() {
                     <Title>{error}</Title>
                 </Box>
             ) : (
-                <Loader size="lg" variant="bars" color="orange" />
+                <Loader size="lg" variant="bars" color="purple" />
             )}
         </Flex>
     );

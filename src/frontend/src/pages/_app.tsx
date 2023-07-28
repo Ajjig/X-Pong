@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import { MantineProvider, MantineTheme, ColorSchemeProvider, ColorScheme, Avatar, CSSObject } from "@mantine/core";
 import { Provider } from "react-redux";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
-import store from "@/store/store";
+import store, { setProfile } from "@/store/store";
 import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useEffect, useState } from "react";
 import socket from "@/socket";
@@ -14,6 +14,7 @@ import { SpotlightStyles } from "@/Components/spotlight/spotlight.styles";
 
 // import font for title from 'next/font/google'
 import { Russo_One, Kanit } from 'next/font/google';
+import api from "@/api";
 
 const fontHeadings = Russo_One({ weight: "400", subsets: ["latin"] })
 const font = Kanit({ weight: "400", subsets: ["latin"] })
@@ -55,6 +56,25 @@ export default function App({ Component, pageProps }: AppProps) {
         if (query == "") setActions([]);
         else socket.emit("search", { query: query });
     }, [query]);
+
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get("/user/profile")
+            .then((res: any) => {
+                if (res.status == 200) {
+                    store.dispatch(setProfile(res.data));
+                    setLoading(false);
+                } else {
+                    window.location.href = "/";
+                }
+            })
+            .catch((err: any) => {
+                // redirect to login
+                window.location.href = "/";
+            });
+    }, []);
 
     return (
         <Provider store={store}>
