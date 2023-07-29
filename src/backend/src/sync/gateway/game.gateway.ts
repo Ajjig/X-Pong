@@ -29,6 +29,11 @@ export class GameGateway {
     this.gameService.handleMatchmaking(client);
   }
 
+  @SubscribeMessage('cancel-join')
+  handleCancelJoin(client: Socket): void {
+    this.gameService.handleCancelJoin(client);
+  }
+
   @SubscribeMessage('move')
   handleMove(client: Socket, data: MoveEventDto): void {
     this.gameService.handleMove(client, data);

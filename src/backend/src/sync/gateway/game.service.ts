@@ -50,6 +50,12 @@ export class GameService {
     }
   }
 
+  handleCancelJoin(client: Socket): void {
+    const username = this.getUserNameBySocket(client);
+    this.queue = this.queue.filter((p) => p.username !== username);
+    this.logger.log(`Player ${username} canceled matchmaking`);
+  }
+
   handleMove(client: Socket, data: MoveEventDto): void {
     try {
       let game: Game = this.games.get(data.room);
