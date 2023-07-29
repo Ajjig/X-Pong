@@ -1,6 +1,5 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Button, Group, Burger, useMantineTheme, MediaQuery, List, Space } from "@mantine/core";
-import ProfileSection from "./profile_menu";
+import { Drawer, Group, Burger, useMantineTheme, MediaQuery, Space } from "@mantine/core";
 import List_of_chats from "../dashboard/list_of_chats";
 import UserInfo from "../dashboard/userInfo";
 
@@ -12,7 +11,7 @@ function DrawerMobile({}: props) {
 
     return (
         <>
-            <Drawer opened={opened} onClose={close}>
+            <Drawer opened={opened} onClose={close} withOverlay position="right">
                 {/* Drawer content */}
                 <UserInfo />
                 <Space h="15px" />
@@ -21,7 +20,7 @@ function DrawerMobile({}: props) {
 
             <MediaQuery largerThan="sm" styles={{ display: "none" }}>
                 <Group position="center">
-                    <Burger opened={opened} onClick={opened ? close : open} size="sm" color={theme.colors.gray[6]} />
+                    <Burger opened={opened} onClick={opened ? close : open} size="md" color={theme.colors.gray[6]} />
                 </Group>
             </MediaQuery>
         </>

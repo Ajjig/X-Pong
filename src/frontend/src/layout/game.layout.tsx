@@ -5,6 +5,7 @@ import store, { setProfile } from "@/store/store";
 import api from "@/api";
 import { Loading } from "@/Components/loading/loading";
 import Matter from "matter-js";
+import { Match_info } from "@/Components/matchs_history/match_info";
 
 interface props {}
 
@@ -89,43 +90,6 @@ export function GameLayout({}: props) {
         worldRef.current = world;
     }
 
-    // function createWalls() {
-    //     const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
-
-    //     let walls: any[];
-
-    //     if (!canvasRef.current) return;
-
-    //     let wallThickness = 1;
-
-    //     walls = [
-    //         Bodies.rectangle(canvasRef.current.width / 2, 0, canvasRef.current.width, wallThickness, {
-    //             isStatic: true,
-    //             id: 1,
-    //         }),
-    //         Bodies.rectangle(canvasRef.current.width / 2, canvasRef.current.height, canvasRef.current.width, wallThickness, {
-    //             isStatic: true,
-    //             id: 2,
-    //         }),
-    //         Bodies.rectangle(0, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
-    //             isStatic: true,
-    //             id: 3,
-    //         }),
-    //         Bodies.rectangle(canvasRef.current.width, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
-    //             isStatic: true,
-    //             id: 4,
-    //         }),
-    //     ];
-
-    //     // change the color of the walls
-    //     walls.forEach((wall) => {
-    //         wall.render.fillStyle = "transparent";
-    //         wall.render.strokeStyle = "transparent";
-    //     });
-
-    //     World.add(world, walls);
-    // }
-
     function createBall() {
         const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
 
@@ -177,20 +141,20 @@ export function GameLayout({}: props) {
         };
         // move the player using arrow keys
         if (canvasRef.current) {
-            document.addEventListener("keydown", (e) => {
-                if (e.key == "ArrowUp") {
-                    keys.up = true;
-                } else if (e.key == "ArrowDown") {
-                    keys.down = true;
-                }
-            });
-            document.addEventListener("keyup", (e) => {
-                if (e.key == "ArrowUp") {
-                    keys.up = false;
-                } else if (e.key == "ArrowDown") {
-                    keys.down = false;
-                }
-            });
+            // document.addEventListener("keydown", (e) => {
+            //     if (e.key == "ArrowUp") {
+            //         keys.up = true;
+            //     } else if (e.key == "ArrowDown") {
+            //         keys.down = true;
+            //     }
+            // });
+            // document.addEventListener("keyup", (e) => {
+            //     if (e.key == "ArrowUp") {
+            //         keys.up = false;
+            //     } else if (e.key == "ArrowDown") {
+            //         keys.down = false;
+            //     }
+            // });
 
             const updatePlayer = () => {
                 player.position.x = pos.x;
@@ -215,12 +179,9 @@ export function GameLayout({}: props) {
         <>
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Container>
-                {/* <Box sx={{
-                    border: `5px solid ${theme.colors.purple[5]}`,
-                    borderRadius: 30,
-                }}> */}
-                <canvas style={{ borderRadius: "40px" }} ref={canvasRef}></canvas>
-                {/* </Box> */}
+                <Match_info player1={gameState.player1} player2={gameState.player2} result={"0 - 0"}>
+                    <canvas style={{ borderRadius: "30px", width: "100%" }} ref={canvasRef}></canvas>
+                </Match_info>
             </Container>
         </>
     );

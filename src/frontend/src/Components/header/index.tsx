@@ -1,14 +1,15 @@
 import React from "react";
-import { Header, MediaQuery, useMantineTheme, Image, Group, Flex, Title, Paper, Space } from "@mantine/core";
+import { Header, MediaQuery, useMantineTheme, Image, Group, Flex, Title, Paper, Space, Box } from "@mantine/core";
 import ProfileSection from "./profile_menu";
 import Link from "next/link";
 import DrawerMobile from "./drawer";
 import { Search } from "./search";
 import { NotificationPopover } from "./notification";
-import store from "@/store/store";
+import { useRouter } from "next/router";
 
 export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const theme = useMantineTheme();
+    const router = useRouter();
 
     return (
         <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
@@ -31,10 +32,18 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                                 </Flex>
                             </Link>
                         </Group>
+                        <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+                            <Flex align="center">
+                                <Search />
+                            </Flex>
+                        </MediaQuery>
                         <Flex align="center">
-                            <Search />
-                        </Flex>
-                        <Flex align="center">
+                            <MediaQuery largerThan={"sm"} styles={{ display: "none" }}>
+                                <Flex align="center">
+                                    <Search />
+                                </Flex>
+                            </MediaQuery>
+                            <Space w={theme.spacing.md} />
                             <NotificationPopover />
                             <Space w={theme.spacing.md} />
                             <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
@@ -42,7 +51,13 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                             </MediaQuery>
                         </Flex>
                     </Flex>
-                    <DrawerMobile />
+                    {/* Mobile */}
+                    {router.pathname == "/dashboard" && (
+                        <>
+                            <Space w={theme.spacing.md} />
+                            <DrawerMobile />
+                        </>
+                    )}
                 </Flex>
             </Paper>
         </Header>

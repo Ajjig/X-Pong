@@ -12,6 +12,7 @@ import api from "@/api";
 import socket from "@/socket";
 import { IconSend } from "@tabler/icons-react";
 import Message from "../Components/profile/buttons/message";
+import { Match_info } from "@/Components/matchs_history/match_info";
 
 interface props {
     id: string;
@@ -152,13 +153,13 @@ export function ProfileLayout({ id }: props) {
                                         <Space h={20} />
                                         <Grid>
                                             <Grid.Col span={12}>
-                                                <Match />
+                                                <Match_info result="1 - 0" />
                                             </Grid.Col>
                                             <Grid.Col span={12}>
-                                                <Match />
+                                                <Match_info result="0 - 1" />
                                             </Grid.Col>
                                             <Grid.Col span={12}>
-                                                <Match />
+                                                <Match_info result="1 - 0" />
                                             </Grid.Col>
                                         </Grid>
                                     </Box>
@@ -170,33 +171,5 @@ export function ProfileLayout({ id }: props) {
                 </Box>
             </Container>
         </>
-    );
-}
-
-function Match() {
-    return (
-        <Paper radius={20} bg={"cos_black.3"}>
-            <Flex p={20} align="center" justify="space-between">
-                <Flex align="center">
-                    <Avatar size={50} radius="xl" src="https://picsum.photos/201" />
-                    <Space w={10} />
-                    <Title color="gray.4" fz="md">
-                        Username
-                    </Title>
-                </Flex>
-                <Flex align="center">
-                    <Title color="gray.4" fz="lg">
-                        1 - 0
-                    </Title>
-                </Flex>
-                <Flex align="center">
-                    <Title color="gray.4" fz="md">
-                        Username
-                    </Title>
-                    <Space w={10} />
-                    <Avatar size={50} radius="xl" src="https://picsum.photos/200" />
-                </Flex>
-            </Flex>
-        </Paper>
     );
 }
