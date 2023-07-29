@@ -67,12 +67,12 @@ export default function App({ Component, pageProps }: AppProps) {
                     store.dispatch(setProfile(res.data));
                     setLoading(false);
                 } else {
-                    window.location.href = "/";
+                    // window.location.href = "/";
                 }
             })
             .catch((err: any) => {
                 // redirect to login
-                window.location.href = "/";
+                // window.location.href = "/";
             });
     }, []);
 

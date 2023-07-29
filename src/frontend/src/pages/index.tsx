@@ -70,7 +70,7 @@ export default function Home() {
                 <Head title="70sPong" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
                 <Box className={classes.container_scene}>
                     <Canvas shadows>
-                        <Scene />
+                        {/* <Scene /> */}
                         <Html center as="div" position={[0, 1, 0]}>
                             <Welcome />
                         </Html>
