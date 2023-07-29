@@ -79,6 +79,15 @@ export class GameService {
   handleInit(client: Socket, username: string): void {
     this.players.set(username, client);
     this.logger.log(`Player ${username} connected to the game`);
+
+    const game = new Game({
+      id: "test",
+      client1: client,
+      client2: client,
+      player1Username: username,
+      player2Username: username,
+    });
+    game.startGame();
   }
 
   handleDisconnect(client: Socket): void {
