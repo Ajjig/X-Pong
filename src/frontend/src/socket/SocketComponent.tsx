@@ -18,6 +18,11 @@ const SocketComponent = () => {
             withCredentials: true,
         });
 
+        const socketGame = io("http://localhost:3000/game", {
+            withCredentials: true,
+        });
+
+        store.dispatch(setSocket(socketGame));
         store.dispatch(setSocket(socket));
 
         // Event handler for socket connection

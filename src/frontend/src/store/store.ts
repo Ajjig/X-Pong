@@ -21,7 +21,7 @@ const store = configureStore({
 });
 
 export const { setPrivateChats, setGroupChats, setCurrentChat, setNewMessage } = ChatsSlice.actions;
-export const { setSocket } = socketSlice.actions;
+export const { setSocket, setGame } = socketSlice.actions;
 export const { setProfile } = profileSlice.actions;
 export const { setNotifications } = NotificationsSlice.actions;
 export default store;

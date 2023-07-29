@@ -55,7 +55,7 @@ export function GameLayout({}: props) {
     const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World, Composite } = Matter;
 
     useEffect(() => {
-        store.getState().io.socket?.on("gameState", (gameState: gameState) => {
+        store.getState().io.game?.on("gameState", (gameState: gameState) => {
             setGameState(gameState);
         });
     }, []);
