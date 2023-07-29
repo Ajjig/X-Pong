@@ -19,6 +19,10 @@ build:
 	$(DOCKER_COMPOSE) --build
 	@echo "Build complete"
 
+npm:
+	# run npm install in src/backend and src/frontend
+	@cd src/backend && npm install
+	@cd src/frontend && npm install --force
 down:
 	$(DOCKER_COMPOSE) down
 up:
