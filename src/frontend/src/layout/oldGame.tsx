@@ -1,5 +1,5 @@
 import { Box, Container, useMantineTheme } from "@mantine/core";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HeaderDashboard from "../Components/header";
 import store, { setProfile } from "@/store/store";
 import api from "@/api";
@@ -8,40 +8,10 @@ import Matter from "matter-js";
 
 interface props {}
 
-type gameState = {
-    ball: {
-        x: number;
-        y: number;
-    };
-    player1: {
-        x: number;
-        y: number;
-    };
-    player2: {
-        x: number;
-        y: number;
-    };
-};
-
 export function GameLayout({}: props) {
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
     const [loading, setLoading] = useState(true);
-    const [screen, setScreen] = useState<{ width: number; height: number }>({ width: 900, height: 500 });
-    const [gameState, setGameState] = useState<gameState>({
-        ball: {
-            x: screen.width / 2,
-            y: screen.height / 2,
-        },
-        player1: {
-            x: 0,
-            y: screen.height / 2,
-        },
-        player2: {
-            x: screen.width,
-            y: screen.height / 2,
-        },
-    });
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const worldRef = useRef<Matter.World>();
@@ -52,13 +22,9 @@ export function GameLayout({}: props) {
         width: number;
         height: number;
     }>();
-    const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World, Composite } = Matter;
+    const [fps, fpsSet] = useState(0);
 
-    useEffect(() => {
-        store.getState().io.socket?.on("gameState", (gameState: gameState) => {
-            setGameState(gameState);
-        });
-    }, []);
+    const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World, Composite } = Matter;
 
     function createWorld() {
         const engine = Engine.create({
@@ -74,8 +40,8 @@ export function GameLayout({}: props) {
             canvas: canvasRef.current ?? undefined,
             engine: engine,
             options: {
-                width: screen.width,
-                height: screen.height,
+                width: 900,
+                height: 500,
                 wireframes: false,
                 background: theme.colors.cos_black[0],
             },
@@ -89,42 +55,42 @@ export function GameLayout({}: props) {
         worldRef.current = world;
     }
 
-    // function createWalls() {
-    //     const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
+    function createWalls() {
+        const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
 
-    //     let walls: any[];
+        let walls: any[];
 
-    //     if (!canvasRef.current) return;
+        if (!canvasRef.current) return;
 
-    //     let wallThickness = 1;
+        let wallThickness = 1;
 
-    //     walls = [
-    //         Bodies.rectangle(canvasRef.current.width / 2, 0, canvasRef.current.width, wallThickness, {
-    //             isStatic: true,
-    //             id: 1,
-    //         }),
-    //         Bodies.rectangle(canvasRef.current.width / 2, canvasRef.current.height, canvasRef.current.width, wallThickness, {
-    //             isStatic: true,
-    //             id: 2,
-    //         }),
-    //         Bodies.rectangle(0, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
-    //             isStatic: true,
-    //             id: 3,
-    //         }),
-    //         Bodies.rectangle(canvasRef.current.width, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
-    //             isStatic: true,
-    //             id: 4,
-    //         }),
-    //     ];
+        walls = [
+            Bodies.rectangle(canvasRef.current.width / 2, 0, canvasRef.current.width, wallThickness, {
+                isStatic: true,
+                id: 1,
+            }),
+            Bodies.rectangle(canvasRef.current.width / 2, canvasRef.current.height, canvasRef.current.width, wallThickness, {
+                isStatic: true,
+                id: 2,
+            }),
+            Bodies.rectangle(0, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
+                isStatic: true,
+                id: 3,
+            }),
+            Bodies.rectangle(canvasRef.current.width, canvasRef.current.height / 2, wallThickness, canvasRef.current.height, {
+                isStatic: true,
+                id: 4,
+            }),
+        ];
 
-    //     // change the color of the walls
-    //     walls.forEach((wall) => {
-    //         wall.render.fillStyle = "transparent";
-    //         wall.render.strokeStyle = "transparent";
-    //     });
+        // change the color of the walls
+        walls.forEach((wall) => {
+            wall.render.fillStyle = "transparent";
+            wall.render.strokeStyle = "transparent";
+        });
 
-    //     World.add(world, walls);
-    // }
+        World.add(world, walls);
+    }
 
     function createBall() {
         const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
@@ -139,20 +105,58 @@ export function GameLayout({}: props) {
 
         World.add(world, [ball]);
 
+        const speed = 10;
+        let dir = {
+            x: Math.cos(1) * speed,
+            y: Math.sin(0) * speed,
+        };
+        let collide = 10;
+
         const updateBall = () => {
             if (ball && canvasRef.current) {
-                ball.position.x = gameState.ball.x;
-                ball.position.y = gameState.ball.y;
+                // make the ball move
+                Matter.Body.setVelocity(ball, dir);
+
+                // console.log(ball.position.x, ball.position.y, "\n", canvasRef.current?.width, canvasRef.current?.height);
+                // make the ball move
+                // Matter.Body.setVelocity(ball, { x: 10, y: 10 });
             }
         };
+
+        // if the ball is colliding with the wall then change the direction
+        Events.on(engine, "collisionStart", (event) => {
+            let pairs = event.pairs;
+
+            pairs.forEach((pair: any) => {
+                if (pair.bodyA.id == 1 || pair.bodyA.id == 2) {
+                    dir.y = -dir.y;
+                } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
+                    dir.x = -dir.x;
+                }
+
+                // if the ball collides with the player then change the direction of the ball
+                if (pair.bodyB.id == 10) {
+                    console.log("collided with player", pair.bodyB);
+                    // Calculate a value between -1 and 1 based on where the ball hit the paddle
+
+                    // let collidePoint = pair.bodyB.position.y - pair.bodyA.position.y;
+
+                    // // Normalize the value
+                    // collidePoint = collidePoint / (playerRef.current?.height ?? 1);
+
+                    // dir.y = (10 * collidePoint) * -1
+                    // dir.x = -dir.x;
+                }
+            });
+        });
 
         Events.on(engine, "beforeUpdate", updateBall);
     }
 
-    function Player(x: number, y: number, width: number, height: number, pos = { x: 0, y: 0 }) {
+    function Player(x: number, y: number, width: number, height: number) {
         const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
 
-        const player = Bodies.rectangle(pos.x, pos.y, width, height, {
+        const player = Bodies.rectangle(x, y, width, height, {
             render: {
                 fillStyle: theme.colors.purple[5],
             },
@@ -193,8 +197,11 @@ export function GameLayout({}: props) {
             });
 
             const updatePlayer = () => {
-                player.position.x = pos.x;
-                player.position.y = pos.y;
+                if (keys.up) {
+                    Matter.Body.setPosition(player, { x: player.position.x, y: player.position.y - 10 });
+                } else if (keys.down) {
+                    Matter.Body.setPosition(player, { x: player.position.x, y: player.position.y + 10 });
+                }
             };
 
             Events.on(engine, "beforeUpdate", updatePlayer);
@@ -205,9 +212,9 @@ export function GameLayout({}: props) {
         if (canvasRef.current) {
             createWorld();
             createBall();
-            // createWalls();
-            Player(0, canvasRef.current.height / 2, 40, 120, { x: gameState.player1.x, y: gameState.player1.y });
-            Player(canvasRef.current.width, canvasRef.current.height / 2, 40, 120, { x: gameState.player2.x, y: gameState.player2.y });
+            createWalls();
+            Player(0, canvasRef.current.height / 2, 40, 120);
+            // Player(canvasRef.current.width, canvasRef.current.height / 2, 40, 120);
         }
     }, [canvasRef]);
 

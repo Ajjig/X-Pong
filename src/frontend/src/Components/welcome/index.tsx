@@ -45,9 +45,9 @@ const useStyles = createStyles((theme: MantineTheme) => ({
     },
 
     span: {
-        color: theme.colors.orange[7],
         fontFamily: `valorax`,
         fontSize: 90,
+        color: '#5951BA',
 
         /* mobile */
         "@media (max-width: 768px)": {
@@ -104,13 +104,13 @@ export function Welcome({}: {}) {
             ) : (
                 <Box>
                     <HeroSection setLoginShow={setLoginShow} />
-                    <Box
+                    {/* <Box
                         sx={{
                             minHeight: "90vh",
                         }}
                     >
-                        <Team />
-                    </Box>
+                     <Team /> 
+                    </Box> */}
                 </Box>
             )}
         </Box>
@@ -121,13 +121,7 @@ export default function HeroSection({ setLoginShow }: { setLoginShow: (value: bo
     const { classes } = useStyles();
     const isMid = useMediaQuery("(max-width: 768px)");
     return (
-        <Flex
-            className={classes.animation_apperance}
-            direction="column"
-            align="center"
-            justify="center"
-            mih="100vh"
-        >
+        <Flex className={classes.animation_apperance} direction="column" align="center" justify="center" mih="100vh">
             <Box className={classes.title}>
                 <Title className={classes.text}>
                     70
