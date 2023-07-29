@@ -14,6 +14,7 @@
 
 import { Logger } from '@nestjs/common';
 import { MoveEventDto } from '../dto/move.event.dio';
+import { matter } from 'matter-js';
 
 export class Game {
   private readonly id: string;
@@ -23,12 +24,24 @@ export class Game {
   private readonly client2: any;
   private readonly logger = new Logger('GAME');
 
-  constructor(data: any) {
-    this.id = data.id;
-    this.player1Username = data.player1Username;
-    this.player2Username = data.player2Username;
-    this.client1 = data.client1;
-    this.client2 = data.client2;
+  private readonly engine = matter.Engine.create();
+  private readonly world = this.engine.world;
+  private readonly render = matter.Render.create({
+    engine: this.engine,
+    options: {
+      width: 900,
+      height: 500,
+      wireframes: false,
+    },
+  });
+
+
+  constructor(clientsData: any) {
+    this.id = clientsData.id;
+    this.player1Username = clientsData.player1Username;
+    this.player2Username = clientsData.player2Username;
+    this.client1 = clientsData.client1;
+    this.client2 = clientsData.client2;
     // try {
     //   this.client1.join(this.id);
     //   this.client2.join(this.id);
@@ -36,6 +49,14 @@ export class Game {
     //   // console.log(e);
     // }
     this.emitMatch();
+  }
+
+  startGame() {
+
+
+
+
+
   }
 
   emitMatch() {

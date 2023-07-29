@@ -14,6 +14,7 @@ import { Game } from './game';
 import { Server, Socket } from 'socket.io';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
+import { create } from 'domain';
 
 @Injectable()
 export class GameService {
@@ -37,15 +38,17 @@ export class GameService {
       let p2 = this.queue.shift();
       let id = makeId(this.games);
       this.logger.log(`Match '${id}' created`);
+      const game = new Game({
+        id,
+        client1: p1.client,
+        client2: p2.client,
+        player1Username: p1.username,
+        player2Username: p2.username,
+      });
+      game.startGame();
       this.games.set(
         id,
-        new Game({
-          id,
-          client1: p1.client,
-          client2: p2.client,
-          player1Username: p1.username,
-          player2Username: p2.username,
-        }),
+        game,
       );
     }
   }
@@ -140,3 +143,7 @@ export class GameService {
   }
 
 }
+function createGame(game: any): any {
+  throw new Error('Function not implemented.');
+}
+
