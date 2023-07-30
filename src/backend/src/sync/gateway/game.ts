@@ -57,14 +57,13 @@ export class Game {
     this.createWalls();
     this.createPlayers();
     this.createBall();
-    this.updateGame();
+
   }
 
   updateGame() {
 
     const { engine, world }: any = { engine: this.engine, world: this.world };
 
-    Engine.update(engine, 1000 / 60);
     const gameState: GameState = {
       ball: {
         x: this.ball.position.x,
@@ -81,9 +80,6 @@ export class Game {
     };
     this.client1.emit('gameState', gameState);
    
-    console.log('\x1B[2J\x1B[0f');
-    console.log(gameState);
-
   }
 
   createBall() {
@@ -93,6 +89,7 @@ export class Game {
         id: 5,
         mass: 0,
     });
+  
     const ball = this.ball;
 
     World.add(world, [ball]);
@@ -105,9 +102,9 @@ export class Game {
     let collide = 10;
 
     const updateBall = () => {
-        Body.setVelocity(ball, dir);
+      Body.setVelocity(ball, dir);
+      this.updateGame();
     };
-
     // if the ball is colliding with the wall then change the direction
     Events.on(engine, "collisionStart", (event) => {
         let pairs = event.pairs;
@@ -118,8 +115,6 @@ export class Game {
             } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
                 dir.x = -dir.x;
             }
-
-          
         });
     });
 
