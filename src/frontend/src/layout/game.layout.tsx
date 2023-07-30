@@ -6,22 +6,23 @@ import api from "@/api";
 import { Loading } from "@/Components/loading/loading";
 import Matter from "matter-js";
 import { Match_info } from "@/Components/matchs_history/match_info";
+import { gameState as TypeGameState } from "@/Components/game/types.d";
 
 interface props {}
 
-type gameState = {
+let gameState: TypeGameState = {
     ball: {
-        x: number;
-        y: number;
-    };
+        x: 0,
+        y: 0,
+    },
     player1: {
-        x: number;
-        y: number;
-    };
+        x: 0,
+        y: 0,
+    },
     player2: {
-        x: number;
-        y: number;
-    };
+        x: 0,
+        y: 0,
+    },
 };
 
 export function GameLayout({}: props) {
@@ -29,20 +30,20 @@ export function GameLayout({}: props) {
     const theme = useMantineTheme();
     const [loading, setLoading] = useState(true);
     const [screen, setScreen] = useState<{ width: number; height: number }>({ width: 900, height: 500 });
-    const [gameState, setGameState] = useState<gameState>({
-        ball: {
-            x: screen.width / 2,
-            y: screen.height / 2,
-        },
-        player1: {
-            x: 0,
-            y: screen.height / 2,
-        },
-        player2: {
-            x: screen.width,
-            y: screen.height / 2,
-        },
-    });
+    // const [gameState, setGameState] = useState<TypeGameState>({
+    //     ball: {
+    //         x: screen.width / 2,
+    //         y: screen.height / 2,
+    //     },
+    //     player1: {
+    //         x: 0,
+    //         y: screen.height / 2,
+    //     },
+    //     player2: {
+    //         x: screen.width,
+    //         y: screen.height / 2,
+    //     },
+    // });
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const worldRef = useRef<Matter.World>();
@@ -56,9 +57,12 @@ export function GameLayout({}: props) {
     const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World, Composite } = Matter;
 
     useEffect(() => {
-        store.getState().io.game?.on("gameState", (gameState: gameState) => {
-            setGameState(gameState);
+        gameState = (store.getState().game.gameState);
+        store.subscribe(() => {
+            gameState = (store.getState().game.gameState);
+            // console.log("gameState: ", gameState);
         });
+        console.log("gameState: ", gameState);
     }, []);
 
     function createWorld() {
@@ -107,6 +111,7 @@ export function GameLayout({}: props) {
             if (ball && canvasRef.current) {
                 ball.position.x = gameState.ball.x;
                 ball.position.y = gameState.ball.y;
+                // console.log("ball: ", ball);
             }
         };
 

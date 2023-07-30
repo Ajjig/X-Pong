@@ -1,5 +1,5 @@
 // SocketComponent.js
-import store, { setCurrentChat, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
+import store, { setCurrentChat, setGameState, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
 import { useEffect } from "react";
 import io from "socket.io-client";
 
@@ -22,18 +22,31 @@ const SocketComponent = () => {
             withCredentials: true,
         });
 
+        socketGame.on("gameState", (gameState: any) => {
+            store.dispatch(setGameState(gameState));
+        });
+
         store.dispatch(setSocket(socketGame));
         store.dispatch(setSocket(socket));
 
         // Event handler for socket connection
         socket.on("connect", () => {
-            console.log("Connected to server");
+            console.log("/chat: Connected to server");
         });
 
         // Event handler for socket disconnection
         socket.on("disconnect", () => {
-            console.log("Disconnected from server");
+            console.log("/chat: Disconnected from server");
         });
+
+        socketGame.on("connect", () => {
+            console.log("/game: Connected to server");
+        });
+
+        socketGame.on("disconnect", () => {
+            console.log("/game: Disconnected from server");
+        });
+
 
         // @@@@@@@@@@@@@@
 
@@ -81,6 +94,7 @@ const SocketComponent = () => {
         // Clean up the socket connection when component unmounts
         return () => {
             socket.disconnect();
+            socketGame.disconnect();
         };
     }, []);
 

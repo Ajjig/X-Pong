@@ -4,12 +4,14 @@ import { profileSlice } from "./profile";
 import { ChatsSlice } from "./chats";
 import { socketSlice } from "./socket";
 import { NotificationsSlice } from "./notifications";
+import { gameStateSlice } from "./game_state";
 
 const rootReducer = {
     profile: profileSlice.reducer,
     chats: ChatsSlice.reducer,
     io: socketSlice.reducer,
     notifications: NotificationsSlice.reducer,
+    game: gameStateSlice.reducer,
 };
 
 const store = configureStore({
@@ -21,7 +23,8 @@ const store = configureStore({
 });
 
 export const { setPrivateChats, setGroupChats, setCurrentChat, setNewMessage } = ChatsSlice.actions;
-export const { setSocket, setGame } = socketSlice.actions;
+export const { setSocket } = socketSlice.actions;
 export const { setProfile } = profileSlice.actions;
 export const { setNotifications } = NotificationsSlice.actions;
+export const { setGameState } = gameStateSlice.actions;
 export default store;

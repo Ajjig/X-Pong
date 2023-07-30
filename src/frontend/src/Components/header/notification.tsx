@@ -12,7 +12,7 @@ export function NotificationPopover() {
     useEffect(() => {
         // subscribe to store to get notifications
         store.subscribe(() => {
-            console.log("@> HERE: ", store.getState().notifications.friend_requests);
+            // console.log("@> HERE: ", store.getState().notifications.friend_requests);
             setNotifications(store.getState().notifications.friend_requests ?? []);
         });
     }, []);
