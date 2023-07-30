@@ -5,8 +5,8 @@ import { Engine, Bodies, Body, Events, World, Runner } from 'matter-js';
 
 const WIDTH = 900;
 const HEIGHT = 500;
-const PADDLE_WIDTH = 15;
-const PADDLE_HEIGHT = 100;
+const PADDLE_WIDTH = 40;
+const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 5;
 
@@ -97,7 +97,7 @@ export class Game {
     const speed = 10;
     let dir = {
         x: Math.cos(1) * speed,
-        y: Math.sin(0) * speed,
+        y: Math.sin(0.5) * speed,
     };
     let collide = 10;
 
@@ -115,6 +115,15 @@ export class Game {
             } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
                 dir.x = -dir.x;
             }
+          // paddle and ball collision
+          if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
+            dir.x = -dir.x;
+            dir.y = -dir.y;
+          }
+          if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
+            dir.x = -dir.x;
+            dir.y = -dir.y;
+          }
         });
     });
 
