@@ -33,6 +33,14 @@ type GameState = {
   }
 };
 
+type Move = {
+  room: string;
+  move: {
+    up: boolean;
+    down: boolean;
+  }
+};
+
 
 export class Game {
   private readonly id: string;
@@ -251,21 +259,18 @@ export class Game {
     this.world = world;
   }
 
-  moveUp(client: any, data: boolean) {
+  move(client: any, move) {
     if (client === this.client1) {
-      this.dir.player1.up = data;
+      this.dir.player1.up = move.up;
+      this.dir.player1.down = move.down;
+      console.log("MOVE", move);
     } else if (client === this.client2) {
-      this.dir.player2.up = data;
+      this.dir.player2.up = move.down;
+      this.dir.player2.down = move.up;
+      console.log("MOVE", move);
     }
   }
 
-  moveDown(client: any, data: boolean) {
-    if (client === this.client1) {
-      this.dir.player1.down = data;
-    } else if (client === this.client2) {
-      this.dir.player2.down = data;
-    }
-  }
 
   emitMatch() {
     this.client1
