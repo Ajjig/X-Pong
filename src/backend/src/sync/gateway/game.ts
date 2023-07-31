@@ -5,10 +5,11 @@ import { Engine, Bodies, Body, Events, World, Runner } from 'matter-js';
 
 const WIDTH = 900;
 const HEIGHT = 500;
-const PADDLE_WIDTH = 40;
+const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 5;
+const PLAYER_SPEED = 10;
 
 type GameState = {
   ball: {
@@ -48,6 +49,7 @@ export class Game {
   private player1;
   private player2;
   private score;
+  private dir;
 
 
   constructor(clientsData: any) {
@@ -68,6 +70,16 @@ export class Game {
     this.score = {
       player1: 0,
       player2: 0,
+    };
+    this.dir = {
+      player1: {
+        up: false,
+        down: false,
+      },
+      player2: {
+        up: false,
+        down: false,
+      }
     };
   }
 
@@ -101,6 +113,20 @@ export class Game {
     // };
     // console.log(gameState);
     // console.log(wallsPos);
+  }
+
+  updatePlayers() {
+    if (this.dir.player1.up) {
+      Body.setVelocity(this.player1, { x: 0, y: -PLAYER_SPEED });
+    } else if (this.dir.player1.down) {
+      Body.setVelocity(this.player1, { x: 0, y: PLAYER_SPEED });
+    }
+    if (this.dir.player2.up) {
+      Body.setVelocity(this.player2, { x: 0, y: -PLAYER_SPEED });
+    } else if (this.dir.player2.down) {
+      Body.setVelocity(this.player2, { x: 0, y: PLAYER_SPEED });
+    }
+
   }
 
   createBall() {
@@ -223,6 +249,22 @@ export class Game {
     this.engine = engine;
     this.runner = runner;
     this.world = world;
+  }
+
+  moveUp(client: any, data: boolean) {
+    if (client === this.client1) {
+      this.dir.player1.up = data;
+    } else if (client === this.client2) {
+      this.dir.player2.up = data;
+    }
+  }
+
+  moveDown(client: any, data: boolean) {
+    if (client === this.client1) {
+      this.dir.player1.down = data;
+    } else if (client === this.client2) {
+      this.dir.player2.down = data;
+    }
   }
 
   emitMatch() {
