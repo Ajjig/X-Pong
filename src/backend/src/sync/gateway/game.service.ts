@@ -87,6 +87,7 @@ export class GameService {
       player1Username: username,
       player2Username: username,
     });
+    this.games.set('test', game);
     game.startGame();
   }
 
