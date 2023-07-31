@@ -161,7 +161,7 @@ export class Game {
 
     World.add(world, [ball]);
 
-    const speed = 10;
+    const speed = 7.5;
     let dir = {
         x: Math.cos(1) * speed,
         y: Math.sin(0.5) * speed,
@@ -175,30 +175,58 @@ export class Game {
     };
     // if the ball is colliding with the wall then change the direction
     Events.on(engine, "collisionStart", (event) => {
-        let pairs = event.pairs;
+      let pairs = event.pairs;
 
-        pairs.forEach((pair: any) => {
-            if (pair.bodyA.id == 1 || pair.bodyA.id == 2) {
-                dir.y = -dir.y;
-            } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
-                dir.x = -dir.x;
-            }
-          // paddle and ball collision
-          if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
-            collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
-            let angle = (Math.PI / 4) * collide;
-            dir.x = Math.cos(angle) * speed;
-            dir.y = Math.sin(angle) * speed;
+      pairs.forEach((pair: any) => {
+        if (pair.bodyA.id == 1 || pair.bodyA.id == 2) {
+          dir.y = -dir.y;
+        } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
+          dir.x = -dir.x;
+        }
+        
+        // paddle and ball collision
+        if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
+          collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
+          let angle = (Math.PI / 4) * collide;
+          dir.x = Math.cos(angle) * speed;
+          dir.y = Math.sin(angle) * speed;
 
-          }
-          if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
-            collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
-            let angle = (Math.PI / 4) * collide;
-            dir.x = -Math.cos(angle) * speed;
-            dir.y = Math.sin(angle) * speed;
-          }
-        });
+        }
+        if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
+          collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
+          let angle = (Math.PI / 4) * collide;
+          dir.x = -Math.cos(angle) * speed;
+          dir.y = Math.sin(angle) * speed;
+        }
+      });
     });
+
+    Events.on(engine, "collisionEnd", (event) => {
+      let pairs = event.pairs;
+
+      pairs.forEach((pair: any) => {
+        // console.log(pair.bodyA.id)
+        // add score to player 1 if ball hits the left wall
+        if (pair.bodyA.id == 3) {
+          this.score.player2 += 1;
+          Body.setPosition(ball, {
+            x: WIDTH / 2,
+            y: HEIGHT / 2,
+          });
+        }
+        // add score to player 2 if ball hits the right wall
+        if (pair.bodyA.id == 4) {
+          this.score.player1 += 1;
+          Body.setPosition(ball, {
+            x: WIDTH / 2,
+            y: HEIGHT / 2,
+          });
+        }
+      });
+      console.log('\x1B[2J\x1B[0f');
+      console.log(this.score);
+    });
+
 
     Events.on(engine, "beforeUpdate", updateBall);
   }
@@ -224,16 +252,10 @@ export class Game {
             id: 3,
         }),
         Bodies.rectangle(WIDTH, HEIGHT / 2, wallThickness, HEIGHT, {
-            isStatic: true,
-            id: 4,
+          isStatic: true,
+          id: 4,
         }),
     ];
-
-    // change the color of the walls
-    walls.forEach((wall) => {
-        wall.render.fillStyle = "transparent";
-        wall.render.strokeStyle = "transparent";
-    });
 
     World.add(world, walls);
   }
