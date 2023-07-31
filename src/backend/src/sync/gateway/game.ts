@@ -124,23 +124,23 @@ export class Game {
   }
 
   updatePlayers() {
-    if (this.dir.player1.up) {
+    if (this.dir.player1.up && this.player1.position.y - PADDLE_HEIGHT / 2 > 0) {
       Body.setPosition(this.player1, {
         x: this.player1.position.x,
         y: this.player1.position.y - PLAYER_SPEED,
       });
-    } else if (this.dir.player1.down) {
+    } else if (this.dir.player1.down && this.player1.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
       Body.setPosition(this.player1, {
         x: this.player1.position.x,
         y: this.player1.position.y + PLAYER_SPEED,
       });
     }
-    if (this.dir.player2.up) {
+    if (this.dir.player2.up && this.player2.position.y - PADDLE_HEIGHT / 2 > 0) {
       Body.setPosition(this.player2, {
         x: this.player2.position.x,
         y: this.player2.position.y - PLAYER_SPEED,
       });
-    } else if (this.dir.player2.down) {
+    } else if (this.dir.player2.down && this.player2.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
       Body.setPosition(this.player2, {
         x: this.player2.position.x,
         y: this.player2.position.y + PLAYER_SPEED,
