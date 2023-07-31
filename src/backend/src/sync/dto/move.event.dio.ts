@@ -1,5 +1,8 @@
 export class MoveEventDto {
   room: string;
-  data: any;
-  // ... more fields here
+  move: {
+    up: boolean;
+    down: boolean;
+  }
+
 }
