@@ -36,7 +36,7 @@ export class GameGateway {
 
   @SubscribeMessage('move')
   handleMoveUp(client: Socket, data): void {
-    this.gameService.handleMove(client, data, 'up');
+    this.gameService.handleMove(client, data);
   }
 
   @SubscribeMessage('message')

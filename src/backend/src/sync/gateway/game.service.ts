@@ -59,16 +59,14 @@ export class GameService {
     this.logger.log(`Player ${username} canceled matchmaking`);
   }
 
-  handleMove(client: Socket, data, move: string): void {
+  handleMove(client: Socket, data): void {
     try {
       let game: Game = this.games.get(data.room);
       if (!game) {
         this.logger.error(`Game '${data.room}' not found`);
         return;
       }
-      if (data.move === 'up') {
-        game.move(client, data.move);
-      }
+      game.move(client, data.move);
     } catch (e) {
       this.logger.error(e);
     }
