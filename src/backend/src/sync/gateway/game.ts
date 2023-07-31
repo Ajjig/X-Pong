@@ -11,37 +11,6 @@ const BALL_RADIUS = 10;
 const BALL_SPEED = 5;
 const PLAYER_SPEED = 2.69;
 
-type GameStateDto = {
-  ball: {
-      x: number;
-      y: number;
-  };
-
-  player1: {
-      x: number;
-      y: number;
-  };
-
-  player2: {
-      x: number;
-      y: number;
-  };
-
-  score: {
-    player1: number;
-    player2: number;
-  }
-};
-
-type MoveDto = {
-  room: string;
-  move: {
-    up: boolean;
-    down: boolean;
-  }
-};
-
-
 export class Game {
   private readonly id: string;
   private readonly player1Username: string;

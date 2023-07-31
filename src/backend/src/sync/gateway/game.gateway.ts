@@ -6,7 +6,6 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Socket } from 'socket.io';
-import { InitEventDto } from '../dto/init.event.dto';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
 import { GameService } from './game.service';

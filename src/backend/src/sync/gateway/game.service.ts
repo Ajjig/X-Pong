@@ -5,8 +5,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { DataDto } from '../dto/data.dto';
-import { InitEventDto } from '../dto/init.event.dto';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
 import { makeId } from '../utils/generate.id';
