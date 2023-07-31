@@ -25,10 +25,17 @@ let gameState: TypeGameState = {
     },
 };
 
+type TypeMove = {
+    room: string;
+    move: {
+        up: boolean;
+        down: boolean;
+    };
+};
+
 export function GameLayout({}: props) {
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
-    const [loading, setLoading] = useState(true);
     const [screen, setScreen] = useState<{ width: number; height: number }>({ width: 900, height: 500 });
     // const [gameState, setGameState] = useState<TypeGameState>({
     //     ball: {
@@ -49,20 +56,29 @@ export function GameLayout({}: props) {
     const worldRef = useRef<Matter.World>();
     const engineRef = useRef<Matter.Engine>();
     const runnerRef = useRef<Matter.Runner>();
+
     const playerRef = useRef<{
         body: Matter.Body;
         width: number;
         height: number;
     }>();
-    const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World, Composite } = Matter;
+
+    const oppRef = useRef<{
+        body: Matter.Body;
+        width: number;
+        height: number;
+    }>();
+
+    const ballRef = useRef<{
+        body: Matter.Body;
+    }>();
+    const { Bodies, Engine, Events, Render, Runner, World } = Matter;
 
     useEffect(() => {
-        gameState = (store.getState().game.gameState);
+        gameState = store.getState().game.gameState;
         store.subscribe(() => {
-            gameState = (store.getState().game.gameState);
-            // console.log("gameState: ", gameState);
+            gameState = store.getState().game.gameState;
         });
-        console.log("gameState: ", gameState);
     }, []);
 
     function createWorld() {
@@ -95,7 +111,7 @@ export function GameLayout({}: props) {
     }
 
     function createBall() {
-        const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
+        const { world }: any = { world: worldRef.current };
 
         const ball = Bodies.circle(450, 250, 20, {
             render: {
@@ -105,68 +121,51 @@ export function GameLayout({}: props) {
             mass: 0,
         });
 
-        World.add(world, [ball]);
-
-        const updateBall = () => {
-            if (ball && canvasRef.current) {
-                ball.position.x = gameState.ball.x;
-                ball.position.y = gameState.ball.y;
-                // console.log("ball: ", ball);
-            }
+        ballRef.current = {
+            body: ball,
         };
 
-        Events.on(engine, "beforeUpdate", updateBall);
+        World.add(world, [ball]);
     }
 
-    function Player(x: number, y: number, width: number, height: number, pos = { x: 0, y: 0 }) {
-        const { engine, world }: any = { engine: engineRef.current, world: worldRef.current };
+    function Player(x: number, y: number, width: number, height: number, ref: any) {
+        const { world }: any = { world: worldRef.current };
 
-        const player = Bodies.rectangle(pos.x, pos.y, width, height, {
+        const player = Bodies.rectangle(x, y, width, height, {
             render: {
                 fillStyle: theme.colors.purple[5],
             },
-            isStatic: true,
             id: 10,
+            mass: 0,
+            isStatic: true,
         });
 
-        playerRef.current = {
+        ref.current = {
             body: player,
-            width: width,
-            height: height,
         };
-
         World.add(world, [player]);
+    }
 
-        let keys: {
-            up: boolean;
-            down: boolean;
-        } = {
-            up: false,
-            down: false,
-        };
-        // move the player using arrow keys
-        if (canvasRef.current) {
-            // document.addEventListener("keydown", (e) => {
-            //     if (e.key == "ArrowUp") {
-            //         keys.up = true;
-            //     } else if (e.key == "ArrowDown") {
-            //         keys.down = true;
-            //     }
-            // });
-            // document.addEventListener("keyup", (e) => {
-            //     if (e.key == "ArrowUp") {
-            //         keys.up = false;
-            //     } else if (e.key == "ArrowDown") {
-            //         keys.down = false;
-            //     }
-            // });
+    function updateGame() {
+        if (ballRef.current) {
+            Matter.Body.setPosition(ballRef.current.body, {
+                x: gameState.ball.x,
+                y: gameState.ball.y,
+            });
+        }
 
-            const updatePlayer = () => {
-                player.position.x = pos.x;
-                player.position.y = pos.y;
-            };
+        if (playerRef.current) {
+            Matter.Body.setPosition(playerRef.current.body, {
+                x: gameState.player1.x,
+                y: gameState.player1.y,
+            });
+        }
 
-            Events.on(engine, "beforeUpdate", updatePlayer);
+        if (oppRef.current) {
+            Matter.Body.setPosition(oppRef.current.body, {
+                x: gameState.player2.x,
+                y: gameState.player2.y,
+            });
         }
     }
 
@@ -174,9 +173,37 @@ export function GameLayout({}: props) {
         if (canvasRef.current) {
             createWorld();
             createBall();
-            // createWalls();
-            Player(0, canvasRef.current.height / 2, 40, 120, { x: gameState.player1.x, y: gameState.player1.y });
-            Player(canvasRef.current.width, canvasRef.current.height / 2, 40, 120, { x: gameState.player2.x, y: gameState.player2.y });
+            Player(0, screen.height / 2, 20, 120, playerRef);
+            Player(screen.width - 10, screen.height / 2, 20, 120, oppRef);
+
+            Events.on(engineRef.current, "beforeUpdate", updateGame);
+
+            let keys: TypeMove = {
+                room: "test",
+                move: {
+                    up: false,
+                    down: false,
+                },
+            };
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key == "ArrowUp") {
+                    keys.move.up = true;
+                } else if (e.key == "ArrowDown") {
+                    keys.move.down = true;
+                }
+                console.log(keys);
+                store.getState().io.game?.emit("move", keys);
+            });
+            document.addEventListener("keyup", (e) => {
+                if (e.key == "ArrowUp") {
+                    keys.move.up = false;
+                } else if (e.key == "ArrowDown") {
+                    keys.move.down = false;
+                }
+                console.log(keys);
+                store.getState().io.game?.emit("move", keys);
+            });
         }
     }, [canvasRef]);
 
@@ -185,7 +212,7 @@ export function GameLayout({}: props) {
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Container>
                 <Match_info player1={gameState.player1} player2={gameState.player2} result={"0 - 0"}>
-                    <canvas style={{ borderRadius: "30px", width: "100%" }} ref={canvasRef}></canvas>
+                    <canvas style={{ borderRadius: "5%", width: "100%" }} ref={canvasRef}></canvas>
                 </Match_info>
             </Container>
         </>
