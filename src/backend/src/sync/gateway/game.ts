@@ -15,14 +15,21 @@ type GameState = {
       x: number;
       y: number;
   };
+
   player1: {
       x: number;
       y: number;
   };
+
   player2: {
       x: number;
       y: number;
   };
+
+  score: {
+    player1: number;
+    player2: number;
+  }
 };
 
 
@@ -40,6 +47,7 @@ export class Game {
   private ball;
   private player1;
   private player2;
+  private score;
 
 
   constructor(clientsData: any) {
@@ -57,7 +65,10 @@ export class Game {
     this.createWalls();
     this.createPlayers();
     this.createBall();
-
+    this.score = {
+      player1: 0,
+      player2: 0,
+    };
   }
 
   updateGame() {
@@ -77,9 +88,19 @@ export class Game {
         x: this.player2.position.x,
         y: this.player2.position.y,
       },
+      score: this.score,
     };
     this.client1.emit('gameState', gameState);
-   
+    // remove the last 10 lines in terminal
+    // console.log('\x1B[2J\x1B[0f');
+    // const wallsPos = {
+    //   top: world.bodies[0].position.y,
+    //   bottom: world.bodies[1].position.y,
+    //   left: world.bodies[2].position.x,
+    //   right: world.bodies[3].position.x,
+    // };
+    // console.log(gameState);
+    // console.log(wallsPos);
   }
 
   createBall() {
@@ -117,12 +138,17 @@ export class Game {
             }
           // paddle and ball collision
           if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
-            dir.x = -dir.x;
-            dir.y = -dir.y;
+            collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
+            let angle = (Math.PI / 4) * collide;
+            dir.x = Math.cos(angle) * speed;
+            dir.y = Math.sin(angle) * speed;
+
           }
           if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
-            dir.x = -dir.x;
-            dir.y = -dir.y;
+            collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
+            let angle = (Math.PI / 4) * collide;
+            dir.x = -Math.cos(angle) * speed;
+            dir.y = Math.sin(angle) * speed;
           }
         });
     });
@@ -166,13 +192,15 @@ export class Game {
   }
 
   createPlayers() {
-    this.player1 = Bodies.rectangle(50, HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, {
+    this.player1 = Bodies.rectangle(PADDLE_WIDTH / 2, HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, {
       id: 6,
       mass: 100,
+      isStatic: true,
     });
-    this.player2 = Bodies.rectangle(WIDTH - 50, HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, {
+    this.player2 = Bodies.rectangle(WIDTH - PADDLE_WIDTH / 2, HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, {
       id: 7,
       mass: 100,
+      isStatic: true,
     });
 
     World.add(this.world, [this.player1, this.player2]);
@@ -190,6 +218,7 @@ export class Game {
     const runner = Runner.create();
 
     Runner.run(runner, engine);
+
 
     this.engine = engine;
     this.runner = runner;
@@ -220,5 +249,15 @@ export class Game {
     } else {
       this.logger.log(`Player 2 '${this.player2Username}' moved`);
     }
+  }
+
+  stopGame() {
+    Runner.stop(this.runner);
+    World.clear(this.world, false);
+    Engine.clear(this.engine);
+    Events.off(this.engine, "collisionStart");
+    Events.off(this.engine, "beforeUpdate");
+    this.client1.removeAllListeners();
+    this.client2.removeAllListeners();
   }
 }
