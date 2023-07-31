@@ -9,7 +9,7 @@ const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 5;
-const PLAYER_SPEED = 10;
+const PLAYER_SPEED = 2.69;
 
 type GameState = {
   ball: {
@@ -93,7 +93,7 @@ export class Game {
 
   updateGame() {
 
-    const { engine, world }: any = { engine: this.engine, world: this.world };
+    const world = this.world ;
 
     const gameState: GameState = {
       ball: {
@@ -111,7 +111,7 @@ export class Game {
       score: this.score,
     };
     this.client1.emit('gameState', gameState);
-    // remove the last 10 lines in terminal
+
     // console.log('\x1B[2J\x1B[0f');
     // const wallsPos = {
     //   top: world.bodies[0].position.y,
@@ -125,14 +125,26 @@ export class Game {
 
   updatePlayers() {
     if (this.dir.player1.up) {
-      Body.setVelocity(this.player1, { x: 0, y: -PLAYER_SPEED });
+      Body.setPosition(this.player1, {
+        x: this.player1.position.x,
+        y: this.player1.position.y - PLAYER_SPEED,
+      });
     } else if (this.dir.player1.down) {
-      Body.setVelocity(this.player1, { x: 0, y: PLAYER_SPEED });
+      Body.setPosition(this.player1, {
+        x: this.player1.position.x,
+        y: this.player1.position.y + PLAYER_SPEED,
+      });
     }
     if (this.dir.player2.up) {
-      Body.setVelocity(this.player2, { x: 0, y: -PLAYER_SPEED });
+      Body.setPosition(this.player2, {
+        x: this.player2.position.x,
+        y: this.player2.position.y - PLAYER_SPEED,
+      });
     } else if (this.dir.player2.down) {
-      Body.setVelocity(this.player2, { x: 0, y: PLAYER_SPEED });
+      Body.setPosition(this.player2, {
+        x: this.player2.position.x,
+        y: this.player2.position.y + PLAYER_SPEED,
+      });
     }
 
   }
@@ -158,6 +170,7 @@ export class Game {
 
     const updateBall = () => {
       Body.setVelocity(ball, dir);
+      this.updatePlayers();
       this.updateGame();
     };
     // if the ball is colliding with the wall then change the direction
@@ -263,11 +276,9 @@ export class Game {
     if (client === this.client1) {
       this.dir.player1.up = move.up;
       this.dir.player1.down = move.down;
-      console.log("MOVE", move);
     } else if (client === this.client2) {
-      this.dir.player2.up = move.down;
-      this.dir.player2.down = move.up;
-      console.log("MOVE", move);
+      this.dir.player2.up = move.up;
+      this.dir.player2.down = move.down;
     }
   }
 
