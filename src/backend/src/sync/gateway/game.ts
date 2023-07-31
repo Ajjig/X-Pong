@@ -11,7 +11,7 @@ const BALL_RADIUS = 10;
 const BALL_SPEED = 5;
 const PLAYER_SPEED = 2.69;
 
-type GameState = {
+type GameStateDto = {
   ball: {
       x: number;
       y: number;
@@ -33,7 +33,7 @@ type GameState = {
   }
 };
 
-type Move = {
+type MoveDto = {
   room: string;
   move: {
     up: boolean;
@@ -58,6 +58,8 @@ export class Game {
   private player2;
   private score;
   private dir;
+
+  private scoreTime = new Date();
 
 
   constructor(clientsData: any) {
@@ -95,7 +97,7 @@ export class Game {
 
     const world = this.world ;
 
-    const gameState: GameState = {
+    const gameState: GameStateDto = {
       ball: {
         x: this.ball.position.x,
         y: this.ball.position.y,
@@ -201,32 +203,23 @@ export class Game {
       });
     });
 
-    Events.on(engine, "collisionEnd", (event) => {
-      let pairs = event.pairs;
 
+    Events.on(engine, 'collisionEnd', (event) => {
+
+      if (new Date().getTime() - this.scoreTime.getTime() < 1000) {
+        return;
+      }
+      let pairs = event.pairs;
       pairs.forEach((pair: any) => {
-        // console.log(pair.bodyA.id)
-        // add score to player 1 if ball hits the left wall
-        if (pair.bodyA.id == 3) {
-          this.score.player2 += 1;
-          Body.setPosition(ball, {
-            x: WIDTH / 2,
-            y: HEIGHT / 2,
-          });
-        }
-        // add score to player 2 if ball hits the right wall
-        if (pair.bodyA.id == 4) {
-          this.score.player1 += 1;
-          Body.setPosition(ball, {
-            x: WIDTH / 2,
-            y: HEIGHT / 2,
-          });
+        if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
+          this.score.player2++;
+          this.scoreTime = new Date();
+        } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
+          this.score.player1++;
+          this.scoreTime = new Date();
         }
       });
-      console.log('\x1B[2J\x1B[0f');
-      console.log(this.score);
     });
-
 
     Events.on(engine, "beforeUpdate", updateBall);
   }
