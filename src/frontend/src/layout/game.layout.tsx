@@ -7,6 +7,7 @@ import { Loading } from "@/Components/loading/loading";
 import Matter from "matter-js";
 import { Match_info } from "@/Components/matchs_history/match_info";
 import { gameState as TypeGameState } from "@/Components/game/types.d";
+import socketGame from "@/socket/gameSocket";
 
 interface props {}
 
@@ -168,6 +169,7 @@ export function GameLayout({}: props) {
             });
         }
     }
+    
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -186,6 +188,8 @@ export function GameLayout({}: props) {
                 },
             };
 
+            socketGame.connect();
+
             document.addEventListener("keydown", (e) => {
                 if (e.key == "ArrowUp") {
                     keys.move.up = true;
@@ -193,7 +197,8 @@ export function GameLayout({}: props) {
                     keys.move.down = true;
                 }
                 console.log(keys);
-                store.getState().io.game?.emit("move", keys);
+
+                socketGame.emit("move", keys);
             });
             document.addEventListener("keyup", (e) => {
                 if (e.key == "ArrowUp") {
@@ -202,7 +207,7 @@ export function GameLayout({}: props) {
                     keys.move.down = false;
                 }
                 console.log(keys);
-                store.getState().io.game?.emit("move", keys);
+                socketGame.emit("move", keys);
             });
         }
     }, [canvasRef]);

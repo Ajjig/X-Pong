@@ -1,7 +1,8 @@
 // SocketComponent.js
 import store, { setCurrentChat, setGameState, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import io from "socket.io-client";
+import socketGame from "./gameSocket";
 
 type PrivateChat = [
     {
@@ -12,15 +13,14 @@ type PrivateChat = [
 ];
 
 const SocketComponent = () => {
+
     useEffect(() => {
         // Connect to the socket server
         const socket = io("http://localhost:3000/chat", {
             withCredentials: true,
         });
 
-        const socketGame = io("http://localhost:3000/game", {
-            withCredentials: true,
-        });
+        socketGame.connect();
 
         socketGame.on("gameState", (gameState: any) => {
             store.dispatch(setGameState(gameState));
