@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex, Avatar, Title, Paper, Space } from "@mantine/core";
 
-export function Match_info({ player1, player2, result, children }: any) {
+export function Match_info({ player1, player2, score, result, children }: any) {
     return (
         <Paper radius={20} bg={"cos_black.3"} p="sm">
             <Flex p={5} align="center" justify="space-between">
@@ -14,7 +14,7 @@ export function Match_info({ player1, player2, result, children }: any) {
                 </Flex>
                 <Flex align="center">
                     <Title color="gray.4" fz="lg">
-                        {result}
+                        {score?.player1} - {score?.player2}
                     </Title>
                 </Flex>
                 <Flex align="center">

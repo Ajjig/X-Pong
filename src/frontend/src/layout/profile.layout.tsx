@@ -28,12 +28,11 @@ export function ProfileLayout({ id }: props) {
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) setProfile(res.data);
-                console.log(res.data);
-                // else window.location.href = "/";
             })
             .catch((err: any) => {
                 // redirect to login
                 // window.location.href = "/";
+                console.log(err);
             });
 
         // store.getState().io.socket?.on("add_friend", (data: any) => {

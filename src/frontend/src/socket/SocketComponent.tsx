@@ -3,6 +3,7 @@ import store, { setCurrentChat, setGameState, setNewMessage, setNotifications, s
 import { use, useEffect } from "react";
 import io from "socket.io-client";
 import socketGame from "./gameSocket";
+import chatSocket from "./chatSocket";
 
 type PrivateChat = [
     {
@@ -13,13 +14,9 @@ type PrivateChat = [
 ];
 
 const SocketComponent = () => {
-
     useEffect(() => {
         // Connect to the socket server
-        const socket = io("http://localhost:3000/chat", {
-            withCredentials: true,
-        });
-
+        chatSocket.connect();
         socketGame.connect();
 
         socketGame.on("gameState", (gameState: any) => {
@@ -27,15 +24,15 @@ const SocketComponent = () => {
         });
 
         store.dispatch(setSocket(socketGame));
-        store.dispatch(setSocket(socket));
+        store.dispatch(setSocket(chatSocket));
 
         // Event handler for socket connection
-        socket.on("connect", () => {
+        chatSocket.on("connect", () => {
             console.log("/chat: Connected to server");
         });
 
         // Event handler for socket disconnection
-        socket.on("disconnect", () => {
+        chatSocket.on("disconnect", () => {
             console.log("/chat: Disconnected from server");
         });
 
@@ -47,10 +44,9 @@ const SocketComponent = () => {
             console.log("/game: Disconnected from server");
         });
 
-
         // @@@@@@@@@@@@@@
 
-        socket.on("message", (data: any) => {
+        chatSocket.on("message", (data: any) => {
             // add the message to the private chat
             // make a deep copy of the private chats
             const privateChats: PrivateChat = JSON.parse(JSON.stringify(store.getState().chats.PrivateChats));
@@ -68,19 +64,18 @@ const SocketComponent = () => {
             store.dispatch(setNewMessage(data));
         });
 
-        socket.on("notifications", (data) => {
+        chatSocket.on("notifications", (data) => {
             console.log("notifications: ", data);
             // add the notification to the store
             store.dispatch(setNotifications(data));
         });
 
-
-        socket.on("privateChat", (data) => {
+        chatSocket.on("privateChat", (data) => {
             // console.log("privateChat: loaded");
             store.dispatch(setPrivateChats(data));
         });
 
-        socket.on("publicChat", (data) => {
+        chatSocket.on("publicChat", (data) => {
             // console.log("publicChat: ", data);
         });
 
@@ -93,7 +88,7 @@ const SocketComponent = () => {
 
         // Clean up the socket connection when component unmounts
         return () => {
-            socket.disconnect();
+            chatSocket.disconnect();
             socketGame.disconnect();
         };
     }, []);

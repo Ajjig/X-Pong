@@ -11,4 +11,8 @@ export type gameState = {
         x: number;
         y: number;
     };
+    score: {
+        player1: number;
+        player2: number;
+    }
 };

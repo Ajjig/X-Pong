@@ -1,7 +1,7 @@
 import { Box, Container, useMantineTheme } from "@mantine/core";
 import React, { use, useEffect, useRef, useState } from "react";
 import HeaderDashboard from "../Components/header";
-import store, { setProfile } from "@/store/store";
+import store from "@/store/store";
 import api from "@/api";
 import { Loading } from "@/Components/loading/loading";
 import Matter from "matter-js";
@@ -12,51 +12,27 @@ import socketGame from "@/socket/gameSocket";
 interface props {}
 
 let gameState: TypeGameState = {
-    ball: {
-        x: 0,
-        y: 0,
-    },
-    player1: {
-        x: 0,
-        y: 0,
-    },
-    player2: {
-        x: 0,
-        y: 0,
-    },
+    ball: { x: 0, y: 0 },
+    player1: { x: 0, y: 0 },
+    player2: { x: 0, y: 0 },
+    score: { player1: 0, player2: 0 },
 };
 
 type TypeMove = {
     room: string;
-    move: {
-        up: boolean;
-        down: boolean;
-    };
+    move: { up: boolean; down: boolean };
 };
+
+const screen: { width: number; height: number } = { width: 900, height: 500 };
 
 export function GameLayout({}: props) {
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
-    const [screen, setScreen] = useState<{ width: number; height: number }>({ width: 900, height: 500 });
-    // const [gameState, setGameState] = useState<TypeGameState>({
-    //     ball: {
-    //         x: screen.width / 2,
-    //         y: screen.height / 2,
-    //     },
-    //     player1: {
-    //         x: 0,
-    //         y: screen.height / 2,
-    //     },
-    //     player2: {
-    //         x: screen.width,
-    //         y: screen.height / 2,
-    //     },
-    // });
-
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const worldRef = useRef<Matter.World>();
     const engineRef = useRef<Matter.Engine>();
     const runnerRef = useRef<Matter.Runner>();
+    const [score, setScore] = useState<{ player1: number; player2: number }>({ player1: 0, player2: 0 });
 
     const playerRef = useRef<{
         body: Matter.Body;
@@ -77,8 +53,10 @@ export function GameLayout({}: props) {
 
     useEffect(() => {
         gameState = store.getState().game.gameState;
+        setScore(gameState.score);
         store.subscribe(() => {
             gameState = store.getState().game.gameState;
+            setScore(gameState.score);
         });
     }, []);
 
@@ -169,7 +147,6 @@ export function GameLayout({}: props) {
             });
         }
     }
-    
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -196,8 +173,6 @@ export function GameLayout({}: props) {
                 } else if (e.key == "ArrowDown") {
                     keys.move.down = true;
                 }
-                console.log(keys);
-
                 socketGame.emit("move", keys);
             });
             document.addEventListener("keyup", (e) => {
@@ -206,7 +181,6 @@ export function GameLayout({}: props) {
                 } else if (e.key == "ArrowDown") {
                     keys.move.down = false;
                 }
-                console.log(keys);
                 socketGame.emit("move", keys);
             });
         }
@@ -216,7 +190,7 @@ export function GameLayout({}: props) {
         <>
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Container>
-                <Match_info player1={gameState.player1} player2={gameState.player2} result={"0 - 0"}>
+                <Match_info score={score} player1={gameState.player1} player2={gameState.player2} result={"0 - 0"}>
                     <canvas style={{ borderRadius: "5%", width: "100%" }} ref={canvasRef}></canvas>
                 </Match_info>
             </Container>
