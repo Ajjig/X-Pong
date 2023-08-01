@@ -10,12 +10,11 @@ import PublicGroups from "../Components/dashboard/popular_groups";
 import { Chat } from "@/Components/dashboard/chat/private_chat/chat";
 
 // Import store
-import store from "@/store/store";
+import store, { setCurrentChat } from "@/store/store";
 import UserInfo from "@/Components/dashboard/userInfo";
 
 export function DashboardLayout() {
     const theme = useMantineTheme();
-    const [opened, setOpened] = useState(false);
     const [chat, setChat] = useState<any>(null);
     const HeaderRef = useRef<HTMLDivElement>(null);
     const [fullHeight, setFullHeight] = useState<any>({
@@ -40,8 +39,15 @@ export function DashboardLayout() {
         });
     }, []);
 
+    const setSelected = (chat: any) => {
+        setChat(chat);
+        // set current chat in store to chat
+        store.dispatch(store.dispatch(setCurrentChat(chat)));
+    };
+
+
     return (
-        <Box mih="100vh" bg="cos_black.3">
+        <Box mih="100vh">
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Grid gutter="0" w={"100%"} px="lg" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
@@ -58,7 +64,7 @@ export function DashboardLayout() {
 
                 <Grid.Col span={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
                     {chat ? (
-                        <Chat user={chat} setSelected={setChat} opened={opened} chat={chat} />
+                        <Chat user={chat} setSelected={setSelected} chat={chat} />
                     ) : (
                         <Box
                             p="md"

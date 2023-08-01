@@ -4,8 +4,19 @@ import { IconUser } from "@tabler/icons-react";
 import { Text, Box } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
 import { IconBan } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 
 export function PrivateChatMenu({ user }: any) {
+    const router = useRouter();
+
+    const ButtonProfile = () => {
+        router.push(`/profile/${user.id}`);
+    };
+
+    const ButtonBan = () => {
+        console.log("ban");
+    };
+
     return (
         <Menu shadow="md" width={200} withArrow>
             <Menu.Target>
@@ -36,8 +47,10 @@ export function PrivateChatMenu({ user }: any) {
                     </Flex>
                 </Flex>
 
-                <Menu.Item icon={<IconUser size={14} />}>Profile</Menu.Item>
-                <Menu.Item color="red" icon={<IconBan size={14} />}>
+                <Menu.Item icon={<IconUser size={14} />} onClick={ButtonProfile}>
+                    Profile
+                </Menu.Item>
+                <Menu.Item color="red" icon={<IconBan size={14} />} onClick={ButtonBan}>
                     Ban
                 </Menu.Item>
             </Menu.Dropdown>
