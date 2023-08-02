@@ -71,19 +71,11 @@ export function ProfileLayout({ id }: props) {
                         // backgroundPosition: "center",
                         width: "100%",
                         borderRadius: "0 0 30px 30px",
-                        // height: "300px",
-                        // [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                        //     height: "150px",
-                        // },
                         borderBottom: `5px solid ${theme.colors.gray[4]}`,
-                        // position: "relative",
-                        // add drop shadow as a gradient
                         boxShadow: `inset 0px -100px 100px -60px ${theme.colors.gray[9]}`,
                         display: "flex",
                         justifyContent: "space-between",
                         padding: "20px",
-                        // alignItems: "start",
-                        // justifyContent: "end",
                     })}
                 >
                     <Box
@@ -125,10 +117,7 @@ export function ProfileLayout({ id }: props) {
                     </Group>
                 </Box>
 
-                <Box
-                    px={20}
-                    mt={50}
-                >
+                <Box px={20} mt={50}>
                     <Paper radius={20} bg="cos_black.2">
                         <Grid>
                             <Grid.Col span={12}>

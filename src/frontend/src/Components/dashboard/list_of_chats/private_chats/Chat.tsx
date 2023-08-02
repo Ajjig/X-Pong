@@ -51,21 +51,13 @@ export function Chat({ chat }: { chat: any }) {
     }, []);
 
     return (
-        <motion.div
-            drag
-            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-                duration: 0.1,
-            }}
-            initial={{
-                opacity: 0,
-                background: "#1a1b1e",
-                borderRadius: theme.radius.md,
-            }}
-            whileHover={{
-                background: theme.colors.gray[9],
-                borderRadius: theme.radius.md,
+        <Box
+            bg={"gray.9"}
+            sx={{
+                borderRadius: theme.radius.lg,
+                "&:hover": {
+                    bg: "gray.8",
+                },
             }}
             onClick={() => {
                 store.dispatch(setCurrentChat(chat));
@@ -87,6 +79,6 @@ export function Chat({ chat }: { chat: any }) {
                     </Box>
                 </Flex>
             </Flex>
-        </motion.div>
+        </Box>
     );
 }

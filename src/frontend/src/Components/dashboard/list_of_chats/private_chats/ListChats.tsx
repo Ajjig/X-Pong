@@ -17,35 +17,39 @@ export function ListChats({ SegRef }: { SegRef: any }) {
 
             setChats(() => {
                 // filter chats that have no messages
-                const filteredChats = chatsFromStore.filter((chat: any) => {
-                    return chat.chat.length > 0;
-                });
+                // const filteredChats = chatsFromStore.filter((chat: any) => {
+                //     return chat.chat.length > 0;
+                // });
                 return chatsFromStore;
-            });     
+            });
         });
     }, []);
 
     return (
         <>
-            <Box w={"100%"} h={`calc(100% - ${SegRef.current?.clientHeight}px)`} p={"12px"} sx={(theme: MantineTheme) => ({
-               
-                overflowY: "scroll",
-                /* ===== Scrollbar CSS ===== */
-                /* Firefox */
-                scrollbarColor: `${theme.colors.gray[8]} transparent`,
-                scrollbarWidth: "thin",
-                /* Chrome, Edge, and Safari */
-                "&::-webkit-scrollbar": {
-                    width: "5px",
-                },
-                "&::-webkit-scrollbar-track": {
-                    background: "transparent",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                    background: theme.colors.gray[8],
-                    borderRadius: theme.radius.md,
-                },
-            })}>
+            <Box
+                w={"100%"}
+                h={`calc(100% - ${SegRef.current?.clientHeight}px)`}
+                p={"12px"}
+                sx={(theme: MantineTheme) => ({
+                    overflowY: "scroll",
+                    /* ===== Scrollbar CSS ===== */
+                    /* Firefox */
+                    scrollbarColor: `${theme.colors.gray[8]} transparent`,
+                    scrollbarWidth: "thin",
+                    /* Chrome, Edge, and Safari */
+                    "&::-webkit-scrollbar": {
+                        width: "5px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        background: "transparent",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        background: theme.colors.gray[8],
+                        borderRadius: theme.radius.md,
+                    },
+                })}
+            >
                 {chats.length <= 0 && (
                     <Box
                         sx={(theme: MantineTheme) => ({
@@ -71,35 +75,6 @@ export function ListChats({ SegRef }: { SegRef: any }) {
                         </Box>
                     );
                 })}
-            </Box>
-            {/* floating add button in the buttom */}
-            <Box
-                sx={(theme: MantineTheme) => ({
-                    position: "absolute",
-                    bottom: theme.spacing.md,
-                    right: theme.spacing.md,
-                })}
-            >
-                {/* <Tooltip color="gray" label="Search (mod + s)" position="top">
-                    <Box
-                        sx={(theme: MantineTheme) => ({
-                            borderRadius: "100%",
-                            background: theme.colors.orange[8],
-                            width: 50,
-                            height: 50,
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            color: theme.colors.orange[1],
-                        })}
-                        onClick={() => {
-                            spotlight.open();
-                        }}
-                    >
-                        <IconSearch size={25} />
-                    </Box>
-                </Tooltip> */}
             </Box>
         </>
     );
