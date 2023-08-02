@@ -9,7 +9,9 @@ import { Match_info } from "@/Components/matchs_history/match_info";
 import { gameState as TypeGameState } from "@/Components/game/types.d";
 import socketGame from "@/socket/gameSocket";
 
-interface props {}
+interface props {
+    gameID: string | string[] | undefined;
+}
 
 let gameState: TypeGameState = {
     ball: { x: 0, y: 0 },
@@ -27,7 +29,7 @@ type TypeMove = {
 
 const screen: { width: number; height: number } = { width: 900, height: 500 };
 
-export function GameLayout({}: props) {
+export function GameLayout({gameID}: props) {
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
     const worldRef = useRef<Matter.World>();
@@ -173,7 +175,7 @@ export function GameLayout({}: props) {
             Events.on(engineRef.current, "beforeUpdate", updateGame);
 
             let keys: TypeMove = {
-                room: "test",
+                room: gameID as string,
                 move: {
                     up: false,
                     down: false,
