@@ -605,19 +605,19 @@ export class ChatService {
       },
     });
 
-    const notification = await this.prisma.notification.create({
-      data: {
-        type: 'friendRequest',
-        from: user.username,
-        to: friend.username,
-        status: 'pending',
-        msg: 'You sent a friend request to ' + friend.username,
-        user: { connect: { id: user.id } },
-        avatarUrl: friend.avatarUrl,
-      },
-    });
+    // const notification = await this.prisma.notification.create({
+    //   data: {
+    //     type: 'friendRequest',
+    //     from: user.username,
+    //     to: friend.username,
+    //     status: 'pending',
+    //     msg: 'You sent a friend request to ' + friend.username,
+    //     user: { connect: { id: user.id } },
+    //     avatarUrl: friend.avatarUrl,
+    //   },
+    // });
 
-    this.emitToUser(Server, username, 'notification', notification);
+    // this.emitToUser(Server, username, 'notification', notification);
 
     const notification_SIDE = await this.prisma.notification.create({
       data: {
@@ -627,7 +627,7 @@ export class ChatService {
         status: 'pending',
         msg: user.username + ' sent you a friend request',
         user: { connect: { id: friend.id } },
-        avatarUrl: friend.avatarUrl,
+        avatarUrl: user.avatarUrl,
       },
     });
     this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
