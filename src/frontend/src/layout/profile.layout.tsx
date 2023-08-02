@@ -9,10 +9,10 @@ import store from "@/store/store";
 import { IconEdit, IconMessage, IconUserPlus } from "@tabler/icons-react";
 import { UserInfo } from "../Components/profile/ProfileUserInfoSection";
 import api from "@/api";
-import socket from "@/socket";
 import { IconSend } from "@tabler/icons-react";
 import Message from "../Components/profile/buttons/message";
 import { Match_info } from "@/Components/matchs_history/match_info";
+import chatSocket from "@/socket/chatSocket";
 
 interface props {
     id: string;
@@ -44,7 +44,7 @@ export function ProfileLayout({ id }: props) {
 
     const sendMessage = (message: any) => {
         if (!message || message.message === "") return;
-        socket.emit("message", {
+        chatSocket.emit("message", {
             receiver: profile.username,
             msg: message.message,
         });

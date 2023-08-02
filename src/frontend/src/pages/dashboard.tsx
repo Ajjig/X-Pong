@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import api from "@/api";
 import store, { setPrivateChats, setProfile } from "@/store/store";
 import { Loading } from "@/Components/loading/loading";
-// import socket from "@/socket";
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true);

@@ -71,7 +71,7 @@ export function Chat({ chat }: { chat: any }) {
                             {chat.otherUser.name}
                         </Text>
                         <Text color="gray.5" fz="sm">
-                            {get_last_message().slice(0, 15)}...
+                            {/* {get_last_message().slice(0, 15)}... */}
                         </Text>
                     </Box>
                     <Box color="gray" fz="xs">

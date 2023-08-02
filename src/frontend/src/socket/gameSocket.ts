@@ -1,6 +1,7 @@
+import api from "@/api";
 import { io } from "socket.io-client";
 
-const socketGame = io("http://localhost:3000/game", {
+const socketGame = io(api.getUri() + "game", {
     withCredentials: true,
 });
 

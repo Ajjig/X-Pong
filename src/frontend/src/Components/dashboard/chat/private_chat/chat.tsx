@@ -18,7 +18,7 @@ import {
 } from "@mantine/core";
 import { motion } from "framer-motion";
 import { useMediaQuery } from "@mantine/hooks";
-import store, { setNewMessage } from "@/store/store";
+import store, { addNewMessageToPrivateChat, setNewMessage } from "@/store/store";
 import { IconArrowBadgeLeft, IconArrowBadgeLeftFilled, IconArrowNarrowLeft, IconChevronLeft, IconSend } from "@tabler/icons-react";
 import { PrivateChatMenu } from "../../list_of_chats/private_chats/privateChatMenu";
 import { Message } from "./message";
@@ -28,19 +28,24 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
     const [friend] = useState<any>(chat.otherUser);
     const theme: MantineTheme = useMantineTheme();
     const isMobile = useMediaQuery("(max-width: 768px)");
-    const [messages, setMessages] = useState<any>(chat.chat ?? []);
+    const [messages, setMessages] = useState<any>([]);
 
     useEffect(() => {
-        // subscribe to check if this store.getState().chats.newMessage has a new value
-        store.subscribe(() => {
-            let newMsg: any = store.getState().chats.newMessage;
-            if (newMsg != null && newMsg.privateChannelId == chat.privateChannelId) {
-                setMessages((prev: any) => [...prev, newMsg]);
-                // set new message to null
-                store.dispatch(setNewMessage(null));
+        if (!chatSocket.connected) chatSocket.connect();
+
+        store.getState().chats.PrivateChats.forEach((chat: any) => {
+            if (chat.privateChannelId == chat.privateChannelId) {
+                setMessages(chat.chat);
+                console.log(chat.chat);
             }
         });
-        if (!chatSocket.connected) chatSocket.connect();
+
+        chatSocket.on("message", (data: any) => {
+            if (data.privateChannelId == chat.privateChannelId) {
+                setMessages((prev: any) => [...prev, data]);
+            }
+        });
+        
     }, []);
 
     const [message, setMessage] = useState("");
@@ -52,14 +57,19 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
             receiver: friend.username,
             msg: message.message,
         });
+        const newMessage = {
+            privateChannelId: chat.privateChannelId,
+            createdAt: new Date(),
+            receiverId: friend.id,
+            senderId: user.id,
+            text: message.message,
+        };
         // add message to messages
         setMessages((prev: any) => [
             ...prev,
-            {
-                receiverId: friend.id,
-                text: message.message,
-            },
+            newMessage,
         ]);
+        store.dispatch(addNewMessageToPrivateChat(newMessage));
         setMessage("");
     };
 
@@ -135,13 +145,12 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                     },
                 }}
                 ref={scrollRef}
-                key={chat && chat.chat[chat.chat.length]?.text + chat.chat?.length}
             >
                 {messages.map((message: any, index: number) => {
                     return (
-                        <Box key={index + message.text} mb={10}>
+                        <Box key={message.createdAt} mb={10}>
                             <Message message={message} friend={friend} />
-                        </Box>
+                        </Box> 
                     );
                 })}
             </Box>

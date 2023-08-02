@@ -21,12 +21,12 @@ const useStyles = createStyles((theme) => ({
     },
 
     container_scene: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        zIndex: 1,
+        // position: "absolute",
+        // top: 0,
+        // left: 0,
+        // width: "100%",
+        // height: "100%",
+        // zIndex: 1,
     },
 
     dom_content: {
@@ -68,14 +68,14 @@ export default function Home() {
         <Suspense fallback={<Loading />}>
             <Box className={cx(classes.container, classes.animation_apperance)}>
                 <Head title="70sPong" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
-                <Box className={classes.container_scene}>
-                    <Canvas shadows>
+                {/* <Box className={classes.container_scene}> */}
+                    {/* <Canvas shadows> */}
                         {/* <Scene /> */}
-                        <Html center as="div" position={[0, 1, 0]}>
+                        {/* <Html center as="div" position={[0, 1, 0]}> */}
                             <Welcome />
-                        </Html>
-                    </Canvas>
-                </Box>
+                        {/* </Html> */}
+                    {/* </Canvas> */}
+                {/* </Box> */}
             </Box>
         </Suspense>
     );
