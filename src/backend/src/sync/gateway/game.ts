@@ -67,9 +67,6 @@ export class Game {
   }
 
   updateGame() {
-
-    const world = this.world ;
-
     const gameState: GameStateDto = {
       ball: {
         x: this.ball.position.x,
@@ -86,6 +83,7 @@ export class Game {
       score: this.score,
     };
     this.client1.emit('gameState', gameState);
+    this.client2.emit('gameState', gameState);
 
   }
 
@@ -195,22 +193,27 @@ export class Game {
 
         setTimeout(() => {
           this.client1.emit('gameMessage', '3');
+          this.client2.emit('gameMessage', '3');
         }, 1000);
 
         setTimeout(() => {
           this.client1.emit('gameMessage', '2');
+          this.client2.emit('gameMessage', '2');
         }, 2000);
 
         setTimeout(() => {
           this.client1.emit('gameMessage', '1');
+          this.client2.emit('gameMessage', '1');
         }, 3000);
 
         setTimeout(() => {
           this.client1.emit('gameMessage', 'GO!');
+          this.client2.emit('gameMessage', 'GO!');
         }, 4000);
 
         setTimeout(() => {
           this.client1.emit('gameMessage', '');
+          this.client2.emit('gameMessage', '');
         }, 5500);
 
         setTimeout(() => { this.ballDir = ballDirs[difScore] }, 5000);
