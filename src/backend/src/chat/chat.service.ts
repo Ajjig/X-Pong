@@ -529,7 +529,7 @@ export class ChatService {
           status: 'Accepted',
           msg: user.username + ' accepted your friend request',
           user: { connect: { id: friendUser.id } },
-          avatarUrl: friendUser.avatarUrl,
+          avatarUrl: user.avatarUrl,
         },
       });
       friendClient.emit('notification', notification);
