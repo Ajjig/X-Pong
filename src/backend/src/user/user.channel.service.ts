@@ -58,7 +58,6 @@ export class UserChannelService {
 
       return newChannel;
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -119,7 +118,6 @@ export class UserChannelService {
         return channel;
       }
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -165,7 +163,6 @@ export class UserChannelService {
         return channel;
       }
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -208,7 +205,6 @@ export class UserChannelService {
         }
       }
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -241,7 +237,6 @@ export class UserChannelService {
         throw new HttpException('Password incorrect', 400);
       }
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -277,7 +272,6 @@ export class UserChannelService {
       });
       return { channel };
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -353,7 +347,6 @@ export class UserChannelService {
       });
       return { channelname };
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
