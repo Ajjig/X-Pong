@@ -1,6 +1,7 @@
+import api from "@/api";
 import { io } from "socket.io-client";
 
-const chatSocket = io("http://localhost:3000/chat", {
+const chatSocket = io(api.getUri() + "chat", {
     withCredentials: true,
 });
 

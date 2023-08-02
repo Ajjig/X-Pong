@@ -1,9 +1,9 @@
 // SocketComponent.js
-import store, { setCurrentChat, setGameState, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
-import { use, useEffect } from "react";
-import io from "socket.io-client";
+import store, { addFriendRequest, addNewMessageToPrivateChat, setGameState, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
+import { useEffect } from "react";
 import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
+import { NotificationType } from "./types";
 
 type PrivateChat = [
     {
@@ -44,30 +44,40 @@ const SocketComponent = () => {
             console.log("/game: Disconnected from server");
         });
 
-        // @@@@@@@@@@@@@@
-
         chatSocket.on("message", (data: any) => {
+
+            if (store.getState().chats.PrivateChats.length == 0) {
+                chatSocket.emit("reconnect", {});
+            }
+
             // add the message to the private chat
             // make a deep copy of the private chats
-            const privateChats: PrivateChat = JSON.parse(JSON.stringify(store.getState().chats.PrivateChats));
-
-            console.warn("@> ", privateChats);
-            const newPrivateChats = privateChats.map((chat: any) => {
-                if (chat.privateChannelId == data.privateChannelId) {
-                    chat.chat.push(data);
-                }
-                return chat;
-            });
-            store.dispatch(setPrivateChats(newPrivateChats));
+            // const privateChats: PrivateChat = JSON.parse(JSON.stringify(store.getState().chats.PrivateChats));
+            // const newPrivateChats = privateChats.map((chat: any) => {
+            //     if (chat.privateChannelId == data.privateChannelId) {
+            //         chat.chat.push(data);
+            //     }
+            //     return chat;
+            // });
+            // store.dispatch(setPrivateChats(newPrivateChats));
+            store.dispatch(addNewMessageToPrivateChat(data));
 
             // socket.emit("reconnect", {});
-            store.dispatch(setNewMessage(data));
+            // store.dispatch(setNewMessage(data));
         });
 
-        chatSocket.on("notifications", (data) => {
-            console.log("notifications: ", data);
+        chatSocket.on("notifications", (data: NotificationType[]) => {
+           
+            console.log(">>>>>>>>>>> notifications: ", data);
             // add the notification to the store
             store.dispatch(setNotifications(data));
+        });
+
+        chatSocket.on("notification", (data: NotificationType) => {
+            console.log("notification: ", data);
+
+            store.dispatch(addFriendRequest(data))
+
         });
 
         chatSocket.on("privateChat", (data) => {

@@ -4,6 +4,7 @@ import Back_Button from "./components/Back_Button";
 import { Third_party_login } from "./components/Third_party_login";
 import type { auths } from "./components/Third_party_login";
 import { useRouter } from "next/router";
+import api from "@/api";
 
 const useStyles = createStyles((theme) => ({
     container: {
@@ -39,7 +40,7 @@ export default function Login({ setLoginShow }: Props) {
         console.log("42 BTN CLICKED!");
         // implement the 42 login here open small window with 42 login and auth the user
         // poisition the window in the middle of the screen
-        window.location.href = "http://localhost:3000/auth/42";
+        window.location.href = api.getUri() + "auth/42";
         
     };
 

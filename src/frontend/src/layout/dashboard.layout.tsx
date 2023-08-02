@@ -100,15 +100,11 @@ export function DashboardLayout() {
                     right: 30,
                 })}
             >
-                {/* <Button.Group>
-                    <Button variant="default" color="purple" radius="xl" size="md" fullWidth>
-                        Challenge a friend
-                    </Button>
-                    <Button variant="default" color="purple" radius="xl" size="md" fullWidth>
-                        Play with a random
-                    </Button>
-                </Button.Group> */}
-                <Play />
+                {
+                    chat && (
+                        <Play />
+                    )
+                }
             </Box>
         </Box>
     );

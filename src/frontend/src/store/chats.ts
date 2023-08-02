@@ -14,6 +14,12 @@ const ChatsSlice = createSlice({
         setPrivateChats: (state, action) => {
             state.PrivateChats = action.payload;
         },
+        addNewMessageToPrivateChat: (state, action) => {
+            const privateChats: any = state.PrivateChats.find((chat: any) => chat.privateChannelId === action.payload.privateChannelId);
+            if (privateChats) {
+                privateChats.chat.push(action.payload);
+            }
+        },
         setGroupChats: (state, action) => {
             state.GroupChats = action.payload;
         },

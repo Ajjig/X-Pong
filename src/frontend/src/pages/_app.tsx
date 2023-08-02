@@ -6,7 +6,6 @@ import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import store, { setProfile } from "@/store/store";
 import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useEffect, useState } from "react";
-import socket from "@/socket";
 import { IconSearch } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import SocketComponent from "@/socket/SocketComponent";
@@ -15,6 +14,7 @@ import { SpotlightStyles } from "@/Components/spotlight/spotlight.styles";
 // import font for title from 'next/font/google'
 import { Russo_One, Kanit } from 'next/font/google';
 import api from "@/api";
+import chatSocket from "@/socket/chatSocket";
 
 const fontHeadings = Russo_One({ weight: "400", subsets: ["latin"] })
 const font = Kanit({ weight: "400", subsets: ["latin"] })
@@ -37,7 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
     const useSpotlightStyles = SpotlightStyles();
 
     useEffect(() => {
-        socket.on("search", (data) => {
+        chatSocket.on("search", (data) => {
             let users: [] = [];
             if (data && data[0])
                 users = data[0].map((action: any) => ({
@@ -54,7 +54,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
     useEffect(() => {
         if (query == "") setActions([]);
-        else socket.emit("search", { query: query });
+        else chatSocket.emit("search", { query: query });
     }, [query]);
 
 
