@@ -43,11 +43,12 @@ export class GameService {
         player1Username: p1.username,
         player2Username: p2.username,
       });
-      game.startGame();
+      game.endGameCallback = this.stopGame;
       this.games.set(
         id,
         game,
       );
+      game.startGame();
     }
   }
 
@@ -76,17 +77,11 @@ export class GameService {
 
   handleInit(client: Socket, username: string): void {
     this.players.set(username, client);
-    this.logger.log(`Player ${username} connected to the game`);
-
-    // const game = new Game({
-    //   id: "test",
-    //   client1: client,
-    //   client2: client,
-    //   player1Username: username,
-    //   player2Username: username,
-    // });
-    // this.games.set('test', game);
-    // game.startGame();
+    
+    if (this.handleAlreadyInGame(username, client))
+      this.logger.log(`Player ${username} reconnected to previous game`);
+    else
+      this.logger.log(`Player ${username} connected`);
   }
 
   handleDisconnect(client: Socket): void {
@@ -96,15 +91,6 @@ export class GameService {
       this.players.delete(username);
       this.queue = this.queue.filter((p) => p.username !== username);
       this.logger.log(`Player ${username} disconnected`);
-    }
-  }
-
-  handleEndGame(client: Socket, data: { room: string }): void {
-    if (!data || !data.room) return;
-
-    const isRemoved = this.games.delete(data.room);
-    if (isRemoved) {
-      this.logger.log(`Match '${data.room}' ended`);
     }
   }
 
@@ -150,8 +136,30 @@ export class GameService {
     }
   }
 
-}
-function createGame(game: any): any {
-  throw new Error('Function not implemented.');
-}
+  handleAlreadyInGame(username: string, client: Socket): boolean {
+    // check if player is already in a game
+    let game: Game | undefined;
+    this.games.forEach((value: Game, key: string) => {
+      if (value.player1Username === username || value.player2Username === username) {
+        game = value;
+      }
+    });
+    if (game) {
+      game.reconnectPlayer(username, client);
+      return true;
+    }
+    return false;
+  }
 
+  public stopGame = (id: string) => {
+    const game = this.games.get(id);
+    if (!game) {
+      this.logger.error(`Game '${id}' cannod be stopped`);
+      return;
+    }
+    game.stopGame();
+    this.games.delete(id);
+    this.logger.log(`Game '${id}' stopped`);
+  }
+
+}

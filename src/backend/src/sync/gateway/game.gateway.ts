@@ -48,11 +48,6 @@ export class GameGateway {
     this.gameService.handleDisconnect(client);
   }
 
-  @SubscribeMessage('endgame')
-  handleEndGame(client: Socket, data: { room: string }): void {
-    this.gameService.handleEndGame(client, data);
-  }
-
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     const userdata = await this.gameService.getUserData(client)
 

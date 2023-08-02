@@ -10,13 +10,15 @@ const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 7.5;
 const PLAYER_SPEED = 2.69;
+const GOALS_TO_WIN = 2;
 
 export class Game {
   private readonly id: string;
-  private readonly player1Username: string;
-  private readonly player2Username: string;
-  private readonly client1: any;
-  private readonly client2: any;
+  readonly player1Username: string;
+  readonly player2Username: string;
+  client1: any;
+  client2: any;
+  endGameCallback: any;
   private readonly logger = new Logger('GAME');
   
   private world;
@@ -40,7 +42,7 @@ export class Game {
     this.player2Username = clientsData.player2Username;
     this.client1 = clientsData.client1;
     this.client2 = clientsData.client2;
-    this.emitMatch();
+    this.emitMatch(true, true);
     this.startGame();
   }
       
@@ -223,12 +225,24 @@ export class Game {
       pairs.forEach((pair: any) => {
         if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
           this.score.player2++;
-          resetball();
+          this.score.player2 < GOALS_TO_WIN && resetball();
         } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
           this.score.player1++;
-          resetball();
+          this.score.player1 < GOALS_TO_WIN && resetball();
         }
       });
+
+      const p1 = this.score.player1;
+      const p2 = this.score.player2;
+
+      if (p1 >= GOALS_TO_WIN || p2 >= GOALS_TO_WIN) {
+        
+        this.client1.emit('gameMessage', `You ${p1 < p2 ? 'won' : 'lost'}`);
+        this.client2.emit('gameMessage', `You ${p2 < p1 ? 'won' : 'lost'}`);
+        this.client1.emit('endGame', { winner: p1 > p2 ? 1 : 2 });
+        this.client2.emit('endGame', { winner: p2 > p1 ? 1 : 2 });
+        this.endGameCallback(this.id);
+      }
     });
 
     Events.on(engine, "beforeUpdate", updateBall);
@@ -304,14 +318,14 @@ export class Game {
   }
 
 
-  emitMatch() {
-    this.client1
+  emitMatch(isClient1: boolean, isClient2: boolean) {
+    isClient1 && this.client1
       .emit('match', {
         roomName: this.id,
         player: 1,
         opponentName: this.player2Username,
       });
-    this.client2
+    isClient2 && this.client2
       .emit('match', {
         roomName: this.id,
         player: 2,
@@ -330,13 +344,21 @@ export class Game {
     }
   }
 
+  reconnectPlayer(username: string, client: any): void {
+    if (username === this.player1Username) {
+      this.client1 = client;
+    } else if (username === this.player2Username) {
+      this.client2 = client;
+    }
+    this.emitMatch(username === this.player1Username, username === this.player2Username);
+  }
+
   stopGame() {
+    Events.off(this.engine, "collisionStart");
+    Events.off(this.engine, "beforeUpdate");
     Runner.stop(this.runner);
     World.clear(this.world, false);
     Engine.clear(this.engine);
-    Events.off(this.engine, "collisionStart");
-    Events.off(this.engine, "beforeUpdate");
-    this.client1.removeAllListeners();
-    this.client2.removeAllListeners();
+    this.logger.log(`Match '${this.id}' ended`);
   }
 }
