@@ -169,12 +169,57 @@ export class Game {
 
     Events.on(engine, 'collisionEnd', (event) => {
 
+      const resetball = () => {
+        Body.setPosition(this.ball, {
+          x: 450,
+          y: 250,
+        });
+
+        this.ballDir = {
+          x: 0,
+          y: 0,
+        };
+
+        const difScore = (this.score.player1 + this.score.player2) % 2;
+
+        const ballDirs = [
+          {
+            x: Math.cos(1) * BALL_SPEED,
+            y: Math.sin(0.75) * BALL_SPEED,
+          },
+          {
+            x: -Math.cos(1) * BALL_SPEED,
+            y: -Math.sin(0.75) * BALL_SPEED,
+          },
+        ]
+
+        setTimeout(() => {
+          this.client1.emit('countDown', '3');
+        }, 1000);
+
+        setTimeout(() => {
+          this.client1.emit('countDown', '2');
+        }, 2000);
+
+        setTimeout(() => {
+          this.client1.emit('countDown', '1');
+        }, 3000);
+
+        setTimeout(() => {
+          this.client1.emit('countDown', '');
+        }, 4000);
+
+        setTimeout(() => { this.ballDir = ballDirs[difScore] }, 4000);
+      };
+
       let pairs = event.pairs;
       pairs.forEach((pair: any) => {
         if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
           this.score.player2++;
+          resetball();
         } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
           this.score.player1++;
+          resetball();
         }
       });
     });
