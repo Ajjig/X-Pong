@@ -1,7 +1,6 @@
 // Import dependencies
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMantineTheme, AppShell, Navbar, Box, Grid, Container, rem, MediaQuery, Space } from "@mantine/core";
+import { use, useEffect, useRef, useState } from "react";
+import { useMantineTheme, Box, Grid, Button, MediaQuery, Space, MantineTheme, LoadingOverlay, Modal, Loader, Flex, createStyles } from "@mantine/core";
 
 // Import components
 import HeaderDashboard from "../Components/header";
@@ -45,18 +44,17 @@ export function DashboardLayout() {
         store.dispatch(store.dispatch(setCurrentChat(chat)));
     };
 
-
     return (
-        <Box mih="100vh">
+        <Box mih="100vh" pos="relative">
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Grid gutter="0" w={"100%"} px="lg" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                    <Grid.Col span={5} lg={4} xl={3} sx={{display: 'flex', flexDirection: 'column'}} p={"md"} pt={0}>
+                    <Grid.Col span={5} lg={4} xl={3} sx={{ display: "flex", flexDirection: "column" }} p={"md"} pt={0}>
                         <Box>
                             <UserInfo />
                         </Box>
                         <Space h="15px" />
-                        <Box sx={{flex: 1}}>
+                        <Box sx={{ flex: 1 }}>
                             <List_of_chats />
                         </Box>
                     </Grid.Col>
@@ -93,81 +91,92 @@ export function DashboardLayout() {
                 </Grid.Col>
             </Grid>
 
-            {/* <Grid>
-				<Grid.Col span={3}>
-					<List_of_chats setChat={setChat} />
-				</Grid.Col>
-				<Grid.Col span={9}>
-					<PublicGroups />
-				</Grid.Col>
-			</Grid> */}
+            <Box
+                w={"auto"}
+                h={50}
+                sx={(theme: MantineTheme) => ({
+                    position: "absolute",
+                    bottom: 30,
+                    right: 30,
+                })}
+            >
+                {/* <Button.Group>
+                    <Button variant="default" color="purple" radius="xl" size="md" fullWidth>
+                        Challenge a friend
+                    </Button>
+                    <Button variant="default" color="purple" radius="xl" size="md" fullWidth>
+                        Play with a random
+                    </Button>
+                </Button.Group> */}
+                <Play />
+            </Box>
         </Box>
+    );
+}
 
-        //     <AppShell
-        //         styles={{
-        //             main: {
-        //                 background: theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[0],
-        //                 height: "100vh",
-        //                 overflow: "hidden",
-        //             },
-        //         }}
-        //         navbarOffsetBreakpoint="sm"
-        //         asideOffsetBreakpoint="sm"
-        //         navbar={
-        //             <Navbar hiddenBreakpoint="xs" hidden={!opened} width={{ xs: 350, lg: 400 }}>
-        //                 <List_of_chats setChat={setChat} />
-        //             </Navbar>
-        //         }
-        //         header={<HeaderDashboard />}
-        //     >
-        //         <AnimatePresence>
-        //             {chat && (
-        //                 <motion.div
-        //                     key="modal"
-        //                     initial={{ opacity: 0, transform: "translateX(-40%)", scale: 0.8 }}
-        //                     animate={{ opacity: 1, transform: "translateX(0%)", scale: 1 }}
-        //                     exit={{ opacity: 0, transform: "translateX(-40%) translateY(10%)", scale: 0 }}
-        //                 >
-        //                     <Box p="md">
-        //                         <Chat
-        //                             user={chat}
-        //                             setSelected={setChat}
-        //                             AsideWidth={AsideWidth}
-        //                             opened={opened}
-        //                             chat={chat}
-        //                         />
-        //                     </Box>
-        //                 </motion.div>
-        //             )}
-        //             {!chat && (
-        //                 <motion.div key="modal2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        //                     <Box
-        //                         p="md"
-        //                         mah="90vh"
-        //                         sx={{
-        //                             overflowY: "scroll",
-        //                             /* ===== Scrollbar CSS ===== */
-        //                             /* Firefox */
-        //                             scrollbarColor: `${theme.colors.gray[8]} transparent`,
-        //                             scrollbarWidth: "thin",
-        //                             /* Chrome, Edge, and Safari */
-        //                             "&::-webkit-scrollbar": {
-        //                                 width: "5px",
-        //                             },
-        //                             "&::-webkit-scrollbar-track": {
-        //                                 background: "transparent",
-        //                             },
-        //                             "&::-webkit-scrollbar-thumb": {
-        //                                 background: theme.colors.gray[8],
-        //                                 borderRadius: theme.radius.md,
-        //                             },
-        //                         }}
-        //                     >
-        //                         <PublicGroups />
-        //                     </Box>
-        //                 </motion.div>
-        //             )}
-        //         </AnimatePresence>
-        //     </AppShell>
+import { Menu } from "@mantine/core";
+import { IconUserCircle, IconArrowsRandom } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import socketGame from "@/socket/gameSocket";
+import { useRouter } from "next/router";
+
+const useModelStyle = createStyles((theme) => ({
+    content: {
+        backgroundColor: "transparent",
+    },
+    overlay: {
+        backdropFilter: "blur(5px)",
+    },
+}));
+
+function Play() {
+    const [visible, { close, open }] = useDisclosure(false);
+    const ModelStyle = useModelStyle();
+    const router = useRouter();
+
+    const join = () => {
+        open();
+        // join request
+        socketGame.emit("join", { msg: "join" });
+    };
+
+    const cancel = () => {
+        close();
+        // cancel request
+        socketGame.emit("cancel-join", { msg: "cancel" });
+    };
+
+    useEffect(() => {
+        socketGame.on("match", (data) => {
+            console.log(data);
+            router.push(`/game/${data.roomName}`);
+        });
+    }, []);
+
+    return (
+        <>
+            <Modal opened={visible} onClose={close} title="" centered withCloseButton={false} closeOnClickOutside={false} classNames={ModelStyle.classes}>
+                <Flex direction="column" align="center" justify="center">
+                    <Loader />
+                    <Space h={50} />
+                    <Button variant="outline" onClick={cancel}>
+                        Cancel
+                    </Button>
+                </Flex>
+            </Modal>
+            <Menu shadow="md" width={200}>
+                <Menu.Target>
+                    <Button size="md">Play</Button>
+                </Menu.Target>
+
+                <Menu.Dropdown ml={-15}>
+                    <Menu.Label>Play</Menu.Label>
+                    <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item>
+                    <Menu.Item icon={<IconArrowsRandom size={18} />} onClick={join}>
+                        Play with random
+                    </Menu.Item>
+                </Menu.Dropdown>
+            </Menu>
+        </>
     );
 }

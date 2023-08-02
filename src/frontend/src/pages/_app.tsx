@@ -89,6 +89,8 @@ export default function App({ Component, pageProps }: AppProps) {
                         cos_black: ["#292932", "#242428", "#15151A", "#121214"]
                     },
                     fontFamily: font.style.fontFamily,
+                    // add font to theme
+                    fontFamilyMonospace: font.style.fontFamily,
                     headings: {
                         fontFamily: fontHeadings.style.fontFamily,
                     },

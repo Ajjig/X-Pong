@@ -4,12 +4,14 @@ import HeaderDashboard from "../Components/header";
 import store from "@/store/store";
 import api from "@/api";
 import { Loading } from "@/Components/loading/loading";
-import Matter from "matter-js";
+import Matter, { Composite } from "matter-js";
 import { Match_info } from "@/Components/matchs_history/match_info";
 import { gameState as TypeGameState } from "@/Components/game/types.d";
 import socketGame from "@/socket/gameSocket";
 
-interface props {}
+interface props {
+    gameID: string | string[] | undefined;
+}
 
 let gameState: TypeGameState = {
     ball: { x: 0, y: 0 },
@@ -18,6 +20,8 @@ let gameState: TypeGameState = {
     score: { player1: 0, player2: 0 },
 };
 
+let messageGame: string = "";
+
 type TypeMove = {
     room: string;
     move: { up: boolean; down: boolean };
@@ -25,14 +29,17 @@ type TypeMove = {
 
 const screen: { width: number; height: number } = { width: 900, height: 500 };
 
-export function GameLayout({}: props) {
+export function GameLayout({gameID}: props) {
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
-    const canvasRef = useRef<HTMLCanvasElement>(null);
     const worldRef = useRef<Matter.World>();
     const engineRef = useRef<Matter.Engine>();
     const runnerRef = useRef<Matter.Runner>();
     const [score, setScore] = useState<{ player1: number; player2: number }>({ player1: 0, player2: 0 });
+
+    // canvas
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const contextRef = useRef<CanvasRenderingContext2D | null | undefined>(null);
 
     const playerRef = useRef<{
         body: Matter.Body;
@@ -52,11 +59,13 @@ export function GameLayout({}: props) {
     const { Bodies, Engine, Events, Render, Runner, World } = Matter;
 
     useEffect(() => {
-        gameState = store.getState().game.gameState;
-        setScore(gameState.score);
-        store.subscribe(() => {
-            gameState = store.getState().game.gameState;
+        socketGame.on("gameState", (data: any) => {
+            gameState = data;
             setScore(gameState.score);
+        });
+
+        socketGame.on("gameMessage", (data: any) => {
+            messageGame = data;
         });
     }, []);
 
@@ -146,6 +155,14 @@ export function GameLayout({}: props) {
                 y: gameState.player2.y,
             });
         }
+
+        if (contextRef.current && gameState.score) {
+            let text = messageGame;
+            // print text score in the canvas
+            contextRef.current.font = "90px " + theme.fontFamily;
+            contextRef.current.fillStyle = theme.colors.gray[0];
+            contextRef.current.fillText(text, screen.width / 2 - text.length * 18, screen.height / 2 + 30);
+        }
     }
 
     useEffect(() => {
@@ -158,7 +175,7 @@ export function GameLayout({}: props) {
             Events.on(engineRef.current, "beforeUpdate", updateGame);
 
             let keys: TypeMove = {
-                room: "test",
+                room: gameID as string,
                 move: {
                     up: false,
                     down: false,
@@ -184,6 +201,8 @@ export function GameLayout({}: props) {
                 socketGame.emit("move", keys);
             });
         }
+
+        contextRef.current = canvasRef.current?.getContext("2d");
     }, [canvasRef]);
 
     return (
