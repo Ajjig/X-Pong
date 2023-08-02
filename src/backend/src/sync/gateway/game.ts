@@ -206,10 +206,14 @@ export class Game {
         }, 3000);
 
         setTimeout(() => {
-          this.client1.emit('gameMessage', '');
+          this.client1.emit('gameMessage', 'GO!');
         }, 4000);
 
-        setTimeout(() => { this.ballDir = ballDirs[difScore] }, 4000);
+        setTimeout(() => {
+          this.client1.emit('gameMessage', '');
+        }, 5500);
+
+        setTimeout(() => { this.ballDir = ballDirs[difScore] }, 5000);
       };
 
       let pairs = event.pairs;
