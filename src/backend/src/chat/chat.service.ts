@@ -3,6 +3,7 @@ import {
   CreateChatDto,
   CreatePrivateChannelDto,
   DirectMessageDto,
+  notificationsDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
@@ -512,7 +513,7 @@ export class ChatService {
           avatarUrl: friendUser.avatarUrl,
         },
       });
-      userClient.emit('notifications', notification);
+      userClient.emit('notification', notification);
     }
 
     if (friendClient) {
@@ -531,7 +532,7 @@ export class ChatService {
           avatarUrl: friendUser.avatarUrl,
         },
       });
-      friendClient.emit('notifications', notification);
+      friendClient.emit('notification', notification);
     }
 
     const res = await this.prisma.user.findUnique({
@@ -616,7 +617,7 @@ export class ChatService {
       },
     });
 
-    this.emitToUser(Server, username, 'addfriend-notification', notification);
+    this.emitToUser(Server, username, 'notification', notification);
 
     const notification_SIDE = await this.prisma.notification.create({
       data: {
@@ -629,17 +630,12 @@ export class ChatService {
         avatarUrl: friend.avatarUrl,
       },
     });
-    this.emitToUser(
-      Server,
-      friendUsername,
-      'addfriend-notification',
-      notification_SIDE,
-    );
+    this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
 
     return my_side;
   }
 
-  async loadUserNotifications(username: string): Promise<any> {
+  async loadUserNotifications(username: string): Promise<notificationsDto[]> {
     const user = await this.prisma.user.findUnique({
       where: {
         username: username,
@@ -656,8 +652,8 @@ export class ChatService {
     if (!user) {
       return null;
     }
-
-    return user.notifications;
+    const notifications: notificationsDto[] = user.notifications;
+    return notifications;
   }
 
   async emitToUser(
@@ -672,7 +668,7 @@ export class ChatService {
       },
     });
     if (!user) {
-      return;
+      [];
     }
     if (user.socketId) {
       server.to(user.socketId).emit(event, data);
