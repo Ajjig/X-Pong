@@ -108,21 +108,18 @@ export class PublicChannelService {
 
     for (let i = 0; i < checkuser.mutedFrom.length; i++) {
       if (checkuser.mutedFrom[i].name == channel) {
-        console.log('user is banned from the channel');
         return true;
       }
     }
 
     for (let i = 0; i < checkuser.bannedFrom.length; i++) {
       if (checkuser.bannedFrom[i].name == channel) {
-        console.log('user is banned from the channel');
         return true;
       }
     }
 
     for (let i = 0; i < checkuser.kickedFrom.length; i++) {
       if (checkuser.kickedFrom[i].name == channel) {
-        console.log('user is banned from the channel');
         return true;
       }
     }

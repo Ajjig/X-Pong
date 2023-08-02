@@ -71,7 +71,6 @@ export class UserService {
       });
       return updatedUserStats;
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -172,7 +171,6 @@ export class UserService {
       });
       return newFriend;
     } catch (e) {
-      console.log(e);
       throw new HttpException(e.meta, 400);
     }
   }
@@ -321,7 +319,6 @@ export class UserService {
 
       return new HttpException('user blocked', 200)
     } catch (e) {
-      console.log(e)
       throw new HttpException(e.meta, 400);
     }
   }
