@@ -502,18 +502,18 @@ export class ChatService {
         userClient.join(channel);
       }
       // save the notification in the database
-      const notification = await this.prisma.notification.create({
-        data: {
-          type: 'friendRequest',
-          from: user.username,
-          to: friendUser.username,
-          status: 'Accepted',
-          msg: 'You Have accepted ' + friendUser.username + ' friend request',
-          user: { connect: { id: user.id } },
-          avatarUrl: friendUser.avatarUrl,
-        },
-      });
-      userClient.emit('notification', notification);
+      // const notification = await this.prisma.notification.create({
+      //   data: {
+      //     type: 'friendRequest',
+      //     from: user.username,
+      //     to: friendUser.username,
+      //     status: 'Accepted',
+      //     msg: 'You Have accepted ' + friendUser.username + ' friend request',
+      //     user: { connect: { id: user.id } },
+      //     avatarUrl: friendUser.avatarUrl,
+      //   },
+      // });
+      // userClient.emit('notification', notification);
     }
 
     if (friendClient) {
@@ -523,7 +523,7 @@ export class ChatService {
       // save the notification in the database
       const notification = await this.prisma.notification.create({
         data: {
-          type: 'friendRequest',
+          type: 'AcceptRequest',
           from: user.username,
           to: friendUser.username,
           status: 'Accepted',
