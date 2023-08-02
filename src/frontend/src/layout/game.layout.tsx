@@ -57,16 +57,13 @@ export function GameLayout({}: props) {
     const { Bodies, Engine, Events, Render, Runner, World } = Matter;
 
     useEffect(() => {
-        gameState = store.getState().game.gameState;
-        setScore(gameState.score);
-        store.subscribe(() => {
-            gameState = store.getState().game.gameState;
+        socketGame.on("gameState", (data: any) => {
+            gameState = data;
             setScore(gameState.score);
         });
 
         socketGame.on("gameMessage", (data: any) => {
             messageGame = data;
-            console.log(data);
         });
     }, []);
 
