@@ -28,6 +28,9 @@ down:
 up:
 	$(DOCKER_COMPOSE) up --build
 
+re: down up
+	@echo "Rebuild complete"
+
 clean: 
 	-@ $(DOCKER_COMPOSE) stop $(docker ps -a -q)
 	-@ $(DOCKER_COMPOSE) rm $(docker ps -a -q)
