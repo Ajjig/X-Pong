@@ -18,7 +18,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { emit } from 'process';
 
 @WebSocketGateway({
@@ -29,14 +29,12 @@ import { emit } from 'process';
   namespace: 'chat',
 })
 export class ChatGateway {
-  private connectedClients: Map<string, Socket> = new Map<string, Socket>();
   constructor(
     private readonly chatService: ChatService,
     private readonly publicChannelService: PublicChannelService,
     private readonly userChatHistoryService: UserChatHistoryService,
-  ) {
-
-  }
+  ) {}
+  private connectedClients: Map<string, Socket> = new Map<string, Socket>();
 
   @WebSocketServer()
   server: Server;
@@ -114,37 +112,6 @@ export class ChatGateway {
     client.to(channelID).emit('message', message);
   }
 
-  // @SubscribeMessage('findAllMessages')
-  // async findALLmessages(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() payload: any,
-  // ) {
-  //   const userdata = await this.chatService.jwtdecoder(client);
-  //   if (!userdata) {
-  //     client.emit('error', 'User not found');
-  //     return;
-  //   }
-  //   if (!payload || !payload.channelId || !userdata.username) {
-  //     client.emit('error', 'You must provide a payload');
-  //     return;
-  //   }
-  //   const channel = await this.chatService.checkSingleChannelExsting(
-  //     userdata.username,
-  //     payload.channelId,
-  //   );
-  //   if (!channel) {
-  //     client.emit(
-  //       'error',
-  //       'You are not authorized to send messages to this channel',
-  //     );
-  //     return;
-  //   }
-  //   const messages = await this.chatService.findAllPrivateMessagesByChannelID(
-  //     payload.channelId,
-  //   );
-  //   client.emit('findAllMessages', messages);
-  // }
-
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
@@ -184,13 +151,15 @@ export class ChatGateway {
     if (!inChannel) {
       client.join(channelName);
     }
+    payload.username = userdata.username;
+    payload.channelName = channelName;
     await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
     // add created at and updated at
 
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
     client.to(channelName).emit('PublicMessage', payload);
-  }
+  } 
 
   @SubscribeMessage('search')
   async SearchQuery(
@@ -217,6 +186,7 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    this.chatService.setUserSocketId(client.id, userdata.username);
     const publicChat =
       await this.userChatHistoryService.getUserChannelConversationChatHistory(
         userdata.username,
@@ -249,7 +219,10 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('accept_friend_request')
-  async acceptFriendRequest(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
+  async acceptFriendRequest(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
@@ -261,7 +234,12 @@ export class ChatGateway {
       return;
     }
 
-    const result = await this.chatService.acceptFriendRequest(userdata.username, payload.friend_username, this.server, this.connectedClients);
+    const result = await this.chatService.acceptFriendRequest(
+      userdata.username,
+      payload.friend_username,
+      this.server,
+      this.connectedClients,
+    );
     if (result == false) {
       client.emit('error', 'The user or friend is not found');
       return;
@@ -270,7 +248,10 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('add_friend')
-  async addFriend(@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
+  async addFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'Unauthorized user');
@@ -282,10 +263,13 @@ export class ChatGateway {
       return;
     }
 
-    const result = await this.chatService.addFriend(userdata.username, payload.friend_username, this.server, this.connectedClients);
+    const result = await this.chatService.addFriend(
+      userdata.username,
+      payload.friend_username,
+      this.server,
+    );
     client.emit('add_friend', result);
   }
-
 
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
@@ -295,9 +279,13 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    this.connectedClients.set(userdata.username, client);
+    // test get user client socket from using server
+
+    await this.chatService.setUserSocketId(client.id, userdata.username);
+
     await this.chatService.joinUsertohischannels(userdata.username, client);
     new Logger('Socket').log('Client connected: ' + userdata.username);
-    this.connectedClients.set(userdata.username, client);
 
     const publicChat =
       await this.userChatHistoryService.getUserChannelConversationChatHistory(
@@ -310,7 +298,9 @@ export class ChatGateway {
         0,
       );
 
-    const UserNotifications = await this.chatService.loadUserNotifications(userdata.username);
+    const UserNotifications = await this.chatService.loadUserNotifications(
+      userdata.username,
+    );
     client.emit('privateChat', privateChat);
     client.emit('publicChat', publicChat);
     client.emit('notifications', UserNotifications);
@@ -324,7 +314,15 @@ export class ChatGateway {
       client.disconnect();
       return;
     }
+    this.chatService.setUserSocketId(null, userdata.username);
     this.connectedClients.delete(userdata.username);
     await this.chatService.set_user_offline(userdata.username);
+  }
+
+  emitToUser(socketID: string, event: string, payload: any) {
+    if (socketID == null) {
+      return;
+    }
+    this.server.to(socketID).emit(event, payload);
   }
 }

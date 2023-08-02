@@ -9,7 +9,6 @@ COPY . .
 
 RUN npm i
 RUN npm i -g @nestjs/cli
-# RUN npm i -g prisma
 
 # RUN npm rebuild bcrypt --update-binary
 # RUN npx prisma generate

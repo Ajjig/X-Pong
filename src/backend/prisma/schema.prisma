@@ -26,6 +26,7 @@ model User {
   onlineAt            DateTime? @default(now())
   Userstats Userstats? // one to one
   isBanned            Boolean    @default(false)
+  socketId            String?
 
   Friends Friends[]   @relation("UserFriends") // many to many
 

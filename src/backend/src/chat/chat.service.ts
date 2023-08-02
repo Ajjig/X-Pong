@@ -31,6 +31,17 @@ export class ChatService {
     return 'ok';
   }
 
+  async setUserSocketId(socketID: string, username: string) {
+    await this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        socketId: socketID,
+      },
+    });
+  }
+
   async checkUserExsting(
     username: string,
     data: CreatePrivateChannelDto,
@@ -205,9 +216,9 @@ export class ChatService {
     try {
       token = client.handshake.headers.cookie.split('=')[1];
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
-        uid: number,
-        username: string,
-        iat: number,
+        uid: number;
+        username: string;
+        iat: number;
         exp: number;
       };
       if (context) {
@@ -226,9 +237,9 @@ export class ChatService {
         return null;
       }
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
-        uid: number,
-        username: string,
-        iat: number,
+        uid: number;
+        username: string;
+        iat: number;
         exp: number;
       };
       if (context) {
@@ -239,8 +250,7 @@ export class ChatService {
         return null;
       }
       return userdecoded;
-    } catch  {
-      
+    } catch {
       return null;
     }
   }
@@ -413,44 +423,49 @@ export class ChatService {
       }
   }
 
-  async acceptFriendRequest(username: string, friendRequest: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+  async acceptFriendRequest(
+    username: string,
+    friendRequest: string,
+    Server: Server,
+    connectedClients: Map<string, Socket>,
+  ): Promise<any> {
     const userClient = connectedClients.get(username);
     const friendClient = connectedClients.get(friendRequest);
 
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username
+        username: username,
       },
       include: {
-        Friends: true
-      }
-    })
+        Friends: true,
+      },
+    });
 
     const friendUser = await this.prisma.user.findUnique({
       where: {
-        username: friendRequest
+        username: friendRequest,
       },
       include: {
-        Friends: true
-      }
-    })
+        Friends: true,
+      },
+    });
 
     if (!user || !friendUser) {
-      return false
+      return false;
     }
 
     // update the friendship status to accepted
     const userFriend = await this.prisma.friends.updateMany({
       where: {
         requestSentTo: username,
-        requestSentBy : friendRequest,
+        requestSentBy: friendRequest,
         friendshipStatus: 'Pending',
       },
       data: {
         friendshipStatus: 'Accepted',
       },
     });
-  
+
     if (userFriend.count === 0) {
       if (userClient) {
         userClient.emit('error', 'No friend request found');
@@ -471,22 +486,18 @@ export class ChatService {
 
     // create a new channel for the two users
     const channel = await this.makePrivateChannelId(username, friendRequest);
-    const check_channel = await this.checkSingleChannelExsting(username, channel);
+    const check_channel = await this.checkSingleChannelExsting(
+      username,
+      channel,
+    );
     if (!check_channel) {
-      await this.createprivatechannel(
-        username,
-        friendRequest,
-        Server,
-        channel,
-      );
+      await this.createprivatechannel(username, friendRequest, Server, channel);
     }
 
     // join the two users to the channel
 
-
     if (userClient) {
-      if (!userClient.rooms.has(channel))
-      {
+      if (!userClient.rooms.has(channel)) {
         userClient.join(channel);
       }
       // save the notification in the database
@@ -505,8 +516,7 @@ export class ChatService {
     }
 
     if (friendClient) {
-      if (!friendClient.rooms.has(channel))
-      {
+      if (!friendClient.rooms.has(channel)) {
         friendClient.join(channel);
       }
       // save the notification in the database
@@ -524,33 +534,37 @@ export class ChatService {
       friendClient.emit('notifications', notification);
     }
 
-
     const res = await this.prisma.user.findUnique({
       where: {
-        username: username
+        username: username,
       },
-      select :
-      {
-        email : true,
-        username : true,
-        Friends : true,
-        onlineStatus : true,
-        id : true,
-      }
-    })
-    
+      select: {
+        email: true,
+        username: true,
+        Friends: true,
+        onlineStatus: true,
+        id: true,
+      },
+    });
+
     return res;
   }
 
-  async addFriend(username: string, friendUsername: string, Server: Server, connectedClients: Map<string, Socket>): Promise<any> {
+  async addFriend(
+    username: string,
+    friendUsername: string,
+    Server: Server,
+  ): Promise<any> {
     if (username === friendUsername) {
-      const userClient = connectedClients.get(username);
-      if (userClient) {
-        userClient.emit('error', "You can't send a friend request to yourself");
-      }
+      this.emitToUser(
+        Server,
+        username,
+        'error',
+        "You can't send a friend request to yourself",
+      );
       return null;
     }
-    
+
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
@@ -560,23 +574,15 @@ export class ChatService {
     });
 
     if (!user || !friend) {
-      const userClient = connectedClients.get(user.username);
-      if (userClient) {
-        userClient.emit('error', 'User or friend usename not found');
-      }
+      this.emitToUser(Server, username, 'error', 'User not found');
       return null;
     }
 
     const existingFriendship = await this.prisma.friends.findFirst({
-      where: { username: friend.username,
-        requestSentBy: username, 
-       },
+      where: { username: friend.username, requestSentBy: username },
     });
     if (existingFriendship) {
-      const userClient = connectedClients.get(user.username);
-      if (userClient) {
-        userClient.emit('error', 'You have already sent a friend request to this user');
-      }
+      this.emitToUser(Server, username, 'error', 'You are already friends');
       return null;
     }
 
@@ -584,8 +590,8 @@ export class ChatService {
       data: {
         user: { connect: { id: user.id } },
         username: friend.username,
-        requestSentBy : username,
-        requestSentTo : friendUsername,
+        requestSentBy: username,
+        requestSentTo: friendUsername,
       },
     });
 
@@ -593,54 +599,50 @@ export class ChatService {
       data: {
         user: { connect: { id: friend.id } },
         username: user.username,
-        requestSentBy : username,
-        requestSentTo : friendUsername,
-
+        requestSentBy: username,
+        requestSentTo: friendUsername,
       },
     });
 
-    const userClient = connectedClients.get(user.username);
-    const friendClient = connectedClients.get(friend.username);
+    const notification = await this.prisma.notification.create({
+      data: {
+        type: 'friendRequest',
+        from: user.username,
+        to: friend.username,
+        status: 'pending',
+        msg: 'You sent a friend request to ' + friend.username,
+        user: { connect: { id: user.id } },
+        avatarUrl: friend.avatarUrl,
+      },
+    });
 
-    if (userClient) {
-      const notification = await this.prisma.notification.create({
-        data: {
-          type: 'friendRequest',
-          from: user.username,
-          to: friend.username,
-          status: 'pending',
-          msg: 'You sent a friend request to ' + friend.username,
-          user: { connect: { id: user.id } },
-          avatarUrl: friend.avatarUrl,
-        },
-      });
+    this.emitToUser(Server, username, 'addfriend-notification', notification);
 
-      userClient.emit('notifications', notification);
+    const notification_SIDE = await this.prisma.notification.create({
+      data: {
+        type: 'friendRequest',
+        from: user.username,
+        to: friend.username,
+        status: 'pending',
+        msg: user.username + ' sent you a friend request',
+        user: { connect: { id: friend.id } },
+        avatarUrl: friend.avatarUrl,
+      },
+    });
+    this.emitToUser(
+      Server,
+      friendUsername,
+      'addfriend-notification',
+      notification_SIDE,
+    );
 
-    }
-
-    if (friendClient) {
-      const notification = await this.prisma.notification.create({
-        data: {
-          type: 'friendRequest',
-          from: user.username,
-          to: friend.username,
-          status: 'pending',
-          msg: user.username + ' sent you a friend request',
-          user: { connect: { id: friend.id } },
-          avatarUrl: friend.avatarUrl,
-        },
-      });
-
-      friendClient.emit('notifications', notification);
-    }
     return my_side;
   }
-  
+
   async loadUserNotifications(username: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username
+        username: username,
       },
       include: {
         notifications: {
@@ -648,8 +650,8 @@ export class ChatService {
             createdAt: 'desc',
           },
         },
-      }
-    })
+      },
+    });
 
     if (!user) {
       return null;
@@ -657,5 +659,23 @@ export class ChatService {
 
     return user.notifications;
   }
-  
+
+  async emitToUser(
+    server: Server,
+    username: string,
+    event: string,
+    data: any,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+    if (!user) {
+      return;
+    }
+    if (user.socketId) {
+      server.to(user.socketId).emit(event, data);
+    }
+  }
 }
