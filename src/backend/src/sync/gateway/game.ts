@@ -194,19 +194,19 @@ export class Game {
         ]
 
         setTimeout(() => {
-          this.client1.emit('countDown', '3');
+          this.client1.emit('gameMessage', '3');
         }, 1000);
 
         setTimeout(() => {
-          this.client1.emit('countDown', '2');
+          this.client1.emit('gameMessage', '2');
         }, 2000);
 
         setTimeout(() => {
-          this.client1.emit('countDown', '1');
+          this.client1.emit('gameMessage', '1');
         }, 3000);
 
         setTimeout(() => {
-          this.client1.emit('countDown', '');
+          this.client1.emit('gameMessage', '');
         }, 4000);
 
         setTimeout(() => { this.ballDir = ballDirs[difScore] }, 4000);
