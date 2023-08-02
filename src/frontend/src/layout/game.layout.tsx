@@ -160,7 +160,7 @@ export function GameLayout({}: props) {
         if (contextRef.current && gameState.score) {
             let text = messageGame;
             // print text score in the canvas
-            contextRef.current.font = "90px Arial";
+            contextRef.current.font = "90px " + theme.fontFamily;
             contextRef.current.fillStyle = theme.colors.gray[0];
             contextRef.current.fillText(text, screen.width / 2 - text.length * 18, screen.height / 2 + 30);
         }
