@@ -3,6 +3,7 @@ import {
   CreateChatDto,
   CreatePrivateChannelDto,
   DirectMessageDto,
+  notificationsDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
@@ -501,18 +502,18 @@ export class ChatService {
         userClient.join(channel);
       }
       // save the notification in the database
-      const notification = await this.prisma.notification.create({
-        data: {
-          type: 'friendRequest',
-          from: user.username,
-          to: friendUser.username,
-          status: 'Accepted',
-          msg: 'You Have accepted ' + friendUser.username + ' friend request',
-          user: { connect: { id: user.id } },
-          avatarUrl: friendUser.avatarUrl,
-        },
-      });
-      userClient.emit('notifications', notification);
+      // const notification = await this.prisma.notification.create({
+      //   data: {
+      //     type: 'friendRequest',
+      //     from: user.username,
+      //     to: friendUser.username,
+      //     status: 'Accepted',
+      //     msg: 'You Have accepted ' + friendUser.username + ' friend request',
+      //     user: { connect: { id: user.id } },
+      //     avatarUrl: friendUser.avatarUrl,
+      //   },
+      // });
+      // userClient.emit('notification', notification);
     }
 
     if (friendClient) {
@@ -522,16 +523,16 @@ export class ChatService {
       // save the notification in the database
       const notification = await this.prisma.notification.create({
         data: {
-          type: 'friendRequest',
+          type: 'AcceptRequest',
           from: user.username,
           to: friendUser.username,
           status: 'Accepted',
           msg: user.username + ' accepted your friend request',
           user: { connect: { id: friendUser.id } },
-          avatarUrl: friendUser.avatarUrl,
+          avatarUrl: user.avatarUrl,
         },
       });
-      friendClient.emit('notifications', notification);
+      friendClient.emit('notification', notification);
     }
 
     const res = await this.prisma.user.findUnique({
@@ -604,19 +605,19 @@ export class ChatService {
       },
     });
 
-    const notification = await this.prisma.notification.create({
-      data: {
-        type: 'friendRequest',
-        from: user.username,
-        to: friend.username,
-        status: 'pending',
-        msg: 'You sent a friend request to ' + friend.username,
-        user: { connect: { id: user.id } },
-        avatarUrl: friend.avatarUrl,
-      },
-    });
+    // const notification = await this.prisma.notification.create({
+    //   data: {
+    //     type: 'friendRequest',
+    //     from: user.username,
+    //     to: friend.username,
+    //     status: 'pending',
+    //     msg: 'You sent a friend request to ' + friend.username,
+    //     user: { connect: { id: user.id } },
+    //     avatarUrl: friend.avatarUrl,
+    //   },
+    // });
 
-    this.emitToUser(Server, username, 'addfriend-notification', notification);
+    // this.emitToUser(Server, username, 'notification', notification);
 
     const notification_SIDE = await this.prisma.notification.create({
       data: {
@@ -626,20 +627,15 @@ export class ChatService {
         status: 'pending',
         msg: user.username + ' sent you a friend request',
         user: { connect: { id: friend.id } },
-        avatarUrl: friend.avatarUrl,
+        avatarUrl: user.avatarUrl,
       },
     });
-    this.emitToUser(
-      Server,
-      friendUsername,
-      'addfriend-notification',
-      notification_SIDE,
-    );
+    this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
 
     return my_side;
   }
 
-  async loadUserNotifications(username: string): Promise<any> {
+  async loadUserNotifications(username: string): Promise<notificationsDto[]> {
     const user = await this.prisma.user.findUnique({
       where: {
         username: username,
@@ -656,8 +652,8 @@ export class ChatService {
     if (!user) {
       return null;
     }
-
-    return user.notifications;
+    const notifications: notificationsDto[] = user.notifications;
+    return notifications;
   }
 
   async emitToUser(
@@ -672,7 +668,7 @@ export class ChatService {
       },
     });
     if (!user) {
-      return;
+      [];
     }
     if (user.socketId) {
       server.to(user.socketId).emit(event, data);

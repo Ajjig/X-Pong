@@ -1,3 +1,5 @@
+import { type } from 'os';
+
 export class PrivateChannel {
   user2: string;
 }
@@ -36,4 +38,17 @@ export class PublicChannelMessage {
 
 export class GetPrivateConversations {
   username: string;
+}
+
+export class notifications {
+  id: number;
+  type: string;
+  from: string;
+  to: string;
+  status: string;
+  msg: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: number;
+  avatarUrl: string;
 }
