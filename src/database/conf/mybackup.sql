@@ -15,6 +15,7 @@ CREATE TABLE "User" (
     "confirmed" BOOLEAN NOT NULL DEFAULT false,
     "onlineAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "isBanned" BOOLEAN NOT NULL DEFAULT false,
+    "socketId" TEXT,
     "privateChannels" TEXT[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
