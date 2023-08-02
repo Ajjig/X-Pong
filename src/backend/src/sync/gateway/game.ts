@@ -8,7 +8,7 @@ const HEIGHT = 500;
 const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
-const BALL_SPEED = 5;
+const BALL_SPEED = 7.5;
 const PLAYER_SPEED = 2.69;
 
 export class Game {
@@ -26,9 +26,12 @@ export class Game {
   private player1;
   private player2;
   private score;
-  private dir;
+  private playersDir;
+  private ballDir = {
+    x: Math.cos(1) * BALL_SPEED,
+    y: Math.sin(0.5) * BALL_SPEED,
+  };
 
-  private scoreTime = new Date();
 
 
   constructor(clientsData: any) {
@@ -46,11 +49,12 @@ export class Game {
     this.createWalls();
     this.createPlayers();
     this.createBall();
+    this.handleEvents();
     this.score = {
       player1: 0,
       player2: 0,
     };
-    this.dir = {
+    this.playersDir = {
       player1: {
         up: false,
         down: false,
@@ -83,35 +87,26 @@ export class Game {
     };
     this.client1.emit('gameState', gameState);
 
-    // console.log('\x1B[2J\x1B[0f');
-    // const wallsPos = {
-    //   top: world.bodies[0].position.y,
-    //   bottom: world.bodies[1].position.y,
-    //   left: world.bodies[2].position.x,
-    //   right: world.bodies[3].position.x,
-    // };
-    // console.log(gameState);
-    // console.log(wallsPos);
   }
 
   updatePlayers() {
-    if (this.dir.player1.up && this.player1.position.y - PADDLE_HEIGHT / 2 > 0) {
+    if (this.playersDir.player1.up && this.player1.position.y - PADDLE_HEIGHT / 2 > 0) {
       Body.setPosition(this.player1, {
         x: this.player1.position.x,
         y: this.player1.position.y - PLAYER_SPEED,
       });
-    } else if (this.dir.player1.down && this.player1.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
+    } else if (this.playersDir.player1.down && this.player1.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
       Body.setPosition(this.player1, {
         x: this.player1.position.x,
         y: this.player1.position.y + PLAYER_SPEED,
       });
     }
-    if (this.dir.player2.up && this.player2.position.y - PADDLE_HEIGHT / 2 > 0) {
+    if (this.playersDir.player2.up && this.player2.position.y - PADDLE_HEIGHT / 2 > 0) {
       Body.setPosition(this.player2, {
         x: this.player2.position.x,
         y: this.player2.position.y - PLAYER_SPEED,
       });
-    } else if (this.dir.player2.down && this.player2.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
+    } else if (this.playersDir.player2.down && this.player2.position.y + PADDLE_HEIGHT / 2 < HEIGHT) {
       Body.setPosition(this.player2, {
         x: this.player2.position.x,
         y: this.player2.position.y + PLAYER_SPEED,
@@ -120,27 +115,26 @@ export class Game {
 
   }
 
+
   createBall() {
-    const { engine, world }: any = { engine: this.engine, world: this.world };
-
+    const world = this.world;
     this.ball = Bodies.circle(450, 250, 20, {
-        id: 5,
-        mass: 0,
+      id: 5,
+      mass: 0,
     });
-  
-    const ball = this.ball;
+    
+    World.add(world, [this.ball]);
+  }
 
-    World.add(world, [ball]);
+  handleEvents() {
+    const  engine = this.engine;
 
-    const speed = 7.5;
-    let dir = {
-        x: Math.cos(1) * speed,
-        y: Math.sin(0.5) * speed,
-    };
+
+    // const dir = this.ballDir;
     let collide = 10;
 
     const updateBall = () => {
-      Body.setVelocity(ball, dir);
+      Body.setVelocity(this.ball, this.ballDir);
       this.updatePlayers();
       this.updateGame();
     };
@@ -150,24 +144,24 @@ export class Game {
 
       pairs.forEach((pair: any) => {
         if (pair.bodyA.id == 1 || pair.bodyA.id == 2) {
-          dir.y = -dir.y;
+          this.ballDir.y = -this.ballDir.y;
         } else if (pair.bodyA.id == 3 || pair.bodyA.id == 4) {
-          dir.x = -dir.x;
+          this.ballDir.x = -this.ballDir.x;
         }
         
         // paddle and ball collision
         if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
           collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
           let angle = (Math.PI / 4) * collide;
-          dir.x = Math.cos(angle) * speed;
-          dir.y = Math.sin(angle) * speed;
+          this.ballDir.x = Math.cos(angle) * BALL_SPEED;
+          this.ballDir.y = Math.sin(angle) * BALL_SPEED;
 
         }
         if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
           collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
           let angle = (Math.PI / 4) * collide;
-          dir.x = -Math.cos(angle) * speed;
-          dir.y = Math.sin(angle) * speed;
+          this.ballDir.x = -Math.cos(angle) * BALL_SPEED;
+          this.ballDir.y = Math.sin(angle) * BALL_SPEED;
         }
       });
     });
@@ -175,17 +169,12 @@ export class Game {
 
     Events.on(engine, 'collisionEnd', (event) => {
 
-      if (new Date().getTime() - this.scoreTime.getTime() < 1000) {
-        return;
-      }
       let pairs = event.pairs;
       pairs.forEach((pair: any) => {
         if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
           this.score.player2++;
-          this.scoreTime = new Date();
         } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
           this.score.player1++;
-          this.scoreTime = new Date();
         }
       });
     });
@@ -194,13 +183,9 @@ export class Game {
   }
 
   createWalls() {
-    const { engine, world }: any = { engine: this.engine, world: this.world };
-
-    let walls: any[];
-
-    let wallThickness = 1;
-
-    walls = [
+    const world = this.world;
+    const wallThickness = 1;
+    const walls = [
         Bodies.rectangle(WIDTH / 2, 0, WIDTH, wallThickness, {
             isStatic: true,
             id: 1,
@@ -258,11 +243,11 @@ export class Game {
 
   move(client: any, move) {
     if (client === this.client1) {
-      this.dir.player1.up = move.up;
-      this.dir.player1.down = move.down;
+      this.playersDir.player1.up = move.up;
+      this.playersDir.player1.down = move.down;
     } else if (client === this.client2) {
-      this.dir.player2.up = move.up;
-      this.dir.player2.down = move.down;
+      this.playersDir.player2.up = move.up;
+      this.playersDir.player2.down = move.down;
     }
   }
 
