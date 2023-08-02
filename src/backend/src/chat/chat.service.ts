@@ -474,17 +474,6 @@ export class ChatService {
       return undefined;
     }
 
-    const friendFriend = await this.prisma.friends.updateMany({
-      where: {
-        requestSentTo: username,
-        requestSentBy: friendRequest,
-        friendshipStatus: 'Pending',
-      },
-      data: {
-        friendshipStatus: 'Accepted',
-      },
-    });
-
     // create a new channel for the two users
     const channel = await this.makePrivateChannelId(username, friendRequest);
     const check_channel = await this.checkSingleChannelExsting(
@@ -501,19 +490,6 @@ export class ChatService {
       if (!userClient.rooms.has(channel)) {
         userClient.join(channel);
       }
-      // save the notification in the database
-      // const notification = await this.prisma.notification.create({
-      //   data: {
-      //     type: 'friendRequest',
-      //     from: user.username,
-      //     to: friendUser.username,
-      //     status: 'Accepted',
-      //     msg: 'You Have accepted ' + friendUser.username + ' friend request',
-      //     user: { connect: { id: user.id } },
-      //     avatarUrl: friendUser.avatarUrl,
-      //   },
-      // });
-      // userClient.emit('notification', notification);
     }
 
     if (friendClient) {
@@ -534,6 +510,15 @@ export class ChatService {
       });
       friendClient.emit('notification', notification);
     }
+
+    const notification_to_delete = await this.prisma.notification.deleteMany({
+      where: {
+        type: 'friendRequest',
+        from: friendRequest,
+        to: username,
+        status: 'pending',
+      },
+    });
 
     const res = await this.prisma.user.findUnique({
       where: {
@@ -604,20 +589,6 @@ export class ChatService {
         requestSentTo: friendUsername,
       },
     });
-
-    // const notification = await this.prisma.notification.create({
-    //   data: {
-    //     type: 'friendRequest',
-    //     from: user.username,
-    //     to: friend.username,
-    //     status: 'pending',
-    //     msg: 'You sent a friend request to ' + friend.username,
-    //     user: { connect: { id: user.id } },
-    //     avatarUrl: friend.avatarUrl,
-    //   },
-    // });
-
-    // this.emitToUser(Server, username, 'notification', notification);
 
     const notification_SIDE = await this.prisma.notification.create({
       data: {
