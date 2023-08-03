@@ -21,18 +21,18 @@ export class UserChannelService {
       });
 
       if (user == null) {
-        throw new HttpException('User does not exist', 400);
+        return new HttpException('User does not exist', 400);
       }
 
       const check_password = this.UserPasswordService.validatePassword(
         channel.password,
       );
       if (channel.password && (await check_password).validated == false) {
-        throw new HttpException('Weak password', 400);
+        return new HttpException('Weak password', 400);
       }
 
-      if (['public', 'private'].includes(channel.type) == false) {
-        throw new HttpException('Invalid channel type', 400);
+      if (['public', 'private', 'protected'].includes(channel.type) == false) {
+        return new HttpException('Invalid channel type', 400);
       }
 
       const newChannel = await this.prisma.channel.create({
@@ -42,8 +42,13 @@ export class UserChannelService {
           name: channel.name,
           type: channel.type,
           password:
-            channel.type === 'public' ? null : (await check_password).password,
-          salt: channel.type === 'public' ? null : (await check_password).salt,
+            channel.type === 'protected'
+              ? (
+                  await check_password
+                ).password
+              : null,
+          salt:
+            channel.type === 'protected' ? (await check_password).salt : null,
           owner: channel.owner ? channel.owner : user.username,
         },
         select: {
@@ -58,7 +63,8 @@ export class UserChannelService {
 
       return newChannel;
     } catch (e) {
-      throw new HttpException(e.meta, 400);
+      console.log(e);
+      return new HttpException(e.meta, 400);
     }
   }
 

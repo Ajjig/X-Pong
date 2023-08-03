@@ -83,6 +83,7 @@ export class ChatGateway {
     );
     if (blocked) {
       client.emit('error', 'You are blocked from this user');
+      client.emit('error-message', 'You are blocked from this user');
       return;
     }
     //------------- add blocked logic here

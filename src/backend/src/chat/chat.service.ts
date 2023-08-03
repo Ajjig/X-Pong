@@ -9,6 +9,8 @@ import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
+import { notEqual } from 'assert';
+import { NotEquals } from 'class-validator';
 
 dotenv.config();
 
@@ -339,6 +341,9 @@ export class ChatService {
           contains: query,
           mode: 'insensitive',
         },
+        type : {
+          not : 'private'
+        }
       },
       select: {
         name: true,
