@@ -10,7 +10,7 @@ const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 7.5;
 const PLAYER_SPEED = 2.69;
-const GOALS_TO_WIN = 2;
+const GOALS_TO_WIN = 5;
 
 export class Game {
   private readonly id: string;
@@ -356,8 +356,8 @@ export class Game {
   stopGame() {
     Events.off(this.engine, "collisionStart");
     Events.off(this.engine, "beforeUpdate");
-    Runner.stop(this.runner);
-    World.clear(this.world, false);
+    this.runner.stop();
+    World.clear(this.world);
     Engine.clear(this.engine);
     this.logger.log(`Match '${this.id}' ended`);
   }
