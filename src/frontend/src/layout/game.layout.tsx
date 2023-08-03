@@ -6,7 +6,7 @@ import api from "@/api";
 import { Loading } from "@/Components/loading/loading";
 import Matter, { Composite } from "matter-js";
 import { Match_info } from "@/Components/matchs_history/match_info";
-import { gameState as TypeGameState } from "@/Components/game/types.d";
+import { gameState as TypeGameState, oppType } from "@/Components/game/types.d";
 import socketGame from "@/socket/gameSocket";
 
 interface props {
@@ -29,7 +29,8 @@ type TypeMove = {
 
 const screen: { width: number; height: number } = { width: 900, height: 500 };
 
-export function GameLayout({gameID}: props) {
+export function GameLayout({ gameID }: props) {
+    const [oppinfo, setOppinfo] = useState<oppType>({ roomName: "", player: 0, opponentName: "" });
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
     const worldRef = useRef<Matter.World>();
@@ -67,6 +68,8 @@ export function GameLayout({gameID}: props) {
         socketGame.on("gameMessage", (data: any) => {
             messageGame = data;
         });
+
+        setOppinfo(store.getState().game.opp);
     }, []);
 
     function createWorld() {
@@ -181,8 +184,7 @@ export function GameLayout({gameID}: props) {
                     down: false,
                 },
             };
-
-            socketGame.connect();
+            if (socketGame.connected == false) socketGame.connect();
 
             document.addEventListener("keydown", (e) => {
                 if (e.key == "ArrowUp") {
@@ -209,7 +211,7 @@ export function GameLayout({gameID}: props) {
         <>
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Container>
-                <Match_info score={score} player1={gameState.player1} player2={gameState.player2} result={"0 - 0"}>
+                <Match_info score={score} player1={gameState.player1} player2={gameState.player2} oppinfo={oppinfo} result={"0 - 0"}>
                     <canvas style={{ borderRadius: "5%", width: "100%" }} ref={canvasRef}></canvas>
                 </Match_info>
             </Container>

@@ -16,8 +16,8 @@ type PrivateChat = [
 const SocketComponent = () => {
     useEffect(() => {
         // Connect to the socket server
-        chatSocket.connect();
-        socketGame.connect();
+        if (!socketGame.connected) socketGame.connect();
+        if (!chatSocket.connected) chatSocket.connect();
 
         socketGame.on("gameState", (gameState: any) => {
             store.dispatch(setGameState(gameState));
@@ -45,7 +45,6 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("message", (data: any) => {
-
             if (store.getState().chats.PrivateChats.length == 0) {
                 chatSocket.emit("reconnect", {});
             }
@@ -67,7 +66,6 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("notifications", (data: NotificationType[]) => {
-           
             console.log(">>>>>>>>>>> notifications: ", data);
             // add the notification to the store
             store.dispatch(setNotifications(data));
@@ -76,8 +74,7 @@ const SocketComponent = () => {
         chatSocket.on("notification", (data: NotificationType) => {
             console.log("notification: ", data);
 
-            store.dispatch(addFriendRequest(data))
-
+            store.dispatch(addFriendRequest(data));
         });
 
         chatSocket.on("privateChat", (data) => {

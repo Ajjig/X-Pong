@@ -1,4 +1,4 @@
-import { gameState } from "@/Components/game/types.d";
+import { gameState, oppType } from "@/Components/game/types.d";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialStateProfile = {
@@ -16,15 +16,23 @@ const initialStateProfile = {
             y: 0,
         },
     },
+    opp: {
+        roomName: "",
+        player: 0,
+        opponentName: "",
+    },
 };
 
 const gameStateSlice = createSlice({
     name: "gameState",
-    initialState: initialStateProfile as { gameState: gameState },
+    initialState: initialStateProfile as { gameState: gameState, opp: oppType},
     reducers: {
         setGameState: (state, action) => {
             state.gameState = action.payload;
         },
+        setOpp: (state, action) => {
+            state.opp = action.payload;
+        }
     },
 });
 

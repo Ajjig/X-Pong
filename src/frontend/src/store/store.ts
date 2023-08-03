@@ -26,5 +26,5 @@ export const { setPrivateChats, addNewMessageToPrivateChat, setGroupChats, setCu
 export const { setSocket } = socketSlice.actions;
 export const { setProfile } = profileSlice.actions;
 export const { setNotifications, addFriendRequest, removeFriendRequest } = NotificationsSlice.actions;
-export const { setGameState } = gameStateSlice.actions;
+export const { setGameState, setOpp } = gameStateSlice.actions;
 export default store;

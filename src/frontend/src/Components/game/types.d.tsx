@@ -14,5 +14,11 @@ export type gameState = {
     score: {
         player1: number;
         player2: number;
-    }
+    };
+};
+
+export type oppType = {
+    roomName: string;
+    player: number;
+    opponentName: string;
 };

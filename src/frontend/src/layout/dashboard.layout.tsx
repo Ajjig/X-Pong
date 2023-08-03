@@ -9,7 +9,7 @@ import PublicGroups from "../Components/dashboard/popular_groups";
 import { Chat } from "@/Components/dashboard/chat/private_chat/chat";
 
 // Import store
-import store, { setCurrentChat } from "@/store/store";
+import store, { setCurrentChat, setOpp } from "@/store/store";
 import UserInfo from "@/Components/dashboard/userInfo";
 
 export function DashboardLayout() {
@@ -100,11 +100,7 @@ export function DashboardLayout() {
                     right: 30,
                 })}
             >
-                {
-                    chat && (
-                        <Play />
-                    )
-                }
+                {<Play />}
             </Box>
         </Box>
     );
@@ -145,6 +141,7 @@ function Play() {
     useEffect(() => {
         socketGame.on("match", (data) => {
             console.log(data);
+            store.dispatch(setOpp(data));
             router.push(`/game/${data.roomName}`);
         });
     }, []);
