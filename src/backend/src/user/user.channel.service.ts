@@ -15,7 +15,7 @@ export class UserChannelService {
   ) {}
 
   async createChannelByUsername(username: string, channel: any) {
-    try {
+    
       const user = await this.prisma.user.findUnique({
         where: { username: username },
       });
@@ -38,6 +38,17 @@ export class UserChannelService {
         throw new HttpException('Invalid channel type', 400);
       }
 
+      const checkexist  = await this.prisma.channel.findUnique({
+        where: { name: channel.name },
+      });
+
+      if (checkexist != null) {
+        throw new HttpException({
+          name: 'Channel name already exists',
+          password : null,
+        }, 400);
+      }
+      
       const newChannel = await this.prisma.channel.create({
         data: {
           members: { connect: { id: user.id } },
@@ -65,9 +76,7 @@ export class UserChannelService {
       });
 
       return newChannel;
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
-    }
+    
   }
 
   async setUserAsAdminOfChannelByUsername(
