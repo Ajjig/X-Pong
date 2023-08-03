@@ -6,4 +6,6 @@ export class ResultDto {
     loser: number;
   };
   mode: string;
+  winnerClient: any;
+  loserClient: any;
 };

@@ -12,7 +12,7 @@ const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 8.69;
 const PLAYER_SPEED = 2.69;
-const GOALS_TO_WIN = 2;
+const GOALS_TO_WIN = 1;
 
 export class Game {
   private readonly id: string;
@@ -369,6 +369,8 @@ export class Game {
         loser: this.score.player1 < this.score.player2 ? this.score.player1 : this.score.player2,
       },
       mode: '1v1',
+      winnerClient: this.score.player1 > this.score.player2 ? this.client1 : this.client2,
+      loserClient: this.score.player1 < this.score.player2 ? this.client1 : this.client2,
     });
   }
 }
