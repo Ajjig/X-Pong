@@ -356,7 +356,7 @@ export class Game {
   stopGame() {
     Events.off(this.engine, "collisionStart");
     Events.off(this.engine, "beforeUpdate");
-    this.runner.stop();
+    Runner.stop(this.runner);
     World.clear(this.world);
     Engine.clear(this.engine);
     this.logger.log(`Match '${this.id}' ended`);
