@@ -1,4 +1,4 @@
-import { Game } from '../gateway/game';
+import { Game } from '../game/game';
 import * as rs from 'randomstring';
 
 export function makeId(games: Map<string, Game>, length = 10): string {

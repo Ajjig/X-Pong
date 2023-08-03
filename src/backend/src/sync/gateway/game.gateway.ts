@@ -8,7 +8,7 @@ import { Server } from 'socket.io';
 import { Socket } from 'socket.io';
 import { JoinEventDto } from '../dto/join.event.dto';
 import { MoveEventDto } from '../dto/move.event.dio';
-import { GameService } from './game.service';
+import { GameService } from '../game/game.service';
 import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
