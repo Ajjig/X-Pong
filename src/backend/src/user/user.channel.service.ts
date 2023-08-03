@@ -28,7 +28,9 @@ export class UserChannelService {
         channel.password,
       );
       if (channel.password && (await check_password).validated == false) {
-        throw new HttpException('Weak password', 400);
+        throw new HttpException({
+          password : 'Password does not meet requirements',
+        }, 400);
       }
 
       if (['public', 'private', 'protected'].includes(channel.type) == false) {
