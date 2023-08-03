@@ -1,10 +1,17 @@
 import { channel } from 'diagnostics_channel';
-import { Injectable, HttpException, NotFoundException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  NotFoundException,
+  HttpStatus,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma, PrismaClient } from '.prisma/client';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
+import { compareSync } from 'bcrypt';
 
 @Injectable()
 export class UserChannelService {
@@ -15,68 +22,56 @@ export class UserChannelService {
   ) {}
 
   async createChannelByUsername(username: string, channel: any) {
-    
-      const user = await this.prisma.user.findUnique({
-        where: { username: username },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
 
-      if (user == null) {
-        throw new HttpException('User does not exist', 400);
-      }
+    if (user == null) {
+      throw new HttpException('User does not exist', 400);
+    }
 
-      const check_password = this.UserPasswordService.validatePassword(
-        channel.password,
-      );
-      if (channel.password && (await check_password).validated == false) {
-        throw new HttpException({
-          name: null,
-          password : 'Password does not meet requirements',
-        }, 400);
-      }
+    const check_password = this.UserPasswordService.validatePassword(
+      channel.password,
+    );
+    if (channel.password && (await check_password).validated == false) {
+      throw new HttpException('Invalid password', 400);
+    }
 
-      if (['public', 'private', 'protected'].includes(channel.type) == false) {
-        throw new HttpException('Invalid channel type', 400);
-      }
+    if (['public', 'private', 'protected'].includes(channel.type) == false) {
+      throw new HttpException('Invalid channel type', 400);
+    }
 
-      const checkexist  = await this.prisma.channel.findUnique({
-        where: { name: channel.name },
-      });
+    const checkexist = await this.prisma.channel.findFirst({
+      where: { name: channel.name },
+    });
+    console.log(checkexist);
 
-      if (checkexist != null) {
-        throw new HttpException({
-          name: 'Channel name already exists',
-          password : null,
-        }, 400);
-      }
-      
-      const newChannel = await this.prisma.channel.create({
-        data: {
-          members: { connect: { id: user.id } },
-          admins: { connect: { id: user.id } },
-          name: channel.name,
-          type: channel.type,
-          password:
-            channel.type === 'protected'
-              ? (
-                  await check_password
-                ).password
-              : null,
-          salt:
-            channel.type === 'protected' ? (await check_password).salt : null,
-          owner: channel.owner ? channel.owner : user.username,
-        },
-        select: {
-          id: true,
-          members: true,
-          admins: true,
-          name: true,
-          type: true,
-          owner: true,
-        },
-      });
+    if (checkexist != null) {
+      throw new HttpException('Channel already exists', 400);
+    }
 
-      return newChannel;
-    
+    const newChannel = await this.prisma.channel.create({
+      data: {
+        members: { connect: { id: user.id } },
+        admins: { connect: { id: user.id } },
+        name: channel.name,
+        type: channel.type,
+        password:
+          channel.type === 'protected' ? (await check_password).password : null,
+        salt: channel.type === 'protected' ? (await check_password).salt : null,
+        owner: channel.owner ? channel.owner : user.username,
+      },
+      select: {
+        id: true,
+        members: true,
+        admins: true,
+        name: true,
+        type: true,
+        owner: true,
+      },
+    });
+
+    return newChannel;
   }
 
   async setUserAsAdminOfChannelByUsername(
@@ -732,7 +727,8 @@ export class UserChannelService {
     });
   }
 
-  async checkIfUserIsBlockedFromChannel( // banned
+  async checkIfUserIsBlockedFromChannel(
+    // banned
     userID: number,
     channelID: number,
   ): Promise<boolean> {
