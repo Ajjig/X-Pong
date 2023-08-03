@@ -8,7 +8,7 @@ const HEIGHT = 500;
 const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
-const BALL_SPEED = 7.5;
+const BALL_SPEED = 8.69;
 const PLAYER_SPEED = 2.69;
 const GOALS_TO_WIN = 5;
 
@@ -152,14 +152,14 @@ export class Game {
         // paddle and ball collision
         if (pair.bodyA.id == 5 && pair.bodyB.id == 6) {
           collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
-          let angle = (Math.PI / 4) * collide;
+          let angle = (Math.PI / 3) * collide;
           this.ballDir.x = Math.cos(angle) * BALL_SPEED;
           this.ballDir.y = Math.sin(angle) * BALL_SPEED;
 
         }
         if (pair.bodyA.id == 5 && pair.bodyB.id == 7) {
           collide = (pair.bodyA.position.y - pair.bodyB.position.y) / (PADDLE_HEIGHT / 2);
-          let angle = (Math.PI / 4) * collide;
+          let angle = (Math.PI / 3) * collide;
           this.ballDir.x = -Math.cos(angle) * BALL_SPEED;
           this.ballDir.y = Math.sin(angle) * BALL_SPEED;
         }
