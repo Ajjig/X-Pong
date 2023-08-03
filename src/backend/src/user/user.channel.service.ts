@@ -63,8 +63,7 @@ export class UserChannelService {
 
       return newChannel;
     } catch (e) {
-      console.log(e);
-      return new HttpException(e.meta, 400);
+      throw new HttpException(e.meta, 400);
     }
   }
 
