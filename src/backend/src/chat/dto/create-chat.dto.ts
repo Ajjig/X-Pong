@@ -8,6 +8,7 @@ import {
   PublicChannelMessage,
   GetPrivateConversations,
   notifications,
+  joinPublicChannel,
 } from '../entities/chat.entity';
 
 export class CreateChatDto extends Chat {}
@@ -27,3 +28,5 @@ export class PublicChannelMessageDto extends PublicChannelMessage {}
 export class GetPrivateConversationsDto extends GetPrivateConversations {}
 
 export class notificationsDto extends notifications {}
+
+export class joinPublicChannelDto extends joinPublicChannel {}
