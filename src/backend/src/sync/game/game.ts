@@ -30,8 +30,8 @@ export class Game {
   private score;
   private playersDir;
   private ballDir = {
-    x: Math.cos(1) * BALL_SPEED,
-    y: Math.sin(0.5) * BALL_SPEED,
+    x: 0,
+    y: 0,
   };
 
 
@@ -66,6 +66,12 @@ export class Game {
         down: false,
       }
     };
+    this.countDown();
+    setTimeout(() => {
+      this.ballDir = { 
+        x: Math.cos(1) * BALL_SPEED,
+        y: Math.sin(0.75) * BALL_SPEED,
+    } }, 5000);
   }
 
   updateGame() {
@@ -193,31 +199,7 @@ export class Game {
           },
         ]
 
-        setTimeout(() => {
-          this.client1.emit('gameMessage', '3');
-          this.client2.emit('gameMessage', '3');
-        }, 1000);
-
-        setTimeout(() => {
-          this.client1.emit('gameMessage', '2');
-          this.client2.emit('gameMessage', '2');
-        }, 2000);
-
-        setTimeout(() => {
-          this.client1.emit('gameMessage', '1');
-          this.client2.emit('gameMessage', '1');
-        }, 3000);
-
-        setTimeout(() => {
-          this.client1.emit('gameMessage', 'GO!');
-          this.client2.emit('gameMessage', 'GO!');
-        }, 4000);
-
-        setTimeout(() => {
-          this.client1.emit('gameMessage', '');
-          this.client2.emit('gameMessage', '');
-        }, 5500);
-
+        this.countDown();
         setTimeout(() => { this.ballDir = ballDirs[difScore] }, 5000);
       };
 
@@ -334,14 +316,31 @@ export class Game {
     this.logger.log(`${this.player1Username} X ${this.player2Username}`);
   }
 
-  emitter(client: any, data: MoveEventDto): void {
-    this.client1.emit('move', data);
-    this.client2.emit('move', data);
-    if (client === this.client1) {
-      this.logger.log(`Player 1 '${this.player1Username}' moved`);
-    } else {
-      this.logger.log(`Player 2 '${this.player2Username}' moved`);
-    }
+  countDown() {
+    setTimeout(() => {
+      this.client1.emit('gameMessage', '3');
+      this.client2.emit('gameMessage', '3');
+    }, 1000);
+
+    setTimeout(() => {
+      this.client1.emit('gameMessage', '2');
+      this.client2.emit('gameMessage', '2');
+    }, 2000);
+
+    setTimeout(() => {
+      this.client1.emit('gameMessage', '1');
+      this.client2.emit('gameMessage', '1');
+    }, 3000);
+
+    setTimeout(() => {
+      this.client1.emit('gameMessage', 'GO!');
+      this.client2.emit('gameMessage', 'GO!');
+    }, 4000);
+
+    setTimeout(() => {
+      this.client1.emit('gameMessage', '');
+      this.client2.emit('gameMessage', '');
+    }, 5500);
   }
 
   reconnectPlayer(username: string, client: any): void {
