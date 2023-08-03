@@ -101,17 +101,17 @@ export class UserController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/set_stats')
-  async setProfileStatsByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username || !body.stats) {
-      throw new HttpException('Missing username or stats', 400);
-    }
-    return this.userService.setProfileStatsByUsername(
-      request.user.username,
-      body.stats,
-    );
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Post('/set_stats')
+  // async setProfileStatsByUsername(@Req() request: any, @Body() body: any) {
+  //   if (!body || !request.user.username || !body.stats) {
+  //     throw new HttpException('Missing username or stats', 400);
+  //   }
+  //   return this.userService.setProfileStatsByUsername(
+  //     request.user.username,
+  //     body.stats,
+  //   );
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_stats')
@@ -189,21 +189,21 @@ export class UserController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/save_match')
-  async saveMatchByUsername(@Req() request: any, @Body() body: any) {
-    if (
-      !body ||
-      !request.user.username ||
-      !body.result ||
-      !body.opponent ||
-      !body.map ||
-      !body.mode
-    ) {
-      throw new HttpException('Missing username or match', 400);
-    }
-    return this.userService.saveMatchByUsername(request.user.username, body);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Post('/save_match')
+  // async saveMatchByUsername(@Req() request: any, @Body() body: any) {
+  //   if (
+  //     !body ||
+  //     !request.user.username ||
+  //     !body.result ||
+  //     !body.opponent ||
+  //     !body.map ||
+  //     !body.mode
+  //   ) {
+  //     throw new HttpException('Missing username or match', 400);
+  //   }
+  //   return this.userService.saveMatchByUsername(request.user.username, body);
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:username/matches')

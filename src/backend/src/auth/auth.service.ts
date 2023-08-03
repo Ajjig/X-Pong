@@ -27,7 +27,7 @@ export class AuthService {
             wins: 0,
             losses: 0,
             ladder: 'bronze',
-            achievements: [],
+            // achievements: [],
           },
         },
         avatarUrl: data.avatarUrl,
