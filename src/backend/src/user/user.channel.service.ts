@@ -21,18 +21,18 @@ export class UserChannelService {
       });
 
       if (user == null) {
-        return new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', 400);
       }
 
       const check_password = this.UserPasswordService.validatePassword(
         channel.password,
       );
       if (channel.password && (await check_password).validated == false) {
-        return new HttpException('Weak password', 400);
+        throw new HttpException('Weak password', 400);
       }
 
       if (['public', 'private', 'protected'].includes(channel.type) == false) {
-        return new HttpException('Invalid channel type', 400);
+        throw new HttpException('Invalid channel type', 400);
       }
 
       const newChannel = await this.prisma.channel.create({
