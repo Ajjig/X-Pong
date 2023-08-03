@@ -15,6 +15,7 @@ import {
   Logger,
   Res,
   NotFoundException,
+  
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -37,6 +38,7 @@ import { RemoveChannelPasswordDto } from './dto/remove.channel.password.dto';
 import { BanMemberChannelDto } from './dto/ban.member.channel.dto';
 import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
+import {joinPublicChannelDto} from '../chat/dto/create-chat.dto';
 
 @Controller('user')
 export class UserController {
@@ -479,7 +481,7 @@ export class UserController {
   async rejectFriendRequestByUsername(
     @Req() request: any,
     @Body() body: any,
-  ) {
+    ) {
     if (!body || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -489,4 +491,21 @@ export class UserController {
     );
   
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/join_channel')
+  async joinChannelByUsername(
+    @Req() request: any,
+    @Body() body: joinPublicChannelDto,
+  ) {
+    if (!body || !body.channelID) {
+      throw new HttpException('Missing channel ID', 400);
+    }
+    return this.UserChannelService.joinChannelByUsername(
+      request.user.username,
+      body.channelID,
+      body.password
+    );
+  }
+
 }

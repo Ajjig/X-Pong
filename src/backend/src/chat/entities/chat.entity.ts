@@ -52,3 +52,8 @@ export class notifications {
   userId: number;
   avatarUrl: string;
 }
+
+export class joinPublicChannel {
+  channelID: number;
+  password: string | null;
+}
