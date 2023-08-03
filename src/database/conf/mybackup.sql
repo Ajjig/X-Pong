@@ -96,21 +96,32 @@ CREATE TABLE "Friends" (
 CREATE TABLE "Matchs" (
     "id" SERIAL NOT NULL,
     "result" TEXT NOT NULL DEFAULT 'Undefined',
-    "opponent" TEXT NOT NULL DEFAULT 'Undefined',
-    "map" TEXT NOT NULL DEFAULT 'Undefined',
+    "playerScore" INTEGER NOT NULL DEFAULT 0,
+    "opponentScore" INTEGER NOT NULL DEFAULT 0,
     "mode" TEXT NOT NULL DEFAULT 'Undefined',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
-    "opponentUserId" INTEGER NOT NULL,
 
     CONSTRAINT "Matchs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "Achievements" (
+    "id" SERIAL NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "iconUrl" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    CONSTRAINT "Achievements_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Userstats" (
     "id" SERIAL NOT NULL,
-    "achievements" TEXT[],
     "wins" INTEGER NOT NULL DEFAULT 0,
     "losses" INTEGER NOT NULL DEFAULT 0,
     "ladder" TEXT NOT NULL DEFAULT 'Novice',
@@ -230,7 +241,7 @@ ALTER TABLE "Friends" ADD CONSTRAINT "Friends_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Matchs" ADD CONSTRAINT "Matchs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Matchs" ADD CONSTRAINT "Matchs_opponentUserId_fkey" FOREIGN KEY ("opponentUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Achievements" ADD CONSTRAINT "Achievements_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Userstats"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Userstats" ADD CONSTRAINT "Userstats_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -2,6 +2,8 @@
 import { Logger } from '@nestjs/common';
 import { MoveEventDto } from '../dto/move.event.dio';
 import { Engine, Bodies, Body, Events, World, Runner } from 'matter-js';
+import { SaveGameService } from './save.game';
+import { ResultDto } from '../dto/result.dto';
 
 const WIDTH = 900;
 const HEIGHT = 500;
@@ -10,7 +12,7 @@ const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 8.69;
 const PLAYER_SPEED = 2.69;
-const GOALS_TO_WIN = 5;
+const GOALS_TO_WIN = 2;
 
 export class Game {
   private readonly id: string;
@@ -34,7 +36,7 @@ export class Game {
     y: 0,
   };
 
-
+  private readonly saveGameService = new SaveGameService();
 
   constructor(clientsData: any) {
     this.id = clientsData.id;
@@ -219,10 +221,10 @@ export class Game {
 
       if (p1 >= GOALS_TO_WIN || p2 >= GOALS_TO_WIN) {
         
-        this.client1.emit('gameMessage', `You ${p1 < p2 ? 'won' : 'lost'}`);
-        this.client2.emit('gameMessage', `You ${p2 < p1 ? 'won' : 'lost'}`);
-        this.client1.emit('endGame', { winner: p1 > p2 ? 1 : 2 });
-        this.client2.emit('endGame', { winner: p2 > p1 ? 1 : 2 });
+        this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
+        this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
+        this.client1.emit('endGame', { winner: p1 < p2 ? 1 : 2 });
+        this.client2.emit('endGame', { winner: p2 < p1 ? 1 : 2 });
         this.endGameCallback(this.id);
       }
     });
@@ -359,5 +361,14 @@ export class Game {
     World.clear(this.world);
     Engine.clear(this.engine);
     this.logger.log(`Match '${this.id}' ended`);
+    this.saveGameService.saveGame({
+      winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
+      loser: this.score.player1 < this.score.player2 ? this.player1Username : this.player2Username,
+      score: {
+        winner: this.score.player1 > this.score.player2 ? this.score.player1 : this.score.player2,
+        loser: this.score.player1 < this.score.player2 ? this.score.player1 : this.score.player2,
+      },
+      mode: '1v1',
+    });
   }
 }

@@ -22,7 +22,6 @@ model User {
   updatedAt           DateTime @updatedAt
   confirmed           Boolean  @default(false)
   Matchs    Matchs[]  @relation("Matchs")
-  OpponentMatchs Matchs[] @relation("OpponentMatchs")
   onlineAt            DateTime? @default(now())
   Userstats Userstats? // one to one
   isBanned            Boolean    @default(false)
@@ -45,11 +44,11 @@ model User {
 
 model Notification {
   id        Int      @id @default(autoincrement())
-  type      String   // Type of notification (e.g., friendRequest)
-  from      String   // Sender's username
-  to        String   // Receiver's username
-  status    String   // Status of the notification (e.g., Accepted)
-  msg       String   // Notification message
+  type      String // Type of notification (e.g., friendRequest)
+  from      String // Sender's username
+  to        String // Receiver's username
+  status    String // Status of the notification (e.g., Accepted)
+  msg       String // Notification message
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -136,8 +135,8 @@ model Friends {
 model Matchs {
   id       Int    @id @default(autoincrement())
   result   String @default("Undefined") // Win, Loss
-  opponent String @default("Undefined")
-  map      String @default("Undefined")
+  playerScore Int @default(0)
+  opponentScore Int @default(0)
   mode     String @default("Undefined")
 
   createdAt DateTime @default(now())
@@ -146,19 +145,31 @@ model Matchs {
   // relations
   user   User @relation("Matchs",fields: [userId], references: [id])
   userId Int
-
-  opponentUser   User @relation("OpponentMatchs",fields: [opponentUserId], references: [id])
-  opponentUserId Int
   
   // relations
 }
 
+model Achievements {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+  description String
+  iconUrl String
+
+  // relations
+  userId Int
+  user   Userstats @relation(fields: [userId], references: [id])
+  // relations
+}
+
 model Userstats {
-  id           Int      @id @default(autoincrement())
-  achievements String[] // array of achievements
-  wins         Int      @default(0)
-  losses       Int      @default(0)
-  ladder       String   @default("Novice") // Novice, Apprentice, Journeyman, Expert, Master, Grandmaster, and Legend
+  id           Int            @id @default(autoincrement())
+  achievements Achievements[]
+  wins         Int            @default(0)
+  losses       Int            @default(0)
+  ladder       String         @default("Novice") // Novice, Apprentice, Journeyman, Expert, Master, Grandmaster, and Legend
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
