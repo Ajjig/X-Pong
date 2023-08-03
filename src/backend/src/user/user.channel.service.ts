@@ -29,6 +29,7 @@ export class UserChannelService {
       );
       if (channel.password && (await check_password).validated == false) {
         throw new HttpException({
+          name: null,
           password : 'Password does not meet requirements',
         }, 400);
       }
