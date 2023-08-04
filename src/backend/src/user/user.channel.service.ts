@@ -865,6 +865,7 @@ export class UserChannelService {
   }
 
   async getChannelInfo(user: number, channelID: number): Promise<any> {
+
     let channel = await this.prisma.channel.findUnique({
       where: { id: channelID },
       select: {
@@ -887,29 +888,17 @@ export class UserChannelService {
     }
 
     // find the user in the channel members exists
-    const member_check = await this.prisma.user.findFirst({
-      where: {
-        id: user,
-      },
+
+    let userChannels = (await this.prisma.user.findUnique({
+      where: { id: user },
       select: {
         channels: true,
       },
-    });
-    console.log(member_check);
-    // iterate over the channels and check if the user is a member of the channel
-    let is_member = false;
-    for (let i = 0; i < member_check.channels.length; i++) {
-      if (member_check.channels[i].id == channelID) {
-        is_member = true;
-        break;
-      }
-    }
+    })).channels;
 
-    if (is_member == false) {
-      channel['is_member'] = false;
-    } else {
-      channel['is_member'] = true;
-    }
+    userChannels = userChannels.filter((channel) => channel.id == channelID);
+
+    channel['is_member'] = userChannels && userChannels.length > 0;
 
     delete channel.members;
     return channel;

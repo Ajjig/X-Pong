@@ -15,6 +15,7 @@ import {
   Logger,
   Res,
   NotFoundException,
+  ParseIntPipe,
   
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -513,14 +514,14 @@ export class UserController {
   async getChannelInfo(
     @Req() request: any,
     @Body() body: any,
-    @Param('channelID') channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ) {
     if (!body || !channelID) {
       throw new HttpException('Missing channel ID', 400);
     }
     return this.UserChannelService.getChannelInfo(
-      request.user.uid,
-      +channelID,
+      request.user.id,
+      channelID,
     );
   }
 
