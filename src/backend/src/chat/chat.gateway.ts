@@ -139,7 +139,7 @@ export class ChatGateway {
 
     const flaggedUsersCheck = await this.publicChannelService.limitFlagedUsers(
       payload.id,
-      userdata.username,
+      userdata.uid,
     );
     if (flaggedUsersCheck) {
       client.emit(

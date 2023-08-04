@@ -84,7 +84,6 @@ export class PublicChannelService {
 
   async limitFlagedUsers(channelId: number, userId: number): Promise<boolean> {
     // check if the user is flagged as banned or muted or kicked
-
     const channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
