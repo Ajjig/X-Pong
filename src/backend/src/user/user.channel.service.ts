@@ -134,15 +134,15 @@ export class UserChannelService {
     }
   }
 
-  async setUserAsMemberOfChannelByUsername(
-    admin: string,
-    new_member: string,
-    channelname: string,
+  async setUserAsMemberOfChannelByID(
+    admin: number, // the requester JWT
+    new_member: number,
+    channelname: number,
   ) {
     try {
       let new_admin_user = await this.prisma.user.findUnique({
         // check if user exists
-        where: { username: admin },
+        where: { id: admin },
       });
       if (new_admin_user == null) {
         throw new HttpException('Admin does not exist', 400);
@@ -150,7 +150,7 @@ export class UserChannelService {
 
       let new_user_member = await this.prisma.user.findUnique({
         // check if user exists
-        where: { username: new_member },
+        where: { id: new_member },
       });
       if (new_user_member == null) {
         throw new HttpException('new member does not exist', 400);
@@ -158,14 +158,14 @@ export class UserChannelService {
 
       let channel = await this.prisma.channel.findUnique({
         // check if channel exists
-        where: { name: channelname },
+        where: { id: channelname },
       });
       if (channel == null) {
         throw new HttpException('Channel does not exist', 400);
       } else {
         await this.prisma.channel.update({
           // add user as admin of channel
-          where: { name: channelname },
+          where: { id: channelname },
           data: {
             members: {
               connect: { id: new_user_member.id },

@@ -251,14 +251,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_member_of_channel') // invite new user
-  async setUserAsMemberOfChannelByUsername(
+  async setUserAsMemberOfChannelByID(
     @Req() request: any,
     @Body() body: AddMemberChannelDto,
   ) {
-    return this.UserChannelService.setUserAsMemberOfChannelByUsername(
+    return this.UserChannelService.setUserAsMemberOfChannelByID(
       request.user.username,
-      body.new_member,
-      body.channel_name,
+      body.new_memberID,
+      body.channelID,
     );
   }
 

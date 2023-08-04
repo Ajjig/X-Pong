@@ -2,16 +2,10 @@ import * as validator from 'class-validator';
 
 export class AddMemberChannelDto {
   @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  new_member: string;
+  @validator.IsNumber()
+  new_memberID: number;
 
   @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  channel_name: string;
+  @validator.IsNumber()
+  channelID: number;
 }
