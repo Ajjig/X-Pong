@@ -82,10 +82,10 @@ export class PublicChannelService {
     });
   }
 
-  async limitFlagedUsers(channelId: number, username: string): Promise<boolean> {
+  async limitFlagedUsers(channelId: number, userId: number): Promise<boolean> {
     // check if the user is flagged as banned or muted or kicked
 
-    const checkuser = await this.prisma.channel.findUnique({
+    const channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
@@ -96,11 +96,13 @@ export class PublicChannelService {
       },
     });
 
-    if (checkuser.banned.some((user) => user.username === username))
+    if (!channel) return true;
+
+    if (channel.banned.some((user) => user.id === userId))
       return true;
-    if (checkuser.kicked.some((user) => user.username === username))
+    if (channel.kicked.some((user) => user.id === userId))
       return true;
-    if (checkuser.muted.some((user) => user.username === username))
+    if (channel.muted.some((user) => user.id === userId))
       return true;
 
     return false;
