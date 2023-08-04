@@ -138,7 +138,7 @@ export class ChatGateway {
     }
 
     const flaggedUsersCheck = await this.publicChannelService.limitFlagedUsers(
-      channelName,
+      payload.id,
       userdata.username,
     );
     if (flaggedUsersCheck) {
@@ -161,7 +161,7 @@ export class ChatGateway {
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
 
-    const user : User = await this.publicChannelService.getUserbyid(payload.username);
+    const user : User = await this.publicChannelService.getUserbyid(payload.id);
     payload.avatarUrl = user.avatarUrl;
     client.to(channelName).emit('PublicMessage', payload);
   } 
