@@ -863,4 +863,41 @@ export class UserChannelService {
 
     return HttpStatus.ACCEPTED;
   }
+
+  async getChannelInfo(user: number, channelID: number): Promise<any> {
+    let channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+      select: {
+        name: true,
+        type: true,
+        id: true,
+        members: {
+          select: {
+            username: true,
+            id: true,
+            avatarUrl: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    const member_check = await this.prisma.user.findFirst({
+      where: {
+        id: user,
+        channels: { some: { id: channelID } },
+      },
+    });
+
+    if (member_check != null) {
+      channel['isMember'] = true;
+      return channel;
+    }
+    channel['isMember'] = false;
+    return channel;
+  }
 }

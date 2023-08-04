@@ -75,6 +75,7 @@ export class UserController {
     @Body() body: UpdateUsernameDto,
     @Res() res: Response,
   ) {
+    console.log(request.user);
     if (body.new_username === request.user.username) {
       throw new BadRequestException('Same username');
     }
@@ -505,6 +506,22 @@ export class UserController {
       request.user.username,
       body.channelID,
       body.password
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/channel_info/:channelID')
+  async getChannelInfo(
+    @Req() request: any,
+    @Body() body: any,
+    @Param('channelID') channelID: number,
+  ) {
+    if (!body || !channelID) {
+      throw new HttpException('Missing channel ID', 400);
+    }
+    return this.UserChannelService.getChannelInfo(
+      request.user.uid,
+      +channelID,
     );
   }
 
