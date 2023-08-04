@@ -893,6 +893,8 @@ export class UserChannelService {
       },
     });
 
+    channel['membersCount'] = channel.members.length;
+    delete channel.members;
     if (member_check != null) {
       channel['isMember'] = true;
       return channel;
