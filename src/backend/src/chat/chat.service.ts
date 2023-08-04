@@ -358,10 +358,10 @@ export class ChatService {
     }
 
     if (users.length === 0) {
-      return [channels];
+      return channels;
     }
     if (channels.length === 0) {
-      return [users];
+      return users;
     }
 
     return [...users, ...channels];
