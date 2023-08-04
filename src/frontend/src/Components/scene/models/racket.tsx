@@ -113,7 +113,7 @@ export function PingPongRacket({ Camera, setRacket, Racket }: props) {
         });
 
         // click to lock the mouse
-        document.addEventListener("click", handleClick);
+        // document.addEventListener("click", handleClick);
 
         // escape key
         document.addEventListener("keydown", (e) => {

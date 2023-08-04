@@ -4,6 +4,7 @@ const initialStateProfile = {
     PrivateChats: [],
     GroupChats: [],
     currentChat: null,
+    currentChatGroup: null,
     newMessage: null,
 };
 
@@ -23,8 +24,17 @@ const ChatsSlice = createSlice({
         setGroupChats: (state, action) => {
             state.GroupChats = action.payload;
         },
+        addNewMessageToGroupChat: (state, action) => {
+            const groupChats: any = state.GroupChats.find((chat: any) => chat.name === action.payload.name);
+            if (groupChats) {
+                groupChats.messages.push(action.payload);
+            }
+        },
         setCurrentChat: (state, action) => {
             state.currentChat = action.payload;
+        },
+        setCurrentChatGroup: (state, action) => {
+            state.currentChatGroup = action.payload;
         },
         setNewMessage: (state, action) => {
             state.newMessage = action.payload;

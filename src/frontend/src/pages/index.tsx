@@ -23,7 +23,7 @@ const useStyles = createStyles((theme) => ({
     container_scene: {
         // position: "absolute",
         // top: 0,
-        // left: 0,
+        // left : 0,
         // width: "100%",
         // height: "100%",
         // zIndex: 1,
@@ -69,12 +69,12 @@ export default function Home() {
             <Box className={cx(classes.container, classes.animation_apperance)}>
                 <Head title="70sPong" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
                 {/* <Box className={classes.container_scene}> */}
-                    {/* <Canvas shadows> */}
-                        {/* <Scene /> */}
-                        {/* <Html center as="div" position={[0, 1, 0]}> */}
-                            <Welcome />
-                        {/* </Html> */}
-                    {/* </Canvas> */}
+                <Canvas shadows>
+                    <Scene />
+                    <Html center as="div" position={[0, 1, 0]}>
+                        <Welcome />
+                    </Html>
+                </Canvas>
                 {/* </Box> */}
             </Box>
         </Suspense>
