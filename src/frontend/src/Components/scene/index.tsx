@@ -126,7 +126,7 @@ export function Scene() {
                 />
                 <DefaultCamera CameraRef={CameraRef} />
 
-                <ambientLight intensity={0.9} position={new Vector3(0, 10, 10)} />
+                <ambientLight intensity={0.5} position={new Vector3(0, 10, 10)} />
 
                 <spotLight
                     // color={"#f48fb1"}
@@ -141,16 +141,16 @@ export function Scene() {
                     shadow-mapSize-height={1048}
                 />
 
-                <Debug scale={1} color={"red"}>
+                {/* <Debug scale={1} color={"red"}> */}
                     <PingPongTable Table={Table} setTable={setTable} />
-                </Debug>
-                <Debug scale={1} color={"yellow"}>
+                {/* </Debug> */}
+                {/* <Debug scale={1} color={"yellow"}> */}
                     <PingPongRacket Racket={Racket} setRacket={setRacket} Camera={CameraRef} />
                     <PingPongOppRacket Racket={oppRacket} setRacket={setOppRacket} Camera={CameraRef} />
-                </Debug>
-                <Debug scale={1} color={"blue"}>
+                {/* </Debug> */}
+                {/* <Debug scale={1} color={"blue"}> */}
                     <PingPongBall oppRacket={oppRacket} Ball={Ball} Racket={Racket} />
-                </Debug>
+                {/* </Debug> */}
                 {/* <Ground /> */}
                 <Sky distance={900} sunPosition={[0, 0, 0]} rayleigh={10} />
                 <Stars
@@ -174,15 +174,15 @@ export function Scene() {
 function DefaultCamera({ CameraRef }: { CameraRef: any }) {
     CameraRef.current?.lookAt(0, 1, 0);
 
-    // useFrame(({ clock }) => {
-    //     // rotate the camera around the table
-    //     CameraRef.current?.position.set(
-    //         4 * Math.sin(clock.getElapsedTime() / 9),
-    //         1.8,
-    //         4 * Math.cos(clock.getElapsedTime() / 15)
-    //     );
-    //     CameraRef.current?.lookAt(0, 1, 0);
-    // });
+    useFrame(({ clock }) => {
+        // rotate the camera around the table
+        CameraRef.current?.position.set(
+            4 * Math.sin(clock.getElapsedTime() / 9),
+            1.8,
+            4 * Math.cos(clock.getElapsedTime() / 15)
+        );
+        CameraRef.current?.lookAt(0, 1, 0);
+    });
 
     return <PerspectiveCamera makeDefault position={new Vector3(0, 1.8, -4)} fov={75} ref={CameraRef} />;
 }

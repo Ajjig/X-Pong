@@ -22,7 +22,7 @@ const store = configureStore({
         }),
 });
 
-export const { setPrivateChats, addNewMessageToPrivateChat, setGroupChats, setCurrentChat, setNewMessage } = ChatsSlice.actions;
+export const { setPrivateChats, addNewMessageToPrivateChat, setGroupChats, setCurrentChat, setNewMessage, setCurrentChatGroup, addNewMessageToGroupChat } = ChatsSlice.actions;
 export const { setSocket } = socketSlice.actions;
 export const { setProfile } = profileSlice.actions;
 export const { setNotifications, addFriendRequest, removeFriendRequest } = NotificationsSlice.actions;

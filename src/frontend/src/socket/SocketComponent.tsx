@@ -1,17 +1,9 @@
 // SocketComponent.js
-import store, { addFriendRequest, addNewMessageToPrivateChat, setGameState, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
+import store, { addFriendRequest, addNewMessageToGroupChat, addNewMessageToPrivateChat, setGameState, setGroupChats, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
 import { useEffect } from "react";
 import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
-import { NotificationType } from "./types";
-
-type PrivateChat = [
-    {
-        chat: any[];
-        otherUser: {};
-        privateChannelId: string;
-    }
-];
+import { NotificationType } from "./types"
 
 const SocketComponent = () => {
     useEffect(() => {
@@ -48,46 +40,33 @@ const SocketComponent = () => {
             if (store.getState().chats.PrivateChats.length == 0) {
                 chatSocket.emit("reconnect", {});
             }
-
-            // add the message to the private chat
-            // make a deep copy of the private chats
-            // const privateChats: PrivateChat = JSON.parse(JSON.stringify(store.getState().chats.PrivateChats));
-            // const newPrivateChats = privateChats.map((chat: any) => {
-            //     if (chat.privateChannelId == data.privateChannelId) {
-            //         chat.chat.push(data);
-            //     }
-            //     return chat;
-            // });
-            // store.dispatch(setPrivateChats(newPrivateChats));
             store.dispatch(addNewMessageToPrivateChat(data));
+        });
 
-            // socket.emit("reconnect", {});
-            // store.dispatch(setNewMessage(data));
+        chatSocket.on("PublicMessage", (newMessage: any) => {
+            console.log("PublicMessage", newMessage);
+            store.dispatch(addNewMessageToGroupChat(newMessage));
         });
 
         chatSocket.on("notifications", (data: NotificationType[]) => {
-            console.log(">>>>>>>>>>> notifications: ", data);
             // add the notification to the store
             store.dispatch(setNotifications(data));
         });
 
         chatSocket.on("notification", (data: NotificationType) => {
-            console.log("notification: ", data);
-
             store.dispatch(addFriendRequest(data));
         });
 
         chatSocket.on("privateChat", (data) => {
-            // console.log("privateChat: loaded");
             store.dispatch(setPrivateChats(data));
         });
 
         chatSocket.on("publicChat", (data) => {
-            // console.log("publicChat: ", data);
+            store.dispatch(setGroupChats(data));
         });
 
-        // // listen to all events from server
-        // socket.onAny((event, ...args) => {
+        // listen to all events from server
+        // chatSocket.onAny((event, ...args) => {
         //     console.log(event, args);
         // });
 

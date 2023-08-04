@@ -11,10 +11,12 @@ import { Chat } from "@/Components/dashboard/chat/private_chat/chat";
 // Import store
 import store, { setCurrentChat, setOpp } from "@/store/store";
 import UserInfo from "@/Components/dashboard/userInfo";
+import { ChatGroup } from "@/Components/dashboard/chat/group_chat/group";
 
 export function DashboardLayout() {
     const theme = useMantineTheme();
     const [chat, setChat] = useState<any>(null);
+    const [Group, setGroup] = useState<any>(null);
     const HeaderRef = useRef<HTMLDivElement>(null);
     const [fullHeight, setFullHeight] = useState<any>({
         height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
@@ -26,9 +28,13 @@ export function DashboardLayout() {
 
     useEffect(() => {
         setChat(store.getState().chats.currentChat);
+        setGroup(store.getState().chats.currentChatGroup);
         store.subscribe(() => {
             const s = store.getState().chats.currentChat;
             if (s) setChat(s);
+
+            const g = store.getState().chats.currentChatGroup;
+            if (g) setGroup(g);
         });
         setFullHeight({
             height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
@@ -61,8 +67,12 @@ export function DashboardLayout() {
                 </MediaQuery>
 
                 <Grid.Col span={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
-                    {chat ? (
-                        <Chat user={chat} setSelected={setSelected} chat={chat} />
+                    {chat || Group ? (
+                        Group ? (
+                            <ChatGroup user={Group} setSelected={setGroup} chat={Group} />
+                        ) : (
+                            <Chat user={chat} setSelected={setSelected} chat={chat} />
+                        )
                     ) : (
                         <Box
                             p="md"
@@ -100,76 +110,8 @@ export function DashboardLayout() {
                     right: 30,
                 })}
             >
-                {<Play />}
+                {/* {<Play />} */}
             </Box>
         </Box>
-    );
-}
-
-import { Menu } from "@mantine/core";
-import { IconUserCircle, IconArrowsRandom } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
-import socketGame from "@/socket/gameSocket";
-import { useRouter } from "next/router";
-
-const useModelStyle = createStyles((theme) => ({
-    content: {
-        backgroundColor: "transparent",
-    },
-    overlay: {
-        backdropFilter: "blur(5px)",
-    },
-}));
-
-function Play() {
-    const [visible, { close, open }] = useDisclosure(false);
-    const ModelStyle = useModelStyle();
-    const router = useRouter();
-
-    const join = () => {
-        open();
-        // join request
-        socketGame.emit("join", { msg: "join" });
-    };
-
-    const cancel = () => {
-        close();
-        // cancel request
-        socketGame.emit("cancel-join", { msg: "cancel" });
-    };
-
-    useEffect(() => {
-        socketGame.on("match", (data) => {
-            console.log(data);
-            store.dispatch(setOpp(data));
-            router.push(`/game/${data.roomName}`);
-        });
-    }, []);
-
-    return (
-        <>
-            <Modal opened={visible} onClose={close} title="" centered withCloseButton={false} closeOnClickOutside={false} classNames={ModelStyle.classes}>
-                <Flex direction="column" align="center" justify="center">
-                    <Loader />
-                    <Space h={50} />
-                    <Button variant="outline" onClick={cancel}>
-                        Cancel
-                    </Button>
-                </Flex>
-            </Modal>
-            <Menu shadow="md" width={200}>
-                <Menu.Target>
-                    <Button size="md">Play</Button>
-                </Menu.Target>
-
-                <Menu.Dropdown ml={-15}>
-                    <Menu.Label>Play</Menu.Label>
-                    <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item>
-                    <Menu.Item icon={<IconArrowsRandom size={18} />} onClick={join}>
-                        Play with random
-                    </Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
-        </>
     );
 }

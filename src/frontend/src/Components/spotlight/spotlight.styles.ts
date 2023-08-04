@@ -15,14 +15,9 @@ export const SpotlightStyles = createStyles((theme: MantineTheme) => ({
             
         }
     },
-    actionsGroup: {
-        background: "red",
-    },
     searchInput: {
         background: "transparent",
         borderBottom: "0 !important",
     },
-    "active": {
-        background: "red !important",
-    },
+   
 }));

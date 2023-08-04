@@ -1,4 +1,4 @@
-import { Box, Navbar, Paper, SegmentedControl } from "@mantine/core";
+import { Box, Paper, SegmentedControl } from "@mantine/core";
 import React from "react";
 import { useState } from "react";
 import { ListChats } from "./private_chats/ListChats";
@@ -9,8 +9,18 @@ export default function List_of_chats({}: {}) {
     const SegRef = React.useRef<HTMLDivElement>(null);
 
     return (
-        <Box w="100%" h="100%">
-            <Paper radius="lg" p="md" bg="cos_black.2" h="100%">
+        <Box w="100%" h="100%" pos="relative">
+            <Paper
+                radius="lg"
+                p="md"
+                pos="relative"
+                h={"100%"}
+                bg={"cos_black.2"}
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
                 <SegmentedControl
                     ref={SegRef}
                     fullWidth

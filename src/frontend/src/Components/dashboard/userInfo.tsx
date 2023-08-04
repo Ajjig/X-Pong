@@ -7,7 +7,7 @@ export default function UserInfo() {
 
     React.useEffect(() => {
         setProfile(store.getState().profile.user);
-        console.log(store.getState().profile.user);
+        // console.log(store.getState().profile.user);
         store.subscribe(() => {
             setProfile(store.getState().profile.user);
         });

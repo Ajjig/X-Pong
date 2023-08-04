@@ -6,18 +6,20 @@ import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import store, { setProfile } from "@/store/store";
 import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import { useEffect, useState } from "react";
-import { IconSearch } from "@tabler/icons-react";
+import { IconLock, IconSearch, IconShieldLock } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import SocketComponent from "@/socket/SocketComponent";
 import { SpotlightStyles } from "@/Components/spotlight/spotlight.styles";
 
 // import font for title from 'next/font/google'
-import { Russo_One, Kanit } from 'next/font/google';
+import { Russo_One, Kanit } from "next/font/google";
 import api from "@/api";
 import chatSocket from "@/socket/chatSocket";
+import { Group } from "@/Components/dashboard/list_of_chats/group_chats/group";
+import { IconUsersGroup } from "@tabler/icons-react";
 
-const fontHeadings = Russo_One({ weight: "400", subsets: ["latin"] })
-const font = Kanit({ weight: "400", subsets: ["latin"] })
+const fontHeadings = Russo_One({ weight: "400", subsets: ["latin"] });
+const font = Kanit({ weight: "400", subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -36,18 +38,47 @@ export default function App({ Component, pageProps }: AppProps) {
     const router = useRouter();
     const useSpotlightStyles = SpotlightStyles();
 
+    const iconGroup = (chat: {type: "public" | "private" | "protected"}) => {
+        if (chat.type == "private") {
+            return <IconLock size={30} />;
+        } else if (chat.type == "protected") {
+            return <IconShieldLock size={30} />;
+        }
+        return <IconUsersGroup size={30} />;
+    };
+
     useEffect(() => {
         chatSocket.on("search", (data) => {
             let users: [] = [];
-            if (data && data[0])
-                users = data[0].map((action: any) => ({
-                    icon: <Avatar size="lg" src={action.avatarUrl} radius={20} />,
-                    title: action.name,
-                    description: action.username,
-                    onTrigger: () => {
-                        router.push("/profile/" + action.id);
-                    },
-                }));
+            // console.log(data);
+            if (data)
+                users = data.map((action: any) => {
+
+                    console.table(action);
+
+                    if (action?.type == "public" || action?.type == "private" || action?.type == "protected") {
+                        return {
+                            // add costum component
+                            icon: iconGroup(action),
+                            group: "Groups",
+                            title: action.name,
+                            description: action.type,
+                            onTrigger: () => {
+                                router.push("/chat/" + action.id);
+                            }
+                        };
+                    }
+                    // console.log(action);
+                    return {
+                        group: "Users",
+                        icon: <Avatar size="lg" src={action.avatarUrl} radius={20} />,
+                        title: action.name,
+                        description: action.username,
+                        onTrigger: () => {
+                            router.push("/profile/" + action.id);
+                        },
+                    };
+                });
             setActions(users);
         });
     }, []);
@@ -56,7 +87,6 @@ export default function App({ Component, pageProps }: AppProps) {
         if (query == "") setActions([]);
         else chatSocket.emit("search", { query: query });
     }, [query]);
-
 
     const [loading, setLoading] = useState(true);
 
@@ -86,7 +116,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     // change background color
                     colors: {
                         purple: ["#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA", "#5951BA"],
-                        cos_black: ["#292932", "#242428", "#15151A", "#121214"]
+                        cos_black: ["#292932", "#242428", "#15151A", "#121214"],
                     },
                     fontFamily: font.style.fontFamily,
                     // add font to theme
@@ -96,7 +126,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     },
                     components: {
                         SegmentedControl: {
-                            styles: {   
+                            styles: {
                                 root: {
                                     borderRadius: 40,
                                     background: "#000000",
@@ -122,9 +152,7 @@ export default function App({ Component, pageProps }: AppProps) {
                         },
                         Paper: {
                             styles: {
-                                root: {
-                                    
-                                },
+                                root: {},
                             },
                         },
                         Popover: {
@@ -149,6 +177,7 @@ export default function App({ Component, pageProps }: AppProps) {
             >
                 <SocketComponent />
                 <SpotlightProvider
+                    transitionProps={{ duration: 300, transition: 'slide-down' }}
                     actions={actions}
                     query={query}
                     onQueryChange={setQuery}

@@ -46,7 +46,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 
     span: {
         fontFamily: `valorax`,
-        fontSize: 90,
+        fontSize: 130,
         color: '#5951BA',
 
         /* mobile */
@@ -124,9 +124,9 @@ export default function HeroSection({ setLoginShow }: { setLoginShow: (value: bo
         <Flex className={classes.animation_apperance} direction="column" align="center" justify="center" mih="100vh">
             <Box className={classes.title}>
                 <Title className={classes.text}>
-                    70
+                    
                     <Text inherit component="span" className={classes.span}>
-                        s
+                        x
                     </Text>
                     Pong
                 </Title>
