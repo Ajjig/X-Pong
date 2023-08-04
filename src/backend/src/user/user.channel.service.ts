@@ -900,9 +900,10 @@ export class UserChannelService {
       }
     });
 
+
     channel['membersCount'] = channel.members.length;
     delete channel.members;
-    if (member_check.channels.length == 0) {
+    if (member_check.channels.length == 0 || member_check == null) {
       channel['isMember'] = false;
       return channel;
     }
