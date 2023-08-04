@@ -901,6 +901,7 @@ export class UserChannelService {
     for (let i = 0; i < member_check.channels.length; i++) {
       if (member_check.channels[i].id == channelID) {
         is_member = true;
+        break;
       }
     }
 
