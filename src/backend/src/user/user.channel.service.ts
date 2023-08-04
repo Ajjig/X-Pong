@@ -899,7 +899,7 @@ export class UserChannelService {
     userChannels = userChannels.filter((channel) => channel.id == channelID);
 
     channel['is_member'] = userChannels && userChannels.length > 0;
-
+    channel['membersCount'] = channel.members.length;
     delete channel.members;
     return channel;
   }

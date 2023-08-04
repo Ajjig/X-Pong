@@ -20,6 +20,7 @@ import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { emit } from 'process';
+import { User } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -159,6 +160,9 @@ export class ChatGateway {
 
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
+
+    const user : User = await this.publicChannelService.getUserbyid(payload.username);
+    payload.avatarUrl = user.avatarUrl;
     client.to(channelName).emit('PublicMessage', payload);
   } 
 

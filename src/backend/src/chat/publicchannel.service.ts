@@ -152,4 +152,14 @@ export class PublicChannelService {
 
     return channel.name;
   }
+
+  async getUserbyid(userId: number): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    return user;
+  }
 }
