@@ -892,18 +892,25 @@ export class UserChannelService {
         id: user,
       },
       select: {
-        channels: {
-          where: {
-            id: channelID,
-          },
-        },
+        channels: true,
       },
     });
+    console.log(member_check);
+    // iterate over the channels and check if the user is a member of the channel
+    let is_member = false;
+    for (let i = 0; i < member_check.channels.length; i++) {
+      if (member_check.channels[i].id == channelID) {
+        is_member = true;
+      }
+    }
 
-    channel['membersCount'] = channel.members.length;
+    if (is_member == false) {
+      channel['is_member'] = false;
+    } else {
+      channel['is_member'] = true;
+    }
+
     delete channel.members;
-
-    channel['isMember'] = !(member_check.channels.length == 0 || member_check == null);
     return channel;
   }
 }
