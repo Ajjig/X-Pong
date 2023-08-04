@@ -75,7 +75,6 @@ export class UserController {
     @Body() body: UpdateUsernameDto,
     @Res() res: Response,
   ) {
-    console.log(request.user);
     if (body.new_username === request.user.username) {
       throw new BadRequestException('Same username');
     }
