@@ -153,7 +153,7 @@ export class ChatGateway {
       client.join(channelName);
     }
     payload.username = userdata.username;
-    payload.channelName = channelName;
+    payload.channelName = channelName; 
     await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
     // add created at and updated at
 

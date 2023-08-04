@@ -364,7 +364,7 @@ export class ChatService {
       return [users];
     }
 
-    return [users, channels];
+    return [...users, ...channels];
   }
 
   async checkUserIsBlocked(Sender: string, Receiver: string): Promise<boolean> {

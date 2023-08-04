@@ -74,14 +74,15 @@ export class UserChatHistoryService {
         name: true,
         type: true,
         owner: true,
+        createdAt: true,
         messages: {
           select: {
             content: true,
             sender: true,
-            createdAt: true
+            createdAt: true,
           },
           orderBy: { createdAt: 'asc' },
-          skip: page * 50
+          // skip: page * 50
         }
       },
     });
