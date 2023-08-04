@@ -886,20 +886,27 @@ export class UserChannelService {
       throw new NotFoundException('Channel does not exist');
     }
 
+    // find the user in the channel members exists
     const member_check = await this.prisma.user.findFirst({
       where: {
         id: user,
-        channels: { some: { id: channelID } },
       },
+      select: {
+        channels: {
+          where: { 
+            id: channelID
+          },
+        }
+      }
     });
 
     channel['membersCount'] = channel.members.length;
     delete channel.members;
-    if (member_check != null) {
-      channel['isMember'] = true;
+    if (member_check.channels.length == 0) {
+      channel['isMember'] = false;
       return channel;
     }
-    channel['isMember'] = false;
+    channel['isMember'] = true;
     return channel;
   }
 }
