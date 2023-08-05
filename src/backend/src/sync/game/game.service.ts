@@ -90,7 +90,11 @@ export class GameService {
       to: data.username,
       time: new Date(),
     });
-    console.log(this.invits);
+
+    setTimeout(() => {
+      this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    }, 15 * 1000);
+  
     const userId = (await this.getUserData(senderClient)).uid;
     recieverClient.emit('invite', { username: senderUsername, id: userId });
     this.logger.log(`Player ${senderUsername} invited ${data.username}`);
@@ -107,12 +111,6 @@ export class GameService {
     const invit = this.invits.find((i) => i.from === data.username && i.to === recieverUsername);
     if (!invit) {
       recieverClient.emit('error', `You have no invite from ${data.username}`);
-      return;
-    }
-
-    // 1 minute
-    if (new Date().getTime() - invit.time.getTime() > 60 * 1000) {
-      recieverClient.emit('error', `Invite from ${data.username} expired`);
       return;
     }
 
@@ -142,6 +140,10 @@ export class GameService {
     if (!senderUsername) return;
     
     this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    const recieverClient = this.players.get(data.username);
+    if (!recieverClient) return;
+
+    recieverClient.emit('invite-canceled', {});
   }
 
   handleMessage(client: Socket, data: string): void {
