@@ -93,7 +93,6 @@ model Message {
 
   user            User    @relation("UserMessages", fields: [senderId], references: [id])
   senderId        Int
-  senderAvatarUrl String?
 }
 
 model DirectMessage {

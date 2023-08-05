@@ -111,7 +111,6 @@ export class UserChatHistoryService {
             content: true,
             createdAt: true,
             senderId: true,
-            senderAvatarUrl: true,
             channelId: true,
             user : {
               select : {
@@ -121,7 +120,6 @@ export class UserChatHistoryService {
             },
           },
           orderBy: { createdAt: 'asc' },
-          // skip: page * 50
         },
       },
     });
