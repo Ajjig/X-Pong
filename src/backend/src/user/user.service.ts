@@ -290,7 +290,7 @@ export class UserService {
     });
 
     if (!user || !friend) {
-      return new HttpException('User does not exist', 400);
+      throw new HttpException('User does not exist', 400);
     }
 
     const findexist = await this.prisma.friends.findFirst({
@@ -319,7 +319,7 @@ export class UserService {
     });
 
     if (otherside.count == 0) {
-      return new HttpException('You are not a friend or already blocked', 400);
+      throw new HttpException('You are not a friend or already blocked', 400);
     }
     
     await this.prisma.user.updateMany({
