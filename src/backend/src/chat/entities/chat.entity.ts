@@ -70,9 +70,8 @@ export class AnyMessage {
   channelId : number | null;
 
   privateChannelId : string | null;
-  
-  
-  
+
+
   senderUsername : string;
   senderId : number;
   senderName : string;
