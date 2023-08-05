@@ -25,7 +25,7 @@ export class GameService {
   private queue : {client : Socket, username : string}[] = [];
   private readonly logger = new Logger('MATCH-MAKING');
   private readonly players = new Map<string, Socket>();
-  private readonly invits: InvitDto[] = [];
+  private invits: InvitDto[] = [];
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
@@ -117,7 +117,7 @@ export class GameService {
     }
 
     this.invits.splice(this.invits.indexOf(invit), 1);
-
+    senderClient.emit('invite-accepted', {});
     const id = makeId(this.games);
     const game = new Game({
       id,
@@ -134,6 +134,14 @@ export class GameService {
       game,
     );
     game.startGame();
+  }
+
+  handleCancelInvite(client: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderUsername = this.getUserNameBySocket(client);
+    if (!senderUsername) return;
+    
+    this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
   }
 
   handleMessage(client: Socket, data: string): void {
@@ -163,7 +171,7 @@ export class GameService {
     // remove from queue if in queue
     this.queue = this.queue.filter((p) => p.username !== username);
     // remove from invits if in invits
-    this.invits.filter((i) => i.from !== username && i.to !== username);
+    this.invits = this.invits.filter((i) => i.from !== username && i.to !== username);
 
   }
 
