@@ -13,6 +13,9 @@ import { Server, Socket } from 'socket.io';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
 import { create } from 'domain';
+import { get } from 'http';
+import { InvitDto } from '../dto/invit.dto';
+
 
 @Injectable()
 export class GameService {
@@ -22,6 +25,7 @@ export class GameService {
   private queue : {client : Socket, username : string}[] = [];
   private readonly logger = new Logger('MATCH-MAKING');
   private readonly players = new Map<string, Socket>();
+  private readonly invits: InvitDto[] = [];
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
@@ -71,6 +75,59 @@ export class GameService {
     }
   }
 
+  handleInvite(senderClient: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderUsername = this.getUserNameBySocket(senderClient);
+    if (!senderUsername) return;
+    const recieverClient = this.players.get(data.username);
+    if (!recieverClient) {
+      senderClient.emit('error', `Player ${data.username} is not connected`);
+      return;
+    }
+
+    this.invits.push({
+      from: senderUsername,
+      to: data.username,
+      time: new Date(),
+    });
+    recieverClient.emit('invite', { username: senderUsername });
+    this.logger.log(`Player ${senderUsername} invited ${data.username}`);
+  }
+
+  handleAcceptInvite(recieverClient: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderClient = this.players.get(data.username);
+    if (!senderClient) {
+      recieverClient.emit('error', `Player ${data.username} is no longer connected`);
+      return;
+    }
+    const recieverUsername = this.getUserNameBySocket(recieverClient);
+    const invit = this.invits.find((i) => i.from === data.username && i.to === recieverUsername);
+    if (!invit) {
+      recieverClient.emit('error', `You have no invite from ${data.username}`);
+      return;
+    }
+
+    this.invits.splice(this.invits.indexOf(invit), 1);
+
+    const id = makeId(this.games);
+    const game = new Game({
+      id,
+      client1: senderClient,
+      client2: recieverClient,
+      player1Username: data.username,
+      player2Username: recieverUsername,
+    });
+
+    game.endGameCallback = this.stopGame;
+
+    this.games.set(
+      id,
+      game,
+    );
+    game.startGame();
+  }
+
   handleMessage(client: Socket, data: string): void {
     this.logger.log(`Message from ${client.id} : ${data}`);
   }
@@ -83,7 +140,7 @@ export class GameService {
     else
       this.logger.log(`Player ${username} connected`);
   }
-
+accepterUsername
   handleDisconnect(client: Socket): void {
     if (!client) return;
     let username = this.getUserNameBySocket(client);

@@ -43,6 +43,16 @@ export class GameGateway {
     this.gameService.handleMessage(client, data);
   }
 
+  @SubscribeMessage('invite')
+  handleInvite(client: Socket, data: {username: string}): void {
+    this.gameService.handleInvite(client, data);
+  }
+
+  @SubscribeMessage('accept-invite')
+  handleAcceptInvite(client: Socket, data: {username: string}): void {
+    this.gameService.handleAcceptInvite(client, data);
+  }
+
   @SubscribeMessage('disconnect')
   handleDisconnect(client: Socket): void {
     this.gameService.handleDisconnect(client);
