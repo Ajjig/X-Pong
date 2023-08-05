@@ -95,3 +95,20 @@ export class PublicMessageRequest {
   content: string;
   id: number;
 }
+
+export class SearchQuery {
+  query: string;
+}
+
+export class AcceptFriendRequest {
+  id: number;
+}
+
+export class SocketResponse {
+  message: string | null;
+  status: number;
+}
+
+export class AddFriendRequest {
+  id: number;
+}

@@ -58,7 +58,6 @@ CREATE TABLE "Message" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "content" TEXT NOT NULL,
     "channelId" INTEGER NOT NULL,
-    "sender" TEXT NOT NULL,
     "senderId" INTEGER NOT NULL,
     "senderAvatarUrl" TEXT,
 
@@ -72,8 +71,6 @@ CREATE TABLE "DirectMessage" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "senderId" INTEGER NOT NULL,
     "receiverId" INTEGER NOT NULL,
-    "SenderUsername" TEXT NOT NULL,
-    "ReceiverUsername" TEXT NOT NULL,
     "privateChannelId" TEXT NOT NULL,
 
     CONSTRAINT "DirectMessage_pkey" PRIMARY KEY ("id")

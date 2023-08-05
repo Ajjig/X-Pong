@@ -1,9 +1,10 @@
-import { Injectable, ExecutionContext, Logger } from '@nestjs/common';
+import { Injectable, ExecutionContext, Logger, HttpStatus } from '@nestjs/common';
 import {
   CreateChatDto,
   CreatePrivateChannelDto,
   DirectMessageDto,
   notificationsDto,
+  SocketResponseDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
@@ -173,8 +174,6 @@ export class ChatService {
     const message = await this.prisma.directMessage.create({
       data: {
         text: payload.msg,
-        SenderUsername: '',
-        ReceiverUsername: '',
         privateChannelId: payload.PrivateChannelId,
         sender: {
           connect: {
@@ -481,7 +480,11 @@ export class ChatService {
 
     if (userFriend.count === 0) {
       if (userClient) {
-        userClient.emit('error', 'No friend request found');
+        const response  : SocketResponseDto = {
+          status : HttpStatus.NOT_FOUND,
+          message : 'No friend request found'
+        }
+        userClient.emit('accept_friend_request', response);
       }
       return undefined;
     }
@@ -532,20 +535,11 @@ export class ChatService {
       },
     });
 
-    const res = await this.prisma.user.findUnique({
-      where: {
-        username: username,
-      },
-      select: {
-        email: true,
-        username: true,
-        Friends: true,
-        onlineStatus: true,
-        id: true,
-      },
-    });
-
-    return res;
+    const response  : SocketResponseDto = {
+      status : HttpStatus.OK,
+      message : 'Friend request accepted' 
+    }
+    return response;
   }
 
   async addFriend(
@@ -554,11 +548,15 @@ export class ChatService {
     Server: Server,
   ): Promise<any> {
     if (username === friendUsername) {
+      const response  : SocketResponseDto = {
+        status : HttpStatus.BAD_REQUEST,
+        message : "You can't send a friend request to yourself"
+      }
       this.emitToUser(
         Server,
         username,
-        'error',
-        "You can't send a friend request to yourself",
+        'add_friend',
+        response,
       );
       return null;
     }
@@ -572,7 +570,12 @@ export class ChatService {
     });
 
     if (!user || !friend) {
-      this.emitToUser(Server, username, 'error', 'User not found');
+      const response  : SocketResponseDto = {
+        status : HttpStatus.NOT_FOUND,
+        message : 'User not found'
+      }
+
+      this.emitToUser(Server, username, 'add_friend', response);
       return null;
     }
 
@@ -580,7 +583,11 @@ export class ChatService {
       where: { FriendID: friend.id, requestSentByID: user.id },
     });
     if (existingFriendship) {
-      this.emitToUser(Server, username, 'error', 'You are already friends');
+      const response  : SocketResponseDto = {
+        status : HttpStatus.BAD_REQUEST,
+        message : 'You already sent a friend request to this user'
+      }
+      this.emitToUser(Server, username, 'add_friend', response);
       return null;
     }
 
@@ -643,7 +650,7 @@ export class ChatService {
     server: Server,
     username: string,
     event: string,
-    data: any,
+    data: SocketResponseDto | notificationsDto,
   ): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: {

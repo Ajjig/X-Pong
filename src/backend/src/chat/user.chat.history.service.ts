@@ -109,7 +109,6 @@ export class UserChatHistoryService {
         messages: {
           select: {
             content: true,
-            sender: true,
             createdAt: true,
             senderId: true,
             senderAvatarUrl: true,
@@ -131,7 +130,6 @@ export class UserChatHistoryService {
         messages: channel.messages.map((message) => {
           return {
             content: message.content,
-            senderUsername: message.sender,
             createdAt: message.createdAt,
             senderId: message.senderId,
             avatarUrl: message.senderAvatarUrl,

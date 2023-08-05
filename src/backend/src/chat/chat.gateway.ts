@@ -18,11 +18,15 @@ import {
   PrivateMessageRequestDto,
   SavePublicChannelMessageDto,
   PublicMessageRequestDto,
+  SearchQueryDto,
+  AcceptFriendRequestDto,
+  SocketResponseDto,
+  AddFriendRequestDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { PublicChannelService } from './publicchannel.service';
 import { UserChatHistoryService } from './user.chat.history.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { emit } from 'process';
 import { User } from '@prisma/client';
 
@@ -51,22 +55,38 @@ export class ChatGateway {
   ) {
     const userdata = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'User not found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('message', response);
       return;
     }
     if (!payload || !userdata.uid || !payload.content || !payload.receiverID) {
-      client.emit('error', 'You must provide a payload');
+      const response: SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You must provide a payload',
+      };
+      client.emit('message', response);
       return;
     }
     const userobject: User = await this.publicChannelService.getUserbyid(
       userdata.uid,
     );
     if (!userobject) {
-      client.emit('error', 'User not found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('message', response);
       return;
     }
     if (userdata.uid === payload.receiverID) {
-      client.emit('error', 'You cannot send a message to yourself');
+      const response: SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You cannot send a message to yourself',
+      };
+      client.emit('message', response);
       return;
     }
 
@@ -76,7 +96,11 @@ export class ChatGateway {
     );
 
     if (!channelID) {
-      client.emit('error', 'Payload is not valid');
+      const response: SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Payload is not valid',
+      };
+      client.emit('message', response);
       return;
     }
 
@@ -99,8 +123,12 @@ export class ChatGateway {
       payload.receiverID,
     );
     if (blocked) {
-      client.emit('error', 'You are blocked from this user');
-      client.emit('error-message', 'You are blocked from this user');
+      const response: SocketResponseDto = {
+        status: HttpStatus.FORBIDDEN,
+        message: 'You are blocked from this user',
+      };
+      client.emit('message', response);
+ 
       return;
     }
     //------------- add blocked logic here
@@ -156,11 +184,19 @@ export class ChatGateway {
   ) {
     const userdata = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'User not found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('PublicMessage', response);
       return;
     }
     if (!payload || !payload.id || !userdata.uid || !payload.content) {
-      client.emit('error', 'You must provide a payload');
+      const response: SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You must provide a payload',
+      };
+      client.emit('PublicMessage', response);
       return;
     }
 
@@ -168,7 +204,11 @@ export class ChatGateway {
       userdata.uid,
     );
     if (!userobject) {
-      client.emit('error', 'User not found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('PublicMessage', response);
       return;
     }
 
@@ -176,7 +216,11 @@ export class ChatGateway {
       payload.id,
     );
     if (!channelName) {
-      client.emit('error', 'Channel not found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'Channel not found',
+      };
+      client.emit('PublicMessage', response);
       return;
     }
 
@@ -185,10 +229,11 @@ export class ChatGateway {
       userdata.uid,
     );
     if (flaggedUsersCheck) {
-      client.emit(
-        'error',
-        'You are not authorized to send messages to this channel',
-      );
+      const response: SocketResponseDto = {
+        status: HttpStatus.FORBIDDEN,
+        message: 'You are not authorized to send messages to this channel',
+      };
+      client.emit('PublicMessage', response);
       return;
     }
     // check if the user has joined the channel
@@ -226,15 +271,23 @@ export class ChatGateway {
   @SubscribeMessage('search')
   async SearchQuery(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
+    @MessageBody() payload: SearchQueryDto,
   ) {
     if (!payload || !payload.query) {
-      client.emit('error', 'You must provide a payload');
+      const response: SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You must provide a payload',
+      };
+      client.emit('search', response);
       return;
     }
     const result = await this.chatService.searchQuery(payload.query);
     if (!result) {
-      client.emit('error', 'No result found');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'No result found',
+      };
+      client.emit('search', response);
       return;
     }
     client.emit('search', result);
@@ -244,7 +297,11 @@ export class ChatGateway {
   async reconnect(@ConnectedSocket() client: Socket) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'Unauthorized user');
+      const response: SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('reconnect', response);
       client.disconnect();
       return;
     }
@@ -269,7 +326,11 @@ export class ChatGateway {
   async getlastedchannels(@ConnectedSocket() client: Socket) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'Unauthorized user');
+      const response: SocketResponseDto = {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized user',
+      };
+      client.emit('getLatestChannels', response);
       client.disconnect();
       return;
     }
@@ -284,27 +345,49 @@ export class ChatGateway {
   @SubscribeMessage('accept_friend_request')
   async acceptFriendRequest(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
+    @MessageBody() payload: AcceptFriendRequestDto,
   ) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'Unauthorized user');
+      const response : SocketResponseDto = {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized user',
+      };
+      client.emit('accept_friend_request', response);
       client.disconnect();
       return;
     }
-    if (!payload || !payload.friend_username) {
-      client.emit('error', 'You must provide a payload');
+    if (!payload || !payload.id) {
+      const response : SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You must provide a payload',
+      };
+      client.emit('accept_friend_request', response);
       return;
+    }
+
+    const friendObject : User = await this.publicChannelService.getUserbyid(payload.id);
+    if (!friendObject) {
+      const response : SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('accept_friend_request', response);
+      return; 
     }
 
     const result = await this.chatService.acceptFriendRequest(
       userdata.username,
-      payload.friend_username,
+      friendObject.username,
       this.server,
       this.connectedClients,
     );
     if (result == false) {
-      client.emit('error', 'The user or friend is not found');
+      const response : SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'The user or friend is not found',
+      };
+      client.emit('accept_friend_request', response);
       return;
     }
     client.emit('accept_friend_request', result);
@@ -313,22 +396,41 @@ export class ChatGateway {
   @SubscribeMessage('add_friend')
   async addFriend(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
+    @MessageBody() payload: AddFriendRequestDto,
   ) {
     let userdata: any = await this.chatService.jwtdecoder(client);
     if (!userdata) {
-      client.emit('error', 'Unauthorized user');
+      const response : SocketResponseDto = {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized user',
+      };
+      client.emit('add_friend', response);
       client.disconnect();
       return;
     }
-    if (!payload || !payload.friend_username) {
-      client.emit('error', 'You must provide a payload');
+    if (!payload || !payload.id) {
+      const response : SocketResponseDto = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'You must provide a payload',
+      };
+      client.emit('add_friend', response);
       return;
     }
 
+    const friendObject : User = await this.publicChannelService.getUserbyid(payload.id);
+    if (!friendObject) {
+      const response : SocketResponseDto = {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      };
+      client.emit('add_friend', response);
+      return;
+    }
+
+
     const result = await this.chatService.addFriend(
       userdata.username,
-      payload.friend_username,
+      friendObject.username,
       this.server,
     );
     client.emit('add_friend', result);
