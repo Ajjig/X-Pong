@@ -111,32 +111,20 @@ export class UserChatHistoryService {
             content: true,
             createdAt: true,
             senderId: true,
-            senderAvatarUrl: true,
             channelId: true,
+            user : {
+              select : {
+                username : true,
+                avatarUrl : true,
+              },
+            },
           },
           orderBy: { createdAt: 'asc' },
-          // skip: page * 50
         },
       },
     });
+    return channels;
 
-    return channels.map((channel) => {
-      return {
-        id: channel.id,
-        name: channel.name,
-        type: channel.type,
-        owner: channel.owner,
-        createdAt: channel.createdAt,
-        messages: channel.messages.map((message) => {
-          return {
-            content: message.content,
-            createdAt: message.createdAt,
-            senderId: message.senderId,
-            avatarUrl: message.senderAvatarUrl,
-            channelId: message.channelId,
-          };
-        }),
-      };
-    });
+
   }
 }

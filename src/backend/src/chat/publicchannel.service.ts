@@ -68,8 +68,11 @@ export class PublicChannelService {
     const newMessage = await this.prisma.message.create({
       data: {
         content: payload.content,
-        senderId: payload.senderId,
-        senderAvatarUrl : payload.senderAvatarUrl,
+        user: {
+          connect: {
+            id: payload.senderId,
+          },
+        },
         channel: {
           connect: {
             id: payload.channelId,
