@@ -26,7 +26,7 @@ export class PrivateMessage {
 export class DirectMessage {
   msg: string;
   sender: string;
-  receiver: string;
+  receiverID: number;
   PrivateChannelId: string;
 }
 
@@ -58,25 +58,28 @@ export class joinPublicChannel {
   password: string | null;
 }
 
-
 export class AnyMessage {
-  avatarUrl : string;
-  content : string;
-  
-  updatedAt : Date;
-  createdAt : Date;
-  
-  channelName : string | null;
-  channelId : number | null;
+  avatarUrl: string;
+  content: string;
 
-  privateChannelId : string | null;
+  updatedAt: Date;
+  createdAt: Date;
 
+  channelName: string | null;
+  channelId: number | null;
 
-  senderUsername : string;
-  senderId : number;
-  senderName : string;
-  
-  receiverId : number | null;
-  receiverName : string | null;
-  receiverUsername : string | null;
+  privateChannelId: string | null;
+
+  senderUsername: string;
+  senderId: number;
+  senderName: string;
+
+  receiverId: number | null;
+  receiverName: string | null;
+  receiverUsername: string | null;
+}
+
+export class PrivateMessageRequest {
+  receiverID: number;
+  content: string;
 }

@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
 import { PrivateChannel, PrivateMessage } from './entities/chat.entity';
 import { check } from 'prettier';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class PublicChannelService {
@@ -134,7 +135,7 @@ export class PublicChannelService {
     return channel.name;
   }
 
-  async getUserbyid(userId: number): Promise<any> {
+  async getUserbyid(userId: number): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,

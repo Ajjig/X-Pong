@@ -15,6 +15,7 @@ import {
   PublicChannelMessageDto,
   GetPrivateConversationsDto,
   AnyMessageDto,
+  PrivateMessageRequestDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { PublicChannelService } from './publicchannel.service';
@@ -44,20 +45,30 @@ export class ChatGateway {
   @SubscribeMessage('message') // send a message to a Private channel
   async PrivateMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: PrivateMessageDto,
+    @MessageBody() payload: PrivateMessageRequestDto,
   ) {
     const userdata = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'User not found');
       return;
     }
-    if (!payload || !userdata.username || !payload.msg || !payload.receiver) {
+    if (!payload || !userdata.uid || !payload.content || !payload.receiverID) {
       client.emit('error', 'You must provide a payload');
       return;
     }
+    const userobject : User = await this.publicChannelService.getUserbyid(userdata.uid);
+    if (!userobject) {
+      client.emit('error', 'User not found');
+      return;
+    }
+    if (userdata.uid === payload.receiverID) {
+      client.emit('error', 'You cannot send a message to yourself');
+      return;
+    }
+
     const channelID = await this.chatService.makePrivateChannelId(
-      userdata.username,
-      payload.receiver,
+      userobject.username,
+      payload.receiverID,
     );
 
     if (!channelID) {
@@ -66,13 +77,13 @@ export class ChatGateway {
     }
 
     const channelcheck = await this.chatService.checkSingleChannelExsting(
-      userdata.username,
+      userobject.username,
       channelID,
     );
     if (!channelcheck) {
       await this.chatService.createprivatechannel(
-        userdata.username,
-        payload.receiver,
+        userobject.username,
+        payload.receiverID,
         this.server,
         channelID,
       );
@@ -80,8 +91,8 @@ export class ChatGateway {
 
     //--------------- add blocked logic here
     const blocked = await this.chatService.checkUserIsBlocked(
-      userdata.username,
-      payload.receiver,
+      userobject.username,
+      payload.receiverID,
     );
     if (blocked) {
       client.emit('error', 'You are blocked from this user');
@@ -96,15 +107,15 @@ export class ChatGateway {
     const inChannel = client.rooms.has(channelID);
     if (!inChannel) {
       client.join(channelID);
-      client.to(channelID).emit('privateJoined', userdata.username);
+      client.to(channelID).emit('privateJoined', userobject.username);
     }
     // ---------------JOIN LOGIC
 
     const message = await this.chatService.saveprivatechatmessage({
-      msg: payload.msg,
-      sender: userdata.username,
+      msg: payload.content,
+      sender: userobject.username,
       PrivateChannelId: channelID,
-      receiver: payload.receiver,
+      receiverID: payload.receiverID,
     });
     // add created at and updated at to the message
 
@@ -112,11 +123,11 @@ export class ChatGateway {
     const user: User = await this.publicChannelService.getUserbyid(
       userdata.uid,
     );
-    const receiver: User = await this.publicChannelService.getUserbyusername(
-      payload.receiver,
+    const receiver: User = await this.publicChannelService.getUserbyid(
+      payload.receiverID,
     );
     let response: AnyMessageDto = {
-      content: payload.msg,
+      content: payload.content,
       avatarUrl: user.avatarUrl,
       senderUsername: user.username,
       createdAt: new Date(),

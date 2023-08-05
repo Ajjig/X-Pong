@@ -113,14 +113,14 @@ export class ChatService {
 
   async makePrivateChannelId(
     sender: string,
-    receiver: string,
+    receiver: number,
   ): Promise<string> {
     const senderID = await this.prisma.user.findUnique({
       where: { username: sender },
       select: { id: true },
     });
     const receiverID = await this.prisma.user.findUnique({
-      where: { username: receiver },
+      where: { id: receiver },
       select: { id: true },
     });
 
@@ -138,7 +138,7 @@ export class ChatService {
 
   async createprivatechannel(
     username: string,
-    receiver: string,
+    receiver: number,
     Server: Server,
     genereatedChannelId: string,
   ): Promise<string> {
@@ -156,7 +156,7 @@ export class ChatService {
 
     await this.prisma.user.update({
       where: {
-        username: receiver,
+        id: receiver,
       },
       data: {
         // append the new channel to the user's list of channels String[]
@@ -165,7 +165,7 @@ export class ChatService {
         },
       },
     });
-    Server.to(username).to(receiver).emit('channelId', genereatedChannelId); // remove this line
+    // Server.to(username).to(receiver).emit('channelId', genereatedChannelId); // remove this line
     return genereatedChannelId;
   }
 
@@ -173,8 +173,8 @@ export class ChatService {
     const message = await this.prisma.directMessage.create({
       data: {
         text: payload.msg,
-        SenderUsername: payload.sender,
-        ReceiverUsername: payload.receiver,
+        SenderUsername: '',
+        ReceiverUsername: '',
         privateChannelId: payload.PrivateChannelId,
         sender: {
           connect: {
@@ -183,7 +183,7 @@ export class ChatService {
         },
         receiver: {
           connect: {
-            username: payload.receiver,
+            id: payload.receiverID,
           },
         },
       },
@@ -367,7 +367,7 @@ export class ChatService {
     return [...users, ...channels];
   }
 
-  async checkUserIsBlocked(Sender: string, Receiver: string): Promise<boolean> {
+  async checkUserIsBlocked(Sender: string, Receiver: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: {
         username: Sender,
@@ -379,7 +379,7 @@ export class ChatService {
 
     const receiverOBJ = await this.prisma.user.findUnique({
       where: {
-        username: Receiver,
+        id: Receiver,
       },
     });
 
@@ -487,13 +487,13 @@ export class ChatService {
     }
 
     // create a new channel for the two users
-    const channel = await this.makePrivateChannelId(username, friendRequest);
+    const channel = await this.makePrivateChannelId(username, friendUser.id);
     const check_channel = await this.checkSingleChannelExsting(
       username,
       channel,
     );
     if (!check_channel) {
-      await this.createprivatechannel(username, friendRequest, Server, channel);
+      await this.createprivatechannel(username, friendUser.id, Server, channel);
     }
 
     // join the two users to the channel
