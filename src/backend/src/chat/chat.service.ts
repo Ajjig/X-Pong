@@ -609,7 +609,7 @@ export class ChatService {
       },
     });
 
-    const notification_SIDE = await this.prisma.notification.create({
+    let notification_SIDE = await this.prisma.notification.create({
       data: {
         type: 'friendRequest',
         from: user.username,
@@ -620,6 +620,7 @@ export class ChatService {
         avatarUrl: user.avatarUrl,
       },
     });
+    notification_SIDE.userId = user.id;
     this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
 
     return my_side;
