@@ -40,6 +40,7 @@ import { BanMemberChannelDto } from './dto/ban.member.channel.dto';
 import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
 import {joinPublicChannelDto} from '../chat/dto/create-chat.dto';
+import { MuteJob } from './jobs/mute.job';
 
 @Controller('user')
 export class UserController {
@@ -50,6 +51,7 @@ export class UserController {
     private readonly TwoFactorAuthService: TwoFactorAuthService,
     private readonly UploadService: UploadService,
     private readonly authService: AuthService,
+    private readonly muteJob: MuteJob,
   ) {}
 
   @Get()
@@ -347,29 +349,22 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_muted_of_channel')
-  async setUserAsMutedOfChannelByUsername(
+  async setUserAsMutedOfChannel(
     @Req() request,
     @Body() body: MuteMemberChannelDto,
   ) {
-    return this.UserChannelService.setUserAsMutedOfChannelByUsername(
-      request.user,
-      body.new_muted,
-      body.channel_name,
-    );
+    return this.muteJob.muteUser(body.userId, body.channelId, body.timeoutMs || 5 * 60 * 1000);
   }
 
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannelByUsername(
+  async setUserAsUnmutedOfChannel(
     @Req() request,
     @Body() body: MuteMemberChannelDto,
   ) {
-    return this.UserChannelService.setUserAsUnmutedOfChannelByUsername(
-      request.user,
-      body.new_muted,
-      body.channel_name,
-    );
+    // 
+    return this.muteJob.unmuteUser(body.userId, body.channelId);
   }
 
   @UseGuards(JwtAuthGuard)
