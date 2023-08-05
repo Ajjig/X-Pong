@@ -108,6 +108,12 @@ export class GameService {
       return;
     }
 
+    // 1 minute
+    if (new Date().getTime() - invit.time.getTime() > 60 * 1000) {
+      recieverClient.emit('error', `Invite from ${data.username} expired`);
+      return;
+    }
+
     this.invits.splice(this.invits.indexOf(invit), 1);
 
     const id = makeId(this.games);
