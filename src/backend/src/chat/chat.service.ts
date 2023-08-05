@@ -174,8 +174,6 @@ export class ChatService {
     const message = await this.prisma.directMessage.create({
       data: {
         text: payload.msg,
-        SenderUsername: '',
-        ReceiverUsername: '',
         privateChannelId: payload.PrivateChannelId,
         sender: {
           connect: {
