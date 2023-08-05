@@ -94,6 +94,7 @@ model Message {
 
   sender   String //TODO: remove this field
   senderId Int
+  senderAvatarUrl String?
 }
 
 model DirectMessage {

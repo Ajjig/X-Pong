@@ -73,6 +73,7 @@ export class PublicChannelService {
         content: payload.msg,
         sender: payload.username,
         senderId: sender.id,
+        senderAvatarUrl : sender.avatarUrl,
         channel: {
           connect: {
             name: payload.channelName,

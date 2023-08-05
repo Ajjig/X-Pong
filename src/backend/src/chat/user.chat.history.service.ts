@@ -80,12 +80,15 @@ export class UserChatHistoryService {
             content: true,
             sender: true,
             createdAt: true,
+            senderId: true,
+            senderAvatarUrl: true,
+            channelId: true,
           },
           orderBy: { createdAt: 'asc' },
           // skip: page * 50
         }
       },
-    });
+    });      
   
     return channels;
   }
