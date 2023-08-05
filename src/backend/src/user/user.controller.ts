@@ -347,6 +347,12 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/avatar/:id')
+  async getAvatar(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
+    res.redirect(await this.userService.getAvatarUrlById(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/set_user_as_muted_of_channel')
   async setUserAsMutedOfChannel(

@@ -377,4 +377,17 @@ export class UserService {
 
     return new HttpException('Friend request rejected', 200);
   }
+
+  async getAvatarUrlById(id: number) {
+    const user =  await this.prisma.user.findUnique({
+      where: { id: id },
+      select: { avatarUrl: true },
+    });
+    if (!user)
+      throw new NotFoundException(`User id ${id} not found`);
+    
+    if (!(user.avatarUrl))
+      throw new NotFoundException(`User id ${id} has no avatar`);
+    return user.avatarUrl;
+  }
 }
