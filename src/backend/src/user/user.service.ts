@@ -21,7 +21,7 @@ export type userStatstype = {
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async setProfileUsernameByusername(
     username: string,
@@ -107,7 +107,6 @@ export class UserService {
   }
 
   async addFriendByUsername(username: string, friendUsername: string) {
-
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
@@ -121,7 +120,7 @@ export class UserService {
     }
 
     const existingFriendship = await this.prisma.friends.findFirst({
-      where: { username: friend.username },
+      where: { FriendID: friend.id },
     });
     if (existingFriendship) {
       throw new HttpException('Friend already added', 400);
@@ -130,13 +129,12 @@ export class UserService {
     const my_side = await this.prisma.friends.create({
       data: {
         user: { connect: { id: user.id } },
-        username: friend.username,
-        requestSentBy: username,
-        requestSentTo: friendUsername,
+        FriendID: friend.id,
+        requestSentByID: user.id,
+        requestSentToID: friend.id,
       },
     });
     return my_side;
-
   }
 
   async acceptFriendRequestByUsername(
@@ -154,19 +152,19 @@ export class UserService {
 
       const findexist = await this.prisma.friends.findFirst({
         // check if friend exists
-        where: { username: friend.username },
+        where: { FriendID: friend.id },
       });
       if (!findexist) {
         return { user };
       }
 
       const otherside = await this.prisma.friends.updateMany({
-        where: { username: user.username },
+        where: { FriendID: user.id },
         data: { friendshipStatus: 'Accepted' },
       });
 
       const newFriend = await this.prisma.friends.updateMany({
-        where: { username: friend.username },
+        where: { FriendID: friend.id },
         data: { friendshipStatus: 'Accepted' },
       });
       return newFriend;
@@ -283,47 +281,67 @@ export class UserService {
     }
   }
 
-  async blockFriendByUsername(request: any, friendUsername: string) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { username: request.username },
-      });
-      const friend = await this.prisma.user.findUnique({
-        where: { username: friendUsername },
-      });
+  async blockFriendByUsername(request: any, friendID: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: request.id },
+    });
+    const friend = await this.prisma.user.findUnique({
+      where: { id: friendID },
+    });
 
-      if (!user || !friend) {
-        return new HttpException('User does not exist', 400);
-      }
-
-      const findexist = await this.prisma.friends.findFirst({
-        // check if friend exists
-        where: { username: friend.username },
-      });
-      if (!findexist) {
-        throw new HttpException('Friend not found', 400);
-      }
-
-      const otherside = await this.prisma.friends.updateMany({
-        where: {
-          userId: user.id,
-          username: friendUsername,
-          friendshipStatus: 'Accepted',
-        },
-        data: { friendshipStatus: 'Blocked' },
-      });
-
-      if (otherside.count == 0) {
-        return new HttpException('You are not a friend or already blocked', 400);
-      }
-
-      return new HttpException('user blocked', 200)
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
+    if (!user || !friend) {
+      return new HttpException('User does not exist', 400);
     }
+
+    const findexist = await this.prisma.friends.findFirst({
+      // check if friend exists
+      where: { FriendID: friend.id },
+    });
+    if (!findexist) {
+      throw new HttpException('Friend not found', 400);
+    }
+
+    const otherside = await this.prisma.friends.updateMany({
+      where: {
+        FriendID : friendID,
+        userId: user.id,
+        friendshipStatus: 'Accepted',
+      },
+      data: { friendshipStatus: 'Blocked' },
+    });
+    const otherside2 = await this.prisma.friends.updateMany({
+      where: {
+        FriendID : user.id,
+        userId: friendID,
+        friendshipStatus: 'Accepted',
+      },
+      data: { friendshipStatus: 'Blocked' },
+    });
+
+    if (otherside.count == 0) {
+      return new HttpException('You are not a friend or already blocked', 400);
+    }
+    
+    await this.prisma.user.updateMany({
+      where: {
+        id: friend.id,
+      },
+      data: { blockedIds: { push: user.id } },
+    });
+    await this.prisma.user.updateMany({
+      where: {
+        id: user.id,
+      },
+      data: { blockedIds: { push: friend.id } },
+    });
+
+    return new HttpException('user blocked', 200);
   }
 
-  async rejectFriendRequestByUsername(username: string, friendUsername: string) {
+  async rejectFriendRequestByUsername(
+    username: string,
+    friendUsername: string,
+  ) {
     if (username === friendUsername) {
       throw new HttpException('Cannot reject yourself', 400);
     }
@@ -339,8 +357,8 @@ export class UserService {
 
     const friend_request = await this.prisma.friends.deleteMany({
       where: {
-        requestSentBy: friendUsername,
-        requestSentTo: username,
+        requestSentByID: friend.id,
+        requestSentToID: user.id,
         friendshipStatus: 'Pending',
       },
     });
@@ -358,7 +376,5 @@ export class UserService {
     });
 
     return new HttpException('Friend request rejected', 200);
-
-
   }
 }

@@ -73,6 +73,7 @@ export class PublicChannelService {
         content: payload.msg,
         sender: payload.username,
         senderId: sender.id,
+        senderAvatarUrl : sender.avatarUrl,
         channel: {
           connect: {
             name: payload.channelName,
@@ -84,7 +85,6 @@ export class PublicChannelService {
 
   async limitFlagedUsers(channelId: number, userId: number): Promise<boolean> {
     // check if the user is flagged as banned or muted or kicked
-
     const channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
@@ -143,4 +143,17 @@ export class PublicChannelService {
 
     return user;
   }
+
+
+  // get user by username
+  async getUserbyusername(username: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+
+    return user;
+  }
+
 }

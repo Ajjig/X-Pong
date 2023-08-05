@@ -377,10 +377,17 @@ export class ChatService {
       },
     });
 
+    const receiverOBJ = await this.prisma.user.findUnique({
+      where: {
+        username: Receiver,
+      },
+    });
+
+
     let check: boolean = false;
 
     user.Friends.forEach((friend) => {
-      if (friend.username === Receiver) {
+      if (friend.FriendID === receiverOBJ.id) {
         if (friend.friendshipStatus === 'blocked') {
           check = true;
         }
@@ -463,8 +470,8 @@ export class ChatService {
     // update the friendship status to accepted
     const userFriend = await this.prisma.friends.updateMany({
       where: {
-        requestSentTo: username,
-        requestSentBy: friendRequest,
+        requestSentToID: user.id,
+        requestSentByID: friendUser.id,
         friendshipStatus: 'Pending',
       },
       data: {
@@ -570,7 +577,7 @@ export class ChatService {
     }
 
     const existingFriendship = await this.prisma.friends.findFirst({
-      where: { username: friend.username, requestSentBy: username },
+      where: { FriendID: friend.id, requestSentByID: user.id },
     });
     if (existingFriendship) {
       this.emitToUser(Server, username, 'error', 'You are already friends');
@@ -580,18 +587,18 @@ export class ChatService {
     const my_side = await this.prisma.friends.create({
       data: {
         user: { connect: { id: user.id } },
-        username: friend.username,
-        requestSentBy: username,
-        requestSentTo: friendUsername,
+        FriendID: friend.id,
+        requestSentByID: user.id,
+        requestSentToID: friend.id,
       },
     });
 
     const friend_side = await this.prisma.friends.create({
       data: {
         user: { connect: { id: friend.id } },
-        username: user.username,
-        requestSentBy: username,
-        requestSentTo: friendUsername,
+        FriendID: user.id,
+        requestSentByID: user.id,
+        requestSentToID: friend.id,
       },
     });
 

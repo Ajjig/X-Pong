@@ -14,6 +14,7 @@ import {
   PrivateMessageDto,
   PublicChannelMessageDto,
   GetPrivateConversationsDto,
+  AnyMessageDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { PublicChannelService } from './publicchannel.service';
@@ -106,12 +107,31 @@ export class ChatGateway {
       receiver: payload.receiver,
     });
     // add created at and updated at to the message
-    message.createdAt = new Date();
-    message.updatedAt = new Date();
 
     // send the message to the channel
+    const user: User = await this.publicChannelService.getUserbyid(
+      userdata.uid,
+    );
+    const receiver: User = await this.publicChannelService.getUserbyusername(
+      payload.receiver,
+    );
+    let response: AnyMessageDto = {
+      content: payload.msg,
+      avatarUrl: user.avatarUrl,
+      senderUsername: user.username,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      channelName: null,
+      channelId: null,
+      senderId: userdata.uid,
+      senderName: userdata.name,
+      receiverId: receiver.id,
+      receiverName: receiver.name,
+      receiverUsername: receiver.username,
+      privateChannelId: channelID,
+    };
 
-    client.to(channelID).emit('message', message);
+    client.to(channelID).emit('message', response);
   }
 
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
@@ -139,7 +159,7 @@ export class ChatGateway {
 
     const flaggedUsersCheck = await this.publicChannelService.limitFlagedUsers(
       payload.id,
-      userdata.username,
+      userdata.uid,
     );
     if (flaggedUsersCheck) {
       client.emit(
@@ -154,17 +174,30 @@ export class ChatGateway {
       client.join(channelName);
     }
     payload.username = userdata.username;
-    payload.channelName = channelName; 
+    payload.channelName = channelName;
     await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
     // add created at and updated at
 
-    payload.createdAt = new Date();
-    payload.updatedAt = new Date();
-
-    const user : User = await this.publicChannelService.getUserbyid(payload.id);
-    payload.avatarUrl = user.avatarUrl;
-    client.to(channelName).emit('PublicMessage', payload);
-  } 
+    const user: User = await this.publicChannelService.getUserbyid(
+      userdata.uid,
+    );
+    let response: AnyMessageDto = {
+      content: payload.msg,
+      avatarUrl: user.avatarUrl,
+      senderUsername: payload.username,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      channelName: channelName,
+      channelId: payload.id,
+      senderId: userdata.uid,
+      senderName: userdata.name,
+      receiverId: null,
+      receiverName: null,
+      receiverUsername: null,
+      privateChannelId: null,
+    };
+    client.to(channelName).emit('PublicMessage', response);
+  }
 
   @SubscribeMessage('search')
   async SearchQuery(

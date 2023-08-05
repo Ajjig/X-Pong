@@ -94,6 +94,7 @@ model Message {
 
   sender   String //TODO: remove this field
   senderId Int
+  senderAvatarUrl String?
 }
 
 model DirectMessage {
@@ -120,11 +121,11 @@ model Friends {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  username String // TODO: remove this field
+  FriendID Int
   friendshipStatus String @default("Pending") // Pending, Accepted, Declined, Blocked
 
-  requestSentBy String // TODO: remove this field
-  requestSentTo String // TODO: remove this field
+  requestSentByID Int
+  requestSentToID Int
 
   // relations
   user   User @relation("UserFriends", fields: [userId], references: [id])
