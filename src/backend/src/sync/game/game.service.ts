@@ -33,6 +33,18 @@ export class GameService {
 
   handleMatchmaking(client: Socket): void {
     const username = this.getUserNameBySocket(client);
+
+    if (!username) return;
+  
+    if (this.handleAlreadyInGame(username, client)) {
+      this.logger.log(`Player ${username} reconnected to previous game`);
+      this.games.forEach((value: Game, key: string) => {
+        if (value.player1Username === username || value.player2Username === username) {
+          value.reconnectPlayer(username, client);
+        }
+      });
+    }
+
     this.queue.push({ username, client });
     this.logger.log(`Player ${username} waiting for an opponent`);
     if (this.queue.length >= 2) {
