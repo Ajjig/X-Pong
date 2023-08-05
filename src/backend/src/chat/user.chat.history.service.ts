@@ -64,7 +64,27 @@ export class UserChatHistoryService {
       }),
     );
 
-    return userConversations;
+    return userConversations.map((conv) => {
+      return {
+        chat: conv.chat.map((message) => {
+          return {
+            content: message.text,
+            createdAt: message.createdAt,
+            senderId: message.senderId,
+            receiverId: message.receiverId,
+          };
+        }),
+        otherUser: {
+          username: conv.otherUser.username,
+          id: conv.otherUser.id,
+          avatarUrl: conv.otherUser.avatarUrl,
+          name: conv.otherUser.name,
+          onlineStatus: conv.otherUser.onlineStatus,
+          privateChannels: conv.otherUser.privateChannels,
+        },
+        privateChannelId: conv.privateChannelId,
+      };
+    });
   }
 
   async getUserChannelConversationChatHistory(
