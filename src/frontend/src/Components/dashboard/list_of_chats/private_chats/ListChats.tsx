@@ -67,11 +67,8 @@ export function ListChats({ SegRef }: { SegRef: any }) {
                 {chats?.map((chat: any, index: number) => {
                     // if (chat.chat.length == 0) return null;
                     return (
-                        <Box key={index}>
-                            <Space py={2} />
+                        <Box key={index} py={4}>
                             <Chat chat={chat} />
-                            <Space py={2} />
-                            <Divider />
                         </Box>
                     );
                 })}

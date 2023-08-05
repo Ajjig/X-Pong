@@ -25,7 +25,10 @@ const ChatsSlice = createSlice({
             state.GroupChats = action.payload;
         },
         addNewMessageToGroupChat: (state, action) => {
-            const groupChats: any = state.GroupChats.find((chat: any) => chat.name === action.payload.name);
+            const groupChats: any = state.GroupChats.find((chat: any) => {
+                console.log(chat.name, action.payload.channelName, chat.name === action.payload.channelName)    
+                return chat.name === action.payload.channelName
+            });
             if (groupChats) {
                 groupChats.messages.push(action.payload);
             }

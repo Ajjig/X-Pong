@@ -1,16 +1,43 @@
 // SocketComponent.js
-import store, { addFriendRequest, addNewMessageToGroupChat, addNewMessageToPrivateChat, setGameState, setGroupChats, setNewMessage, setNotifications, setPrivateChats, setSocket } from "@/store/store";
-import { useEffect } from "react";
+import store, {
+    addFriendRequest,
+    addNewMessageToGroupChat,
+    addNewMessageToPrivateChat,
+    setGameState,
+    setGroupChats,
+    setNotifications,
+    setPrivateChats,
+    setSocket,
+} from "@/store/store";
+import { useEffect, useState } from "react";
 import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
-import { NotificationType } from "./types"
+import { NotificationType } from "./types";
+
+type MessageType = {
+    content: string;
+    createdAt: string;
+    sender: string;
+    avatarUrl?: string;
+};
 
 const SocketComponent = () => {
+    const [connected, setConnected] = useState(false);
+    useEffect(() => {
+        if (!socketGame.connected) {
+            socketGame.connect();
+        } else {
+            setConnected(false);
+        }
+        if (!chatSocket.connected) {
+            chatSocket.connect();
+        } else {
+            setConnected(false);
+        }
+    }, [connected]);
+
     useEffect(() => {
         // Connect to the socket server
-        if (!socketGame.connected) socketGame.connect();
-        if (!chatSocket.connected) chatSocket.connect();
-
         socketGame.on("gameState", (gameState: any) => {
             store.dispatch(setGameState(gameState));
         });
@@ -44,7 +71,8 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("PublicMessage", (newMessage: any) => {
-            console.log("PublicMessage", newMessage);
+            // console.log("@@>PublicMessage", newMessage)
+
             store.dispatch(addNewMessageToGroupChat(newMessage));
         });
 
@@ -58,6 +86,7 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("privateChat", (data) => {
+            // console.log("privateChat", data);
             store.dispatch(setPrivateChats(data));
         });
 
@@ -69,15 +98,11 @@ const SocketComponent = () => {
         // chatSocket.onAny((event, ...args) => {
         //     console.log(event, args);
         // });
-
-        // @@@@@@@@@@@@@@
-
-        // Clean up the socket connection when component unmounts
         return () => {
             chatSocket.disconnect();
             socketGame.disconnect();
         };
-    }, []);
+    }, [socketGame, chatSocket]);
 
     return <></>;
 };

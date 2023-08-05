@@ -1,13 +1,10 @@
-import { Avatar, Box, Flex, useMantineTheme, Text, Divider, Badge } from "@mantine/core";
-import React, { use, useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import store, { setCurrentChatGroup } from "@/store/store";
+import { Avatar, Box, Flex, useMantineTheme, Text, Badge } from "@mantine/core";
+import React, { useEffect } from "react";
+import store, { setCurrentChat, setCurrentChatGroup } from "@/store/store";
 import { IconLock, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 
 export function Group({ groupInfo }: { groupInfo: any }) {
     const theme = useMantineTheme();
-
-    useEffect(() => {}, []);
 
     const icon = () => {
         if (groupInfo.type == "private") {
@@ -38,6 +35,7 @@ export function Group({ groupInfo }: { groupInfo: any }) {
             }}
             onClick={() => {
                 store.dispatch(setCurrentChatGroup(groupInfo));
+                store.dispatch(setCurrentChat(null));
             }}
         >
             <Flex p="sm" align="center" sx={{ cursor: "pointer" }}>

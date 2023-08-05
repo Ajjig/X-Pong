@@ -6,7 +6,7 @@ import { IconMessage, IconPlus } from "@tabler/icons-react";
 import { CreateNewGroup } from "./create_new_group";
 import { Group } from "./group";
 
-export function ListGroups({}: {}) {
+export function ListGroups({ SegRef }: { SegRef: any }) {
     const [chats, setChats] = useState<any>([]);
 
     useEffect(() => {
@@ -15,37 +15,33 @@ export function ListGroups({}: {}) {
             const chatsFromStore = store.getState().chats.GroupChats;
             setChats(chatsFromStore);
         });
-        // console.table(store.getState().chats.GroupChats);
     }, []);
 
     return (
-        <>
-            <Box
-                w={"100%"}
-                h={`calc(100%)`}
-                // bg='red'
-                p={"12px"}
-                sx={(theme: MantineTheme) => ({
-                    // flex: 1,
-                    overflowY: "scroll",
-                    /* ===== Scrollbar CSS ===== */
-                    /* Firefox */
-                    scrollbarColor: `${theme.colors.gray[8]} transparent`,
-                    scrollbarWidth: "thin",
-                    /* Chrome, Edge, and Safari */
-                    "&::-webkit-scrollbar": {
-                        width: "5px",
-                    },
-                    "&::-webkit-scrollbar-track": {
-                        background: "transparent",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                        background: theme.colors.gray[8],
-                        borderRadius: theme.radius.md,
-                    },
-                })}
-            >
-                {chats.length <= 0 && (
+        <Box
+            w={"100%"}
+            p={"12px"}
+            sx={(theme: MantineTheme) => ({
+                flex: 1,
+                overflowY: "scroll",
+                /* ===== Scrollbar CSS ===== */
+                /* Firefox */
+                scrollbarColor: `${theme.colors.gray[8]} transparent`,
+                scrollbarWidth: "thin",
+                /* Chrome, Edge, and Safari */
+                "&::-webkit-scrollbar": {
+                    width: "5px",
+                },
+                "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                    background: theme.colors.gray[8],
+                    borderRadius: theme.radius.md,
+                },
+            })}
+        >
+            {chats.length <= 0 && (
                     <Box
                         sx={(theme: MantineTheme) => ({
                             display: "flex",
@@ -59,20 +55,15 @@ export function ListGroups({}: {}) {
                         <IconMessage size={50} />
                     </Box>
                 )}
-                {chats?.map((chat: any, index: number) => {
-                    // if (chat.chat.length == 0) return null;
-                    return (
-                        <Box key={index}>
-                            <Space py={2} />
-                            {/* <Chat chat={chat} /> */}
-                            <Group groupInfo={chat} />
-                            <Space py={2} />
-                            {/* <Divider /> */}
-                        </Box>
-                    );
-                })}
-            </Box>
-
+            {chats?.map((chat: any, index: number) => {
+                return (
+                    <Box key={index + chat.id}>
+                        <Space py={2} />
+                        <Group groupInfo={chat} />
+                        <Space py={2} />
+                    </Box>
+                );
+            })}
             {/* floating add button in the buttom */}
             <Box
                 sx={(theme: MantineTheme) => ({
@@ -102,6 +93,6 @@ export function ListGroups({}: {}) {
                     </Tooltip>
                 </CreateNewGroup>
             </Box>
-        </>
+        </Box>
     );
 }

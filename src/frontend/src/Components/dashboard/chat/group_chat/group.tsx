@@ -7,6 +7,8 @@ import { IconChevronLeft, IconLock, IconSend, IconShieldLock, IconUsersGroup } f
 import { PrivateChatMenu } from "../../list_of_chats/private_chats/privateChatMenu";
 import chatSocket from "@/socket/chatSocket";
 import { Message } from "./message";
+import { TypeMessage } from "../../type";
+
 
 export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const [friend] = useState<any>(chat.otherUser);
@@ -24,12 +26,12 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
         //     }
         // });
 
-        // chatSocket.on("PublicMessage", (data: any) => {
-        //     console.log("PublicMessage", data);
-        //     if (data.name == chat.name) {
-        //         setMessages((prev: any) => [...prev, data]);
-        //     }
-        // });
+        chatSocket.on("PublicMessage", (data: TypeMessage) => {
+            console.table(data);
+            if (data.channelName == chat.name) {
+                setMessages((prev: any) => [...prev, message]);
+            }
+        });
 
         setMessages(chat.messages);
         return () => {
@@ -108,7 +110,6 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                     align="center"
                     p="md"
                     h="auto"
-                    sx={(theme: MantineTheme) => ({ borderBottom: `3px solid ${theme.colors.cos_black[0]}` })}
                 >
                     <Button p={0} h="auto" onClick={() => setSelected(null)}>
                         <IconChevronLeft size={25} />
@@ -156,12 +157,14 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                         background: theme.colors.gray[8],
                         borderRadius: theme.radius.md,
                     },
+                    background: `linear-gradient(rgba(21, 21, 26, 1), rgba(21, 21, 26, 0.8)), url(/chatBackground.png)`,
+                    backgroundSize: "50%",
                 }}
                 ref={scrollRef}
             >
-                {messages.map((message: any, index: number) => {
+                {messages.map((message: TypeMessage, index: number) => {
                     return (
-                        <Box key={message.createdAt} mb={10}>
+                        <Box key={String(message.createdAt) + index} mb={10}>
                             <Message message={message} />
                         </Box>
                     );

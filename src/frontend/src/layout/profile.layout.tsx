@@ -20,7 +20,6 @@ interface props {
 
 export function ProfileLayout({ id }: props) {
     const theme = useMantineTheme();
-    const [opened, setOpened] = useState(false);
     const [profile, setProfile] = useState<any>(null);
     const user: any = store.getState().profile.user;
 
@@ -30,14 +29,8 @@ export function ProfileLayout({ id }: props) {
                 if (res.status == 200) setProfile(res.data);
             })
             .catch((err: any) => {
-                // redirect to login
-                // window.location.href = "/";
                 console.log(err);
             });
-
-        // store.getState().io.socket?.on("add_friend", (data: any) => {
-        //     console.log("add_friend: ", data);
-        // });
     }, []);
 
     const [message, setMessage] = useState<string | null>("");
@@ -49,6 +42,7 @@ export function ProfileLayout({ id }: props) {
             msg: message.message,
         });
         setMessage(null);
+        chatSocket.emit("reconnect")
     };
 
     const addUser = () => {
@@ -66,9 +60,6 @@ export function ProfileLayout({ id }: props) {
             <Container>
                 <Box
                     sx={(theme: MantineTheme) => ({
-                        // background: `url(${"https://picsum.photos/3000"})`,
-                        // backgroundSize: "cover",
-                        // backgroundPosition: "center",
                         width: "100%",
                         borderRadius: "0 0 30px 30px",
                         borderBottom: `5px solid ${theme.colors.gray[4]}`,
@@ -78,16 +69,7 @@ export function ProfileLayout({ id }: props) {
                         padding: "20px",
                     })}
                 >
-                    <Box
-                        sx={(theme: MantineTheme) => ({
-                            // position: "absolute",
-                            // bottom: "-10%",
-                            // left: "10%",
-                            // [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                            //     bottom: "-15%",
-                            // },
-                        })}
-                    >
+                    <Box>
                         <UserInfo profile={profile} />
                     </Box>
                     {/* buttons */}
@@ -141,13 +123,13 @@ export function ProfileLayout({ id }: props) {
                                         <Space h={20} />
                                         <Grid>
                                             <Grid.Col span={12}>
-                                                <Match_info result="1 - 0" />
+                                                {/* <Match_info result="1 - 0" /> */}
                                             </Grid.Col>
                                             <Grid.Col span={12}>
-                                                <Match_info result="0 - 1" />
+                                                {/* <Match_info result="0 - 1" /> */}
                                             </Grid.Col>
                                             <Grid.Col span={12}>
-                                                <Match_info result="1 - 0" />
+                                                {/* <Match_info result="1 - 0" /> */}
                                             </Grid.Col>
                                         </Grid>
                                     </Box>

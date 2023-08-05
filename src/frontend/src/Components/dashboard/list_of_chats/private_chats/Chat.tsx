@@ -1,7 +1,7 @@
 import { Avatar, Box, Flex, useMantineTheme, Text, Divider } from "@mantine/core";
 import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import store, { setCurrentChat } from "@/store/store";
+import store, { setCurrentChat, setCurrentChatGroup } from "@/store/store";
 
 export function Chat({ chat }: { chat: any }) {
     const theme = useMantineTheme();
@@ -61,6 +61,7 @@ export function Chat({ chat }: { chat: any }) {
             }}
             onClick={() => {
                 store.dispatch(setCurrentChat(chat));
+                store.dispatch(setCurrentChatGroup(null));
             }}
         >
             <Flex p="sm" align="center" sx={{cursor: "pointer"}}>
@@ -70,12 +71,12 @@ export function Chat({ chat }: { chat: any }) {
                         <Text fz="md" fw="bold" color="gray.1">
                             {chat.otherUser.name}
                         </Text>
-                        <Text color="gray.5" fz="sm">
-                            {/* {get_last_message().slice(0, 15)}... */}
+                        <Text color="gray.5" fz="sm" lineClamp={1}>
+                            {get_last_message()}
                         </Text>
                     </Box>
                     <Box color="gray" fz="xs">
-                        {date}
+                        {/* {date} */}
                     </Box>
                 </Flex>
             </Flex>

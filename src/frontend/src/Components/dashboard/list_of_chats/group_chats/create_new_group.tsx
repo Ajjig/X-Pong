@@ -6,6 +6,7 @@ import api from "@/api";
 import { ChannelCreate } from "./type";
 import { IconCheck } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import chatSocket from "@/socket/chatSocket";
 
 export function CreateNewGroup({ children }: { children: any }) {
     const [opened, { open, close }] = useDisclosure(false);
@@ -81,6 +82,7 @@ export function CreateNewGroup({ children }: { children: any }) {
                 if (res.status == 201) {
                     setCreated(true);
                     form.reset();
+                    chatSocket.emit("reconnect");
                 }
             })
             .catch((err) => {
@@ -116,7 +118,7 @@ export function CreateNewGroup({ children }: { children: any }) {
                         <>
                             <Title order={3}>Create new group</Title>
                             <Space py={15} />
-                            <form onSubmit={submit}>
+                            <form onSubmit={submit} autoComplete="off">
                                 <SegmentedControl
                                     fullWidth
                                     data={["Public", "Private", "Protected"]}
@@ -126,7 +128,7 @@ export function CreateNewGroup({ children }: { children: any }) {
                                     radius={15}
                                 />
                                 <Space py={8} />
-                                <TextInput label="Group Name" placeholder="Name" required {...form.getInputProps("name")} />
+                                <TextInput label="Group Name" placeholder="Name" required {...form.getInputProps("name")} autoComplete="off" />
                                 <Space py={5} />
                                 {GroupType === "Protected" && (
                                     <PasswordInput

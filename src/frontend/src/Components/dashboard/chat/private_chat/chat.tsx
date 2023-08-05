@@ -1,28 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-    Box,
-    Button,
-    Flex,
-    Input,
-    MantineProvider,
-    Text,
-    useMantineTheme,
-    Space,
-    Avatar,
-    Group,
-    MantineTheme,
-    Divider,
-    Paper,
-    UnstyledButton,
-    Stack,
-} from "@mantine/core";
-import { motion } from "framer-motion";
+import { Box, Button, Flex, Input, Text, useMantineTheme, Avatar, MantineTheme, Paper, Stack } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import store, { addNewMessageToPrivateChat, setNewMessage } from "@/store/store";
-import { IconArrowBadgeLeft, IconArrowBadgeLeftFilled, IconArrowNarrowLeft, IconChevronLeft, IconSend } from "@tabler/icons-react";
+import store, { addNewMessageToPrivateChat } from "@/store/store";
+import { IconChevronLeft, IconSend } from "@tabler/icons-react";
 import { PrivateChatMenu } from "../../list_of_chats/private_chats/privateChatMenu";
 import { Message } from "./message";
 import chatSocket from "@/socket/chatSocket";
+import { TypeMessage } from "../../type";
+import { PrivateMessageRequest } from "./type";
 
 export function Chat({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const [friend] = useState<any>(chat.otherUser);
@@ -36,16 +21,14 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
         store.getState().chats.PrivateChats.forEach((chat: any) => {
             if (chat.privateChannelId == chat.privateChannelId) {
                 setMessages(chat.chat);
-                console.log(chat.chat);
             }
         });
 
-        chatSocket.on("message", (data: any) => {
+        chatSocket.on("message", (data: TypeMessage) => {
             if (data.privateChannelId == chat.privateChannelId) {
                 setMessages((prev: any) => [...prev, data]);
             }
         });
-        
     }, []);
 
     const [message, setMessage] = useState("");
@@ -53,22 +36,33 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
 
     const sendMessage = (message: any) => {
         if (!message || message.message === "") return;
-        chatSocket.emit("message", {
-            receiver: friend.username,
-            msg: message.message,
-        });
-        const newMessage = {
+
+        let newMessageReq: PrivateMessageRequest = {
+            content: message.message,
+            receiverID: friend.id,
+        };
+
+        chatSocket.emit("message", newMessageReq);
+
+        // create the new message object
+        const newMessage: TypeMessage = {
             privateChannelId: chat.privateChannelId,
             createdAt: new Date(),
             receiverId: friend.id,
             senderId: user.id,
-            text: message.message,
+            content: message.message,
+            avatarUrl: user.avatarUrl,
+            receiverName: friend.name,
+            senderName: user.name,
+            senderUsername: user.username,
+            receiverUsername: friend.username,
+            channelId: chat.channelId,
+            channelName: chat.channelName,
+            updatedAt: new Date(),
         };
+
         // add message to messages
-        setMessages((prev: any) => [
-            ...prev,
-            newMessage,
-        ]);
+        setMessages((prev: any) => [...prev, newMessage]);
         store.dispatch(addNewMessageToPrivateChat(newMessage));
         setMessage("");
     };
@@ -101,7 +95,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                     align="center"
                     p="md"
                     h="auto"
-                    sx={(theme: MantineTheme) => ({ borderBottom: `3px solid ${theme.colors.cos_black[0]}` })}
+                    // sx={(theme: MantineTheme) => ({ borderBottom: `3px solid ${theme.colors.cos_black[0]}` })}
                 >
                     <Button p={0} h="auto" onClick={() => setSelected(null)}>
                         <IconChevronLeft size={25} />
@@ -143,6 +137,8 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                         background: theme.colors.gray[8],
                         borderRadius: theme.radius.md,
                     },
+                    background: `linear-gradient(rgba(21, 21, 26, 1), rgba(21, 21, 26, 0.8)), url(/chatBackground.png)`,
+                    backgroundSize: "50%",
                 }}
                 ref={scrollRef}
             >
@@ -150,7 +146,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                     return (
                         <Box key={message.createdAt} mb={10}>
                             <Message message={message} friend={friend} />
-                        </Box> 
+                        </Box>
                     );
                 })}
             </Box>

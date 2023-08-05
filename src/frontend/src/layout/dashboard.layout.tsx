@@ -9,7 +9,7 @@ import PublicGroups from "../Components/dashboard/popular_groups";
 import { Chat } from "@/Components/dashboard/chat/private_chat/chat";
 
 // Import store
-import store, { setCurrentChat, setOpp } from "@/store/store";
+import store, { setCurrentChat, setCurrentChatGroup, setOpp } from "@/store/store";
 import UserInfo from "@/Components/dashboard/userInfo";
 import { ChatGroup } from "@/Components/dashboard/chat/group_chat/group";
 
@@ -21,97 +21,87 @@ export function DashboardLayout() {
     const [fullHeight, setFullHeight] = useState<any>({
         height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
     });
-    const userInfoCardRef = useRef<HTMLDivElement>(null);
-    const [List_chats_heigth, setList_chats_heigth] = useState<any>({
-        maxHeight: `calc(100% - ${userInfoCardRef.current?.clientHeight ?? 0 + 15}px)`,
-    });
 
     useEffect(() => {
         setChat(store.getState().chats.currentChat);
         setGroup(store.getState().chats.currentChatGroup);
+        
         store.subscribe(() => {
             const s = store.getState().chats.currentChat;
-            if (s) setChat(s);
+            if (s) {
+                setChat(s);
+                setGroup(null);
+            }
 
             const g = store.getState().chats.currentChatGroup;
-            if (g) setGroup(g);
+            if (g) {
+                setGroup(g);
+                setChat(null);
+            }
         });
         setFullHeight({
             height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,
         });
-        setList_chats_heigth({
-            height: `calc(100% - ${userInfoCardRef.current?.clientHeight ?? 0 + 15}px)`,
-        });
     }, []);
 
-    const setSelected = (chat: any) => {
-        setChat(chat);
-        // set current chat in store to chat
-        store.dispatch(store.dispatch(setCurrentChat(chat)));
-    };
-
     return (
-        <Box mih="100vh" pos="relative">
+        <Box h="100vh" pos="relative">
             <HeaderDashboard HeaderRef={HeaderRef} />
             <Grid gutter="0" w={"100%"} px="lg" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                    <Grid.Col span={5} lg={4} xl={3} sx={{ display: "flex", flexDirection: "column" }} p={"md"} pt={0}>
+                    <Grid.Col
+                        span={5}
+                        lg={4}
+                        xl={3}
+                        sx={{ display: "flex", flexDirection: "column", height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)` }}
+                        p={"md"}
+                        pt={0}
+                    >
                         <Box>
                             <UserInfo />
                         </Box>
                         <Space h="15px" />
-                        <Box sx={{ flex: 1 }}>
-                            <List_of_chats />
-                        </Box>
+                        <List_of_chats />
                     </Grid.Col>
                 </MediaQuery>
 
-                <Grid.Col span={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
-                    {chat || Group ? (
-                        Group ? (
-                            <ChatGroup user={Group} setSelected={setGroup} chat={Group} />
-                        ) : (
-                            <Chat user={chat} setSelected={setSelected} chat={chat} />
-                        )
-                    ) : (
-                        <Box
-                            p="md"
-                            sx={{
-                                overflowY: "scroll",
-                                /* ===== Scrollbar CSS ===== */
-                                /* Firefox */
-                                scrollbarColor: `${theme.colors.gray[8]} transparent`,
-                                scrollbarWidth: "thin",
-                                /* Chrome, Edge, and Safari */
-                                "&::-webkit-scrollbar": {
-                                    width: "5px",
-                                },
-                                "&::-webkit-scrollbar-track": {
-                                    background: "transparent",
-                                },
-                                "&::-webkit-scrollbar-thumb": {
-                                    background: theme.colors.gray[8],
-                                    borderRadius: theme.radius.md,
-                                },
-                            }}
-                        >
-                            {/* <PublicGroups /> */}
-                        </Box>
-                    )}
+                <Grid.Col span={12} sm={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
+                    {chat && <Chat user={chat} setSelected={setChat} chat={chat} />}
+                    {Group && <ChatGroup user={Group} setSelected={setGroup} chat={Group} />}
                 </Grid.Col>
             </Grid>
-
-            <Box
-                w={"auto"}
-                h={50}
-                sx={(theme: MantineTheme) => ({
-                    position: "absolute",
-                    bottom: 30,
-                    right: 30,
-                })}
-            >
-                {/* {<Play />} */}
-            </Box>
         </Box>
     );
 }
+
+// {chat || Group ? (
+//     Group ? (
+//         <ChatGroup user={Group} setSelected={setGroup} chat={Group} />
+//     ) : (
+//         <Chat user={chat} setSelected={setChat} chat={chat} />
+//     )
+// ) : (
+//     <Box
+//         p="md"
+//         sx={{
+//             overflowY: "scroll",
+//             /* ===== Scrollbar CSS ===== */
+//             /* Firefox */
+//             scrollbarColor: `${theme.colors.gray[8]} transparent`,
+//             scrollbarWidth: "thin",
+//             /* Chrome, Edge, and Safari */
+//             "&::-webkit-scrollbar": {
+//                 width: "5px",
+//             },
+//             "&::-webkit-scrollbar-track": {
+//                 background: "transparent",
+//             },
+//             "&::-webkit-scrollbar-thumb": {
+//                 background: theme.colors.gray[8],
+//                 borderRadius: theme.radius.md,
+//             },
+//         }}
+//     >
+//         {/* <PublicGroups /> */}
+//     </Box>
+// )}

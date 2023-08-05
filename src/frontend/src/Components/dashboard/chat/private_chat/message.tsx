@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Flex, Input, MantineProvider, Text, useMantineTheme, Space } from "@mantine/core";
+import { TypeMessage } from "../../type";
 
-export function Message({ message, friend }: { message: any; friend: any }) {
+export function Message({ message, friend }: { message: TypeMessage; friend: any }) {
     const theme = useMantineTheme();
 
     return (
@@ -30,7 +31,7 @@ export function Message({ message, friend }: { message: any; friend: any }) {
                     </Text>
                     <Space h={20} />
                 </Flex>
-                <Text fz="sm">{message.text}</Text>
+                <Text fz="sm">{message.content}</Text>
             </Box>
         </Flex>
     );
