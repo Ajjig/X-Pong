@@ -75,7 +75,7 @@ export class GameService {
     }
   }
 
-  handleInvite(senderClient: Socket, data: { username: string }): void {
+  async handleInvite(senderClient: Socket, data: { username: string }) {
     if (!data.username) return;
     const senderUsername = this.getUserNameBySocket(senderClient);
     if (!senderUsername) return;
@@ -90,7 +90,9 @@ export class GameService {
       to: data.username,
       time: new Date(),
     });
-    recieverClient.emit('invite', { username: senderUsername });
+    console.log(this.invits);
+    const userId = (await this.getUserData(senderClient)).uid;
+    recieverClient.emit('invite', { username: senderUsername, id: userId });
     this.logger.log(`Player ${senderUsername} invited ${data.username}`);
   }
 
