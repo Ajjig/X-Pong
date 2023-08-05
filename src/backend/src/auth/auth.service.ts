@@ -92,15 +92,15 @@ export class AuthService {
         Friends : {
           where : {
             userId : parseInt(id),
-            username : username,
+            FriendID : userID.id,
           },
           select : {
             createdAt : true,
             updatedAt : true,
-            username : true,
+            FriendID : true,
             friendshipStatus : true,
-            requestSentBy : true,
-            requestSentTo : true,
+            requestSentByID : true,
+            requestSentToID : true,
 
           },
           take : 1,

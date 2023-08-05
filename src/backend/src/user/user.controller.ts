@@ -26,7 +26,7 @@ import { TwoFactorAuthService } from './TwoFactorAuthService.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { UpdateUsernameDto } from './dto/update.username.dto';
-import { FriendDto } from './dto/friend.dto';
+import { FriendDto, BlockFriendDto } from './dto/friend.dto';
 import { Prisma } from '.prisma/client';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
@@ -180,13 +180,13 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/block_friend')
-  async blockFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
-    if (!body || !body.friend_username) {
+  async blockFriendByUsername(@Req() request: any, @Body() body: BlockFriendDto) {
+    if (!body || !body.friendID) {
       throw new HttpException('Missing username or friend_username', 400);
     }
     return this.userService.blockFriendByUsername(
       request.user,
-      body.friend_username,
+      body.friendID,
     );
   }
 
