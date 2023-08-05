@@ -8,29 +8,29 @@ datasource db {
 }
 
 model User {
-  id                  Int      @id @default(autoincrement())
-  email               String   @unique
+  id                  Int        @id @default(autoincrement())
+  email               String     @unique
   name                String
-  username            String   @unique
+  username            String     @unique
   avatarUrl           String?
-  oauthId             String?  @unique
-  istwoFactor         Boolean  @default(false)
-  twoFactorAuthSecret String?  @unique
-  onlineStatus        String   @default("Offline") // Online, Offline, AFK...
-  blockedIds          Int[]    @default([])
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  confirmed           Boolean  @default(false)
-  Matchs    Matchs[]  @relation("Matchs")
-  onlineAt            DateTime? @default(now())
-  Userstats Userstats? // one to one
+  oauthId             String?    @unique
+  istwoFactor         Boolean    @default(false)
+  twoFactorAuthSecret String?    @unique
+  onlineStatus        String     @default("Offline") // Online, Offline, AFK...
+  blockedIds          Int[]      @default([])
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  confirmed           Boolean    @default(false)
+  Matchs              Matchs[]   @relation("Matchs")
+  onlineAt            DateTime?  @default(now())
+  Userstats           Userstats? // one to one
   isBanned            Boolean    @default(false)
   socketId            String?
 
-  Friends Friends[]   @relation("UserFriends") // many to many
+  Friends Friends[] @relation("UserFriends") // many to many
 
   // channels
-  privateChannels     String[] // array of private channel ids
+  privateChannels  String[] // array of private channel ids
   channels         Channel[]       @relation("Member")
   AdminOf          Channel[]       @relation("Admin")
   invitedTo        Channel[]       @relation("Invited")
@@ -39,7 +39,8 @@ model User {
   mutedFrom        Channel[]       @relation("Muted")
   sentMessages     DirectMessage[] @relation("SentMessages")
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
-  notifications Notification[] @relation("UserNotifications")
+  notifications    Notification[]  @relation("UserNotifications")
+  messages         Message[]       @relation("UserMessages")
 }
 
 model Notification {
@@ -52,14 +53,14 @@ model Notification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+  user      User   @relation("UserNotifications", fields: [userId], references: [id])
   userId    Int
   avatarUrl String @default("https://w7.pngwing.com/pngs/494/808/png-transparent-internet-bot-digital-marketing-telegram-chatbots-computer-network-text-smiley.png")
 }
 
 model Channel {
   id        Int      @id @default(autoincrement())
-  name      String @unique
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -67,11 +68,9 @@ model Channel {
   password String?
   salt     String?
   owner    String
-  
 
-  
   // relations
-  
+
   members  User[]    @relation("Member")
   admins   User[]    @relation("Admin")
   invited  User[]    @relation("Invited")
@@ -92,7 +91,8 @@ model Message {
   channel   Channel @relation(fields: [channelId], references: [id])
   channelId Int
 
-  senderId Int
+  user            User    @relation("UserMessages", fields: [senderId], references: [id])
+  senderId        Int
   senderAvatarUrl String?
 }
 
@@ -108,7 +108,7 @@ model DirectMessage {
   receiver   User @relation("ReceivedMessages", fields: [receiverId], references: [id])
   receiverId Int
 
-  privateChannelId String 
+  privateChannelId String
 }
 
 model Friends {
@@ -116,7 +116,7 @@ model Friends {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  FriendID Int
+  FriendID         Int
   friendshipStatus String @default("Pending") // Pending, Accepted, Declined, Blocked
 
   requestSentByID Int
@@ -129,19 +129,19 @@ model Friends {
 }
 
 model Matchs {
-  id       Int    @id @default(autoincrement())
-  result   String @default("Undefined") // Win, Loss
-  playerScore Int @default(0)
-  opponentScore Int @default(0)
-  mode     String @default("Undefined")
+  id            Int    @id @default(autoincrement())
+  result        String @default("Undefined") // Win, Loss
+  playerScore   Int    @default(0)
+  opponentScore Int    @default(0)
+  mode          String @default("Undefined")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // relations
-  user   User @relation("Matchs",fields: [userId], references: [id])
+  user   User @relation("Matchs", fields: [userId], references: [id])
   userId Int
-  
+
   // relations
 }
 
@@ -150,9 +150,9 @@ model Achievements {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name String
+  name        String
   description String
-  iconUrl String
+  iconUrl     String
 
   // relations
   userId Int
