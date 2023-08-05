@@ -57,3 +57,24 @@ export class joinPublicChannel {
   channelID: number;
   password: string | null;
 }
+
+
+export class AnyMessage {
+  avatarUrl : string;
+  content : string;
+  
+  updatedAt : Date;
+  createdAt : Date;
+  
+  channelName : string | null;
+  channelId : number | null;
+  
+  
+  senderUsername : string;
+  senderId : number;
+  senderName : string;
+  
+  receiverId : number | null;
+  receiverName : string | null;
+  receiverUsername : string | null;
+}

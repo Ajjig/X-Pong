@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Console } from 'console';
+import { AnyMessage } from './entities/chat.entity';
 
 @Injectable()
 export class UserChatHistoryService {
@@ -61,6 +62,7 @@ export class UserChatHistoryService {
   }
 
   async getUserChannelConversationChatHistory(username: string, page: number): Promise<any> {
+    let response : AnyMessage[] = [];
     const channels = await this.prisma.channel.findMany({
       where: {
         members: {

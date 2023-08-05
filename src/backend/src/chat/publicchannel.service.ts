@@ -143,4 +143,17 @@ export class PublicChannelService {
 
     return user;
   }
+
+
+  // get user by username
+  async getUserbyusername(username: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+
+    return user;
+  }
+
 }
