@@ -146,7 +146,7 @@ export class GameService {
     else
       this.logger.log(`Player ${username} connected`);
   }
-accepterUsername
+
   handleDisconnect(client: Socket): void {
     if (!client) return;
     let username = this.getUserNameBySocket(client);
