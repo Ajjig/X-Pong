@@ -60,6 +60,7 @@ CREATE TABLE "Message" (
     "channelId" INTEGER NOT NULL,
     "sender" TEXT NOT NULL,
     "senderId" INTEGER NOT NULL,
+    "senderAvatarUrl" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
