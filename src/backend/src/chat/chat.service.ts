@@ -548,11 +548,15 @@ export class ChatService {
     Server: Server,
   ): Promise<any> {
     if (username === friendUsername) {
+      const response  : SocketResponseDto = {
+        status : HttpStatus.BAD_REQUEST,
+        message : "You can't send a friend request to yourself"
+      }
       this.emitToUser(
         Server,
         username,
-        'error',
-        "You can't send a friend request to yourself",
+        'add_friend',
+        response,
       );
       return null;
     }
@@ -566,7 +570,12 @@ export class ChatService {
     });
 
     if (!user || !friend) {
-      this.emitToUser(Server, username, 'error', 'User not found');
+      const response  : SocketResponseDto = {
+        status : HttpStatus.NOT_FOUND,
+        message : 'User not found'
+      }
+
+      this.emitToUser(Server, username, 'add_friend', response);
       return null;
     }
 
@@ -574,7 +583,11 @@ export class ChatService {
       where: { FriendID: friend.id, requestSentByID: user.id },
     });
     if (existingFriendship) {
-      this.emitToUser(Server, username, 'error', 'You are already friends');
+      const response  : SocketResponseDto = {
+        status : HttpStatus.BAD_REQUEST,
+        message : 'You already sent a friend request to this user'
+      }
+      this.emitToUser(Server, username, 'add_friend', response);
       return null;
     }
 
@@ -637,7 +650,7 @@ export class ChatService {
     server: Server,
     username: string,
     event: string,
-    data: any,
+    data: SocketResponseDto | notificationsDto,
   ): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: {
