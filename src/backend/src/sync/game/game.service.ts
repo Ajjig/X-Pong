@@ -108,6 +108,12 @@ export class GameService {
       return;
     }
 
+    // 1 minute
+    if (new Date().getTime() - invit.time.getTime() > 60 * 1000) {
+      recieverClient.emit('error', `Invite from ${data.username} expired`);
+      return;
+    }
+
     this.invits.splice(this.invits.indexOf(invit), 1);
 
     const id = makeId(this.games);
@@ -149,6 +155,14 @@ accepterUsername
       this.queue = this.queue.filter((p) => p.username !== username);
       this.logger.log(`Player ${username} disconnected`);
     }
+    
+    // remove from players
+    this.players[username] = null;
+    // remove from queue if in queue
+    this.queue = this.queue.filter((p) => p.username !== username);
+    // remove from invits if in invits
+    this.invits.filter((i) => i.from !== username && i.to !== username);
+
   }
 
   /////////////////////////////

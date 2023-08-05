@@ -60,6 +60,7 @@ CREATE TABLE "Message" (
     "channelId" INTEGER NOT NULL,
     "sender" TEXT NOT NULL,
     "senderId" INTEGER NOT NULL,
+    "senderAvatarUrl" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -83,10 +84,10 @@ CREATE TABLE "Friends" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "username" TEXT NOT NULL,
+    "FriendID" INTEGER NOT NULL,
     "friendshipStatus" TEXT NOT NULL DEFAULT 'Pending',
-    "requestSentBy" TEXT NOT NULL,
-    "requestSentTo" TEXT NOT NULL,
+    "requestSentByID" INTEGER NOT NULL,
+    "requestSentToID" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Friends_pkey" PRIMARY KEY ("id")
