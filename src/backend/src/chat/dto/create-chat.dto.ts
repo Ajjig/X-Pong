@@ -11,6 +11,8 @@ import {
   joinPublicChannel,
   AnyMessage,
   PrivateMessageRequest,
+  SavePublicChannelMessage,
+  PublicMessageRequest,
 } from '../entities/chat.entity';
 
 export class CreateChatDto extends Chat {}
@@ -36,3 +38,7 @@ export class joinPublicChannelDto extends joinPublicChannel {}
 export class AnyMessageDto extends AnyMessage {}
 
 export class PrivateMessageRequestDto extends PrivateMessageRequest {}
+
+export class SavePublicChannelMessageDto extends SavePublicChannelMessage {}
+
+export class PublicMessageRequestDto extends PublicMessageRequest {}

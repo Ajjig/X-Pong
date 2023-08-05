@@ -4,7 +4,7 @@ import {
   CreatePrivateChannelDto,
   DirectMessageDto,
   PublicChannelMessageDto,
-  
+  SavePublicChannelMessageDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
@@ -61,23 +61,19 @@ export class PublicChannelService {
   }
 
   async saveprivatechatmessage(
-    payload: PublicChannelMessageDto,
+    payload: SavePublicChannelMessageDto,
   ): Promise<void> {
-    const sender = await this.prisma.user.findUnique({
-      where: {
-        username: payload.username,
-      },
-    });
+ 
 
     const newMessage = await this.prisma.message.create({
       data: {
-        content: payload.msg,
-        sender: payload.username,
-        senderId: sender.id,
-        senderAvatarUrl : sender.avatarUrl,
+        content: payload.content,
+        sender: 'N/A',
+        senderId: payload.senderId,
+        senderAvatarUrl : payload.senderAvatarUrl,
         channel: {
           connect: {
-            name: payload.channelName,
+            id: payload.channelId,
           },
         },
       },

@@ -16,6 +16,8 @@ import {
   GetPrivateConversationsDto,
   AnyMessageDto,
   PrivateMessageRequestDto,
+  SavePublicChannelMessageDto,
+  PublicMessageRequestDto,
 } from './dto/create-chat.dto';
 import { Server, Socket } from 'socket.io';
 import { PublicChannelService } from './publicchannel.service';
@@ -56,7 +58,9 @@ export class ChatGateway {
       client.emit('error', 'You must provide a payload');
       return;
     }
-    const userobject : User = await this.publicChannelService.getUserbyid(userdata.uid);
+    const userobject: User = await this.publicChannelService.getUserbyid(
+      userdata.uid,
+    );
     if (!userobject) {
       client.emit('error', 'User not found');
       return;
@@ -148,15 +152,23 @@ export class ChatGateway {
   @SubscribeMessage('PublicMessage') // send a message to a Public channel
   async PublicMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: any,
+    @MessageBody() payload: PublicMessageRequestDto,
   ) {
     const userdata = await this.chatService.jwtdecoder(client);
     if (!userdata) {
       client.emit('error', 'User not found');
       return;
     }
-    if (!payload || !payload.id || !userdata.username || !payload.msg) {
+    if (!payload || !payload.id || !userdata.uid || !payload.content) {
       client.emit('error', 'You must provide a payload');
+      return;
+    }
+
+    const userobject: User = await this.publicChannelService.getUserbyid(
+      userdata.uid,
+    );
+    if (!userobject) {
+      client.emit('error', 'User not found');
       return;
     }
 
@@ -184,18 +196,19 @@ export class ChatGateway {
     if (!inChannel) {
       client.join(channelName);
     }
-    payload.username = userdata.username;
-    payload.channelName = channelName;
-    await this.publicChannelService.saveprivatechatmessage(payload); // missnamed but is for public channel
-    // add created at and updated at
+    const savePayload: SavePublicChannelMessageDto = {
+      content: payload.content,
+      senderId: userobject.id,
+      channelId: payload.id,
+      senderAvatarUrl: userobject.avatarUrl,
+    };
 
-    const user: User = await this.publicChannelService.getUserbyid(
-      userdata.uid,
-    );
+    await this.publicChannelService.saveprivatechatmessage(savePayload); // missnamed but is for public channel
+
     let response: AnyMessageDto = {
-      content: payload.msg,
-      avatarUrl: user.avatarUrl,
-      senderUsername: payload.username,
+      content: payload.content,
+      avatarUrl: userobject.avatarUrl,
+      senderUsername: userobject.username,
       createdAt: new Date(),
       updatedAt: new Date(),
       channelName: channelName,

@@ -83,3 +83,15 @@ export class PrivateMessageRequest {
   receiverID: number;
   content: string;
 }
+
+export class SavePublicChannelMessage {
+  content: string;
+  senderId: number;
+  channelId: number;
+  senderAvatarUrl: string;
+}
+
+export class PublicMessageRequest {
+  content: string;
+  id: number;
+}
