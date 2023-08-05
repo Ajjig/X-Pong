@@ -128,6 +128,7 @@ export class ChatGateway {
       receiverId: receiver.id,
       receiverName: receiver.name,
       receiverUsername: receiver.username,
+      privateChannelId: channelID,
     };
 
     client.to(channelID).emit('message', response);
@@ -193,6 +194,7 @@ export class ChatGateway {
       receiverId: null,
       receiverName: null,
       receiverUsername: null,
+      privateChannelId: null,
     };
     client.to(channelName).emit('PublicMessage', response);
   }
