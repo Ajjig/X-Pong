@@ -1,9 +1,10 @@
-import { Injectable, ExecutionContext, Logger } from '@nestjs/common';
+import { Injectable, ExecutionContext, Logger, HttpStatus } from '@nestjs/common';
 import {
   CreateChatDto,
   CreatePrivateChannelDto,
   DirectMessageDto,
   notificationsDto,
+  SocketResponseDto,
 } from './dto/create-chat.dto';
 import { PrismaService } from '../prisma.service';
 import { Server, Socket } from 'socket.io';
@@ -481,7 +482,11 @@ export class ChatService {
 
     if (userFriend.count === 0) {
       if (userClient) {
-        userClient.emit('error', 'No friend request found');
+        const response  : SocketResponseDto = {
+          status : HttpStatus.NOT_FOUND,
+          message : 'No friend request found'
+        }
+        userClient.emit('accept_friend_request', response);
       }
       return undefined;
     }
@@ -532,20 +537,11 @@ export class ChatService {
       },
     });
 
-    const res = await this.prisma.user.findUnique({
-      where: {
-        username: username,
-      },
-      select: {
-        email: true,
-        username: true,
-        Friends: true,
-        onlineStatus: true,
-        id: true,
-      },
-    });
-
-    return res;
+    const response  : SocketResponseDto = {
+      status : HttpStatus.OK,
+      message : 'Friend request accepted' 
+    }
+    return response;
   }
 
   async addFriend(

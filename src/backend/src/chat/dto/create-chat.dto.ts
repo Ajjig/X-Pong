@@ -13,6 +13,10 @@ import {
   PrivateMessageRequest,
   SavePublicChannelMessage,
   PublicMessageRequest,
+  SearchQuery,
+  AcceptFriendRequest,
+  SocketResponse,
+  AddFriendRequest,
 } from '../entities/chat.entity';
 
 export class CreateChatDto extends Chat {}
@@ -42,3 +46,11 @@ export class PrivateMessageRequestDto extends PrivateMessageRequest {}
 export class SavePublicChannelMessageDto extends SavePublicChannelMessage {}
 
 export class PublicMessageRequestDto extends PublicMessageRequest {}
+
+export class SearchQueryDto extends SearchQuery {}
+
+export class AcceptFriendRequestDto extends AcceptFriendRequest {}
+
+export class SocketResponseDto extends SocketResponse {}
+
+export class AddFriendRequestDto extends AddFriendRequest {}
