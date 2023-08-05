@@ -13,6 +13,16 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     this.logger.warn(` ==> ${request.method} ${request.url} ${status} ${exception.message}`);
 
+    if (status < 500) {
+      return response.status(status).json({
+        statusCode: status,
+        timestamp: new Date().toISOString() || new Date(),
+        path: request.url || request.originalUrl,
+        message: exception.message,
+        messages: exception.response.message || [ exception.message ],
+      });
+    }
+
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString() || new Date(),

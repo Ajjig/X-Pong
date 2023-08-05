@@ -1,17 +1,24 @@
 import * as validator from 'class-validator';
 
 export class MuteMemberChannelDto {
-  @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  new_muted: string;
 
   @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  channel_name: string;
+  @validator.IsNumber()
+  @validator.IsPositive()
+  @validator.IsInt()
+  userId: number;
+
+
+  @validator.IsOptional()
+  @validator.IsNumber()
+  @validator.IsPositive()
+  @validator.IsInt()
+  timeoutMs: number | null;
+
+  @validator.IsNotEmpty()
+  @validator.IsNumber()
+  @validator.IsPositive()
+  @validator.IsInt()
+  channelId: number;
+
 }

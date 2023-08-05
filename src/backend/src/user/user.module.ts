@@ -12,6 +12,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthModule } from 'src/auth/auth.module';
+import { MuteJob } from './jobs/mute.job';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { AuthModule } from 'src/auth/auth.module';
     OrigineService,
     InfoUserService,
     UploadService,
+    MuteJob,
+    SchedulerRegistry,
   ],
   exports: [
     UserService,
