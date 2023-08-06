@@ -30,7 +30,7 @@ import { UploadService } from './upload.service';
 import { UpdateUsernameDto } from './dto/update.username.dto';
 import { FriendDto, BlockFriendDto } from './dto/friend.dto';
 import { Prisma } from '.prisma/client';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UpdateAdminChannelDto } from './dto/update.admin.channel.dto';
 import { AddMemberChannelDto } from './dto/add.member.channel.dto';
@@ -104,7 +104,7 @@ export class UserController {
   @Post('/set_confirmed')
   async setProfileConfirmedByUsername(@Req() request: any) {
     if (!request.user.username) {
-      throw new BadRequestException();
+      throw new BadRequestException('Missing username');
     }
     return this.userService.setProfileConfirmedByUsername(
       request.user.username,

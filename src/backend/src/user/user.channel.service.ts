@@ -146,7 +146,7 @@ export class UserChannelService {
           members: { connect: { id: new_admin_user.id } },
         },
       });
-      return channel;
+      throw new HttpException('User is now admin of channel', 200);
     }
   }
 
