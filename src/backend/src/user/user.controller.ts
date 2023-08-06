@@ -366,33 +366,19 @@ export class UserController {
     return this.muteJob.unmuteUser(request.user.id, body.userId, body.channelId);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unbanned_of_channel')
-  // async setUserAsUnbannedOfChannelByUsername(
-  //   @Req() request,
-  //   @Body() body: BanMemberChannelDto,
-  // ) {
-  //   return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
-  //     request.user,
-  //     body.new_banned,
-  //     body.channel_name,
-  //   );
-  // }
-
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unkicked_of_channel')
-  // async setUserAsUnkickedOfChannelByUsername(
-  //   @Req() request,
-  //   @Body() body: KickMemberChannelDto,
-  // ) {
-  //   return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
-  //     request.user,
-  //     body.new_kicked,
-  //     body.channel_name,
-  //   );
-  // }
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @Post('/set_user_as_unbanned_of_channel')
+  async setUserAsUnbannedOfChannelByUsername(
+    @Req() request,
+    @Body() body: BanMemberChannelDto,
+  ) {
+    return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
+      request.user,
+      body.BannedId,
+      body.channelId,
+    );
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:username/info')
@@ -561,6 +547,21 @@ export class UserController {
       request.user.id,
       body.channelId,
       body.userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/channels/banned_users/:channelID')
+  async getChannelBannedUsers(
+    @Req() request: any,
+    @Param('channelID', ParseIntPipe) channelID: number,
+  ) {
+    if (!channelID) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.getChannelBannedUsers(
+      request.user.id,
+      channelID,
     );
   }
 }
