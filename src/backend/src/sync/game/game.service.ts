@@ -15,6 +15,7 @@ import * as jwt from 'jsonwebtoken';
 import { create } from 'domain';
 import { get } from 'http';
 import { InvitDto } from '../dto/invit.dto';
+import { send } from 'process';
 
 
 @Injectable()
@@ -36,15 +37,9 @@ export class GameService {
 
     if (!username) return;
   
-    // check if player is already in a game
-    let isInGame = false; 
-    this.games.forEach((game) => {
-      if (game.player1Username === username || game.player2Username === username) {
-        isInGame = true;
-      }
-    });
 
-    if (isInGame) {
+
+    if (this.isInGame(username)) {
       client.emit('error', `You are already in a game`);
       return;
     }
@@ -96,19 +91,22 @@ export class GameService {
     const senderUsername = this.getUserNameBySocket(senderClient);
     if (!senderUsername) return;
     // check if player is already in a game
-    if (this.games.get(data.username)) {
+    if (this.isInGame(data.username)) {
       senderClient.emit('error', `Player ${data.username} is already in a game`);
+      senderClient.emit('invite-canceled', {});
       return;
     }
 
-    if (this.games.get(senderUsername)) {
+    if (this.isInGame(senderUsername)) {
       senderClient.emit('error', `You are already in a game`);
+      senderClient.emit('invite-canceled', {});
       return;
     }
 
     const recieverClient = this.players.get(data.username);
     if (!recieverClient) {
       senderClient.emit('error', `Player ${data.username} is not connected`);
+      senderClient.emit('invite-canceled', {});
       return;
     }
 
@@ -202,12 +200,14 @@ export class GameService {
   handleDisconnect(client: Socket): void {
     if (!client) return;
     let username = this.getUserNameBySocket(client);
-    if (username) {
-      this.players.delete(username);
-      this.queue = this.queue.filter((p) => p.username !== username);
-      this.logger.log(`Player ${username} disconnected`);
-    }
+    if (username) return;
     
+    this.players.delete(username);
+    
+    this.queue = this.queue.filter((p) => p.username !== username);
+    
+    this.logger.log(`Player ${username} disconnected`);
+
     // remove from players
     this.players[username] = null;
     // remove from queue if in queue
@@ -283,6 +283,16 @@ export class GameService {
     game.stopGame();
     this.games.delete(id);
     this.logger.log(`Game '${id}' stopped`);
+  }
+
+  isInGame(username: string): boolean {
+
+    this.games.forEach((game) => {
+      if (game.player1Username === username || game.player2Username === username) {
+        return true;
+      }
+    });
+    return false;
   }
 
 }
