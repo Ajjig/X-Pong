@@ -4,65 +4,42 @@ import { motion } from "framer-motion";
 import { useMediaQuery } from "@mantine/hooks";
 import store, { addNewMessageToGroupChat } from "@/store/store";
 import { IconChevronLeft, IconLock, IconSend, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
-import { PrivateChatMenu } from "../../list_of_chats/private_chats/privateChatMenu";
 import chatSocket from "@/socket/chatSocket";
 import { Message } from "./message";
 import { TypeMessage } from "../../type";
 
-
 export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
-    const [friend] = useState<any>(chat.otherUser);
     const theme: MantineTheme = useMantineTheme();
-    const isMobile = useMediaQuery("(max-width: 768px)");
     const [messages, setMessages] = useState<any>([]);
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
-
-        // store.getState().chats.GroupChats.forEach((chat: any) => {
-        //     if (chat.name == chat.name) {
-        //         setMessages(chat.messages);
-        //         console.table(chat.messages);
-        //     }
-        // });
+        setMessages(chat.messages);
 
         chatSocket.on("PublicMessage", (data: TypeMessage) => {
-            console.table(data);
-            if (data.channelName == chat.name) {
-                setMessages((prev: any) => [...prev, message]);
+            const newMessage = {
+                content: data.content,
+                createdAt: new Date(),
+                senderId: data.senderId,
+                user: {
+                    avatarUrl: data.avatarUrl,
+                    username: data.senderUsername,
+                },
+                senderUsername: data.senderUsername,
+                channelId: data.channelId,
+            };
+
+            if (data.channelId == chat.id) {
+                setMessages((prev: any) => [...prev, newMessage]);
             }
         });
 
-        setMessages(chat.messages);
         return () => {
             setMessages([]);
         };
     }, [chat]);
 
-    const [message, setMessage] = useState("");
     const scrollRef = useRef<Readonly<HTMLDivElement> | null>(null);
-
-    const sendMessage = (message: any) => {
-        // protect from sending empty messages
-        if (!message || message.message === "") return;
-
-        // esnd message to the server
-        chatSocket.emit("PublicMessage", {
-            id: chat.id,
-            msg: message.message,
-        });
-
-        const newMessage = {
-            content: message.message,
-            createdAt: new Date(),
-            sender: store.getState().profile.user.username,
-            name: chat.name,
-        };
-        // add message to messages
-        setMessages((prev: any) => [...prev, newMessage]);
-        store.dispatch(addNewMessageToGroupChat(newMessage));
-        setMessage("");
-    };
 
     useEffect(() => {
         //get the last message
@@ -105,12 +82,7 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
         >
             {/* header */}
             <Paper bg="none" p="none" w="100%">
-                <Flex
-                    justify="flex-start"
-                    align="center"
-                    p="md"
-                    h="auto"
-                >
+                <Flex justify="flex-start" align="center" p="md" h="auto">
                     <Button p={0} h="auto" onClick={() => setSelected(null)}>
                         <IconChevronLeft size={25} />
                         <Avatar size={45} radius="xl" m={4}>
@@ -130,7 +102,7 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                                 </Badge>
                             </Text>
                         </Stack>
-                        {/* {isMobile || 1 ? <PrivateChatMenu user={} /> : null} */}
+                        {/* Menu here */}
                     </Flex>
                 </Flex>
             </Paper>
@@ -170,44 +142,78 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                     );
                 })}
             </Box>
-
-            {/* input */}
-            <Flex justify="center" gap={10} align="center" p="md" bg="cos_black.0">
-                <Input
-                    variant="unstyled"
-                    sx={(theme: MantineTheme) => ({
-                        "&:focus": {
-                            outline: `1px solid ${theme.colors.orange[6]} !important`,
-                            outlineOffset: 2,
-                        },
-                    })}
-                    placeholder="Type a message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.currentTarget.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") sendMessage({ message: message, from: "me" });
-                    }}
-                    w="100%"
-                />
-                <Button
-                    variant="outline"
-                    color="gray"
-                    size="xs"
-                    sx={(theme: MantineTheme) => ({
-                        padding: 0,
-                        width: 50,
-                        height: 45,
-                    })}
-                    onClick={() => {
-                        sendMessage({
-                            message: message,
-                            from: "me",
-                        });
-                    }}
-                >
-                    <IconSend size={20} />
-                </Button>
-            </Flex>
+            <InputMessage user={user} chat={chat} setMessages={setMessages} />
         </Paper>
+    );
+}
+
+function InputMessage({ user, chat, setMessages }: { user: any; chat: any; setMessages: any }) {
+    const [message, setMessage] = useState("");
+
+    const sendMessage = (message: any) => {
+        // protect from sending empty messages
+        if (!message || message.message === "") return;
+
+        // esnd message to the server
+        chatSocket.emit("PublicMessage", {
+            id: chat.id,
+            content: message.message,
+        });
+
+        // add message to messages
+        const newMessage = {
+            content: message.message,
+            createdAt: new Date(),
+            senderId: user.id,
+            user: {
+                avatarUrl: store.getState().profile.user.avatarUrl,
+                username: store.getState().profile.user.username,
+            },
+            senderUsername: store.getState().profile.user.username,
+            channelId: chat.id,
+        };
+
+        setMessages((prev: any) => [...prev, newMessage]);
+        store.dispatch(addNewMessageToGroupChat(newMessage));
+        setMessage("");
+    };
+
+    return (
+        <Flex justify="center" gap={10} align="center" p="md" bg="cos_black.0">
+            <Input
+                variant="unstyled"
+                sx={(theme: MantineTheme) => ({
+                    "&:focus": {
+                        outline: `1px solid ${theme.colors.orange[6]} !important`,
+                        outlineOffset: 2,
+                    },
+                })}
+                placeholder="Type a message..."
+                value={message}
+                onChange={(e) => setMessage(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage({ message: message, from: "me" });
+                }}
+                w="100%"
+            />
+            <Button
+                variant="outline"
+                color="purple"
+                size="xs"
+                sx={{
+                    padding: 0,
+                    width: 50,
+                    height: 45,
+                }}
+                onClick={() => {
+                    sendMessage({
+                        message: message,
+                        from: "me",
+                    });
+                }}
+            >
+                <IconSend size={20} />
+            </Button>
+        </Flex>
     );
 }

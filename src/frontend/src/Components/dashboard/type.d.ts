@@ -16,4 +16,8 @@ export class TypeMessage {
     receiverName: string | null;
     receiverUsername: string | null;
     privateChannelId : string | null;
+    user?: {
+        username: string;
+        avatarUrl: string;
+    };
 }
