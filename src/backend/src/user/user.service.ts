@@ -61,16 +61,12 @@ export class UserService {
     }
   }
 
-  async getProfileStatsByUsername(username: string) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { username: username },
-        include: { Userstats: true },
-      });
-      return user.Userstats;
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
-    }
+  async getProfileStatsByID(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { Userstats: true },
+    });
+    return user.Userstats;
   }
 
   async getUserDataByUsername(username: string, reqUsername: string) {

@@ -108,12 +108,12 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/get_stats')
-  async getProfileStatsByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !request.user.username) {
+  @Get('/get_stats/:id')
+  async getProfileStatsByUsername(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
+    if (!request.user.username) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
-    return this.userService.getProfileStatsByUsername(request.user.username);
+    return this.userService.getProfileStatsByID(id);
   }
 
   @UseGuards(JwtAuthGuard)

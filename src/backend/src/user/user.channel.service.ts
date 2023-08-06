@@ -619,6 +619,7 @@ export class UserChannelService {
       await this.prisma.channel.delete({
         where: { name: owner_check.name },
       });
+      throw new HttpException('Owner left and Channel deleted', HttpStatus.OK);
     }
 
     // remove the user from the channel
@@ -679,9 +680,10 @@ export class UserChannelService {
         id: channelId,
       },
     });
-    if (owner_check.ownerId == member_check.id) {
-      this.HandleChannelOwnerLeaveChannel(owner_check, userId);
-    } else {
+    // if (owner_check.ownerId == member_check.id) {
+    //   this.HandleChannelOwnerLeaveChannel(owner_check, userId);
+    // } 
+    // else {
       // remove the non owner user from the channel
       await this.prisma.channel.update({
         where: { id: channelId },
@@ -698,7 +700,7 @@ export class UserChannelService {
           },
         },
       });
-    }
+    // }
 
     throw new HttpException('User left the channel', HttpStatus.OK);
   }
