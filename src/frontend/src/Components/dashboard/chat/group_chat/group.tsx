@@ -3,10 +3,11 @@ import { Box, Button, Flex, Input, Text, useMantineTheme, Avatar, MantineTheme, 
 import { motion } from "framer-motion";
 import { useMediaQuery } from "@mantine/hooks";
 import store, { addNewMessageToGroupChat } from "@/store/store";
-import { IconChevronLeft, IconLock, IconSend, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
+import { IconChevronLeft, IconDots, IconLock, IconSend, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 import chatSocket from "@/socket/chatSocket";
 import { Message } from "./message";
 import { TypeMessage } from "../../type";
+import { SettingGroupChat } from "./settings";
 
 export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const theme: MantineTheme = useMantineTheme();
@@ -103,6 +104,9 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                             </Text>
                         </Stack>
                         {/* Menu here */}
+                        <SettingGroupChat _chat={chat}>
+                            <IconDots size={25} />
+                        </SettingGroupChat>
                     </Flex>
                 </Flex>
             </Paper>
@@ -181,6 +185,7 @@ function InputMessage({ user, chat, setMessages }: { user: any; chat: any; setMe
     return (
         <Flex justify="center" gap={10} align="center" p="md" bg="cos_black.0">
             <Input
+                autoComplete="off"
                 variant="unstyled"
                 sx={(theme: MantineTheme) => ({
                     "&:focus": {

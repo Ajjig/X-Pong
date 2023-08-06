@@ -57,7 +57,7 @@ export function ListGroups({ SegRef }: { SegRef: any }) {
                 )}
             {chats?.map((chat: any, index: number) => {
                 return (
-                    <Box key={index + chat.id}>
+                    <Box key={chat.id}>
                         <Space py={2} />
                         <Group groupInfo={chat} />
                         <Space py={2} />
