@@ -286,13 +286,13 @@ export class GameService {
   }
 
   isInGame(username: string): boolean {
-
+    let isInGame: boolean = false;
     this.games.forEach((game) => {
       if (game.player1Username === username || game.player2Username === username) {
-        return true;
+        isInGame = true;
       }
     });
-    return false;
+    return isInGame;
   }
 
 }
