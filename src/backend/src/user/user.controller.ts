@@ -380,20 +380,6 @@ export class UserController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unkicked_of_channel')
-  // async setUserAsUnkickedOfChannelByUsername(
-  //   @Req() request,
-  //   @Body() body: KickMemberChannelDto,
-  // ) {
-  //   return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
-  //     request.user,
-  //     body.new_kicked,
-  //     body.channel_name,
-  //   );
-  // }
-
   @UseGuards(JwtAuthGuard)
   @Get('/:username/info')
   async get_any_user_info(@Req() request, @Param('username') username: string) {
