@@ -87,6 +87,7 @@ export class MuteJob {
       timeoutObject,
     );
   
+    throw new HttpException('The user is muted', HttpStatus.ACCEPTED);
   }
   
   async unmuteUser(userID: number, toUnmuteID: number, channelId: number) {
@@ -136,7 +137,7 @@ export class MuteJob {
 
     this.schedulerRegistry.deleteTimeout(`mute-${toUnmuteID}-${channelId}`);
     
-    throw new HttpException('User unmuted', HttpStatus.ACCEPTED);
+    throw new HttpException('the user is unmuted', HttpStatus.ACCEPTED);
   }
 }
 
