@@ -363,7 +363,7 @@ export class UserController {
     @Body() body: MuteMemberChannelDto,
   ) {
     //
-    return this.muteJob.unmuteUser(body.userId, body.channelId);
+    return this.muteJob.unmuteUser(request.user.id, body.userId, body.channelId);
   }
 
   // @UseGuards(JwtAuthGuard)
