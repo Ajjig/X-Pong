@@ -579,4 +579,16 @@ export class UserController {
       channelID,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/delete_channel/:id')
+  async deleteChannel(
+    @Req() request: any,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    if (!id) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.deleteChannel(request.user.id, id);
+  }
 }

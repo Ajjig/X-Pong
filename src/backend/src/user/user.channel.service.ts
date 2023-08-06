@@ -682,24 +682,24 @@ export class UserChannelService {
     });
     // if (owner_check.ownerId == member_check.id) {
     //   this.HandleChannelOwnerLeaveChannel(owner_check, userId);
-    // } 
+    // }
     // else {
-      // remove the non owner user from the channel
-      await this.prisma.channel.update({
-        where: { id: channelId },
-        data: {
-          members: {
-            disconnect: { id: userId },
-          },
-          admins: {
-            disconnect: { id: userId },
-          },
-          // remove the user from the adminsIds list
-          adminsIds: {
-            set: owner_check.adminsIds.filter((adminId) => adminId !== userId),
-          },
+    // remove the non owner user from the channel
+    await this.prisma.channel.update({
+      where: { id: channelId },
+      data: {
+        members: {
+          disconnect: { id: userId },
         },
-      });
+        admins: {
+          disconnect: { id: userId },
+        },
+        // remove the user from the adminsIds list
+        adminsIds: {
+          set: owner_check.adminsIds.filter((adminId) => adminId !== userId),
+        },
+      },
+    });
     // }
 
     throw new HttpException('User left the channel', HttpStatus.OK);
@@ -1102,7 +1102,10 @@ export class UserChannelService {
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
-      throw new HttpException('User is not an admin of the channel', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'User is not an admin of the channel',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelID },
@@ -1125,5 +1128,28 @@ export class UserChannelService {
     const channelMuted = channel.muted;
 
     return channelMuted;
+  }
+
+  async deleteChannel(userId: number, channelID: number): Promise<any> {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    if (channel.ownerId != userId) {
+      throw new HttpException(
+        'User is not the owner of the channel',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.prisma.channel.delete({
+      where: { id: channelID },
+    });
+
+    return HttpStatus.ACCEPTED;
   }
 }
