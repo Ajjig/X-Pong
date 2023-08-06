@@ -815,6 +815,9 @@ export class UserChannelService {
         members: {
           connect: { username: username },
         },
+        kicked: {
+          disconnect: { username: username },
+        },
       },
     });
 
