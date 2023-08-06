@@ -25,7 +25,7 @@ export class GameService {
   private queue : {client : Socket, username : string}[] = [];
   private readonly logger = new Logger('MATCH-MAKING');
   private readonly players = new Map<string, Socket>();
-  private readonly invits: InvitDto[] = [];
+  private invits: InvitDto[] = [];
 
   onModuleInit() {
     this.logger.log('GAME GATEWAY INIT');
@@ -33,6 +33,18 @@ export class GameService {
 
   handleMatchmaking(client: Socket): void {
     const username = this.getUserNameBySocket(client);
+
+    if (!username) return;
+  
+    if (this.handleAlreadyInGame(username, client)) {
+      this.logger.log(`Player ${username} reconnected to previous game`);
+      this.games.forEach((value: Game, key: string) => {
+        if (value.player1Username === username || value.player2Username === username) {
+          value.reconnectPlayer(username, client);
+        }
+      });
+    }
+
     this.queue.push({ username, client });
     this.logger.log(`Player ${username} waiting for an opponent`);
     if (this.queue.length >= 2) {
@@ -90,7 +102,11 @@ export class GameService {
       to: data.username,
       time: new Date(),
     });
-    console.log(this.invits);
+
+    setTimeout(() => {
+      this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    }, 15 * 1000);
+  
     const userId = (await this.getUserData(senderClient)).uid;
     recieverClient.emit('invite', { username: senderUsername, id: userId });
     this.logger.log(`Player ${senderUsername} invited ${data.username}`);
@@ -110,14 +126,8 @@ export class GameService {
       return;
     }
 
-    // 1 minute
-    if (new Date().getTime() - invit.time.getTime() > 60 * 1000) {
-      recieverClient.emit('error', `Invite from ${data.username} expired`);
-      return;
-    }
-
     this.invits.splice(this.invits.indexOf(invit), 1);
-
+    senderClient.emit('invite-accepted', {});
     const id = makeId(this.games);
     const game = new Game({
       id,
@@ -134,6 +144,18 @@ export class GameService {
       game,
     );
     game.startGame();
+  }
+
+  handleCancelInvite(client: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderUsername = this.getUserNameBySocket(client);
+    if (!senderUsername) return;
+    
+    this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    const recieverClient = this.players.get(data.username);
+    if (!recieverClient) return;
+
+    recieverClient.emit('invite-canceled', {});
   }
 
   handleMessage(client: Socket, data: string): void {
@@ -163,7 +185,7 @@ export class GameService {
     // remove from queue if in queue
     this.queue = this.queue.filter((p) => p.username !== username);
     // remove from invits if in invits
-    this.invits.filter((i) => i.from !== username && i.to !== username);
+    this.invits = this.invits.filter((i) => i.from !== username && i.to !== username);
 
   }
 
