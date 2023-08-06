@@ -993,4 +993,98 @@ export class UserChannelService {
 
     return HttpStatus.ACCEPTED;
   }
+
+  async getChannelBannedUsers(userId: number, channelID: number): Promise<any> {
+    const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
+      userId,
+      channelID,
+    );
+    const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
+      userId,
+      channelID,
+    );
+
+    if (SelfAminCheck == false && SelfOwnerCheck == false) {
+      throw new HttpException('User is not an admin of the channel', 400);
+    }
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+      select: {
+        banned: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    const channelBanned = channel.banned;
+
+    return channelBanned;
+  }
+
+  async setUserAsUnbannedOfChannelByUsername(
+    userId: number,
+    bannedId: number,
+    channelID: number,
+  ): Promise<any> {
+    const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
+      userId,
+      channelID,
+    );
+    const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
+      userId,
+      channelID,
+    );
+
+    if (SelfAminCheck == false && SelfOwnerCheck == false) {
+      throw new HttpException(
+        'User is not an admin of the channel',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    const banned_check = await this.prisma.channel.findFirst({
+      where: {
+        id: channelID,
+        banned: { some: { id: bannedId } },
+      },
+    });
+
+    if (banned_check == null) {
+      throw new HttpException(
+        'User is not banned from the channel',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.prisma.channel.update({
+      where: { id: channelID },
+      data: {
+        banned: {
+          disconnect: { id: bannedId },
+        },
+        members: {
+          connect: { id: bannedId },
+        },
+      },
+    });
+
+    return HttpStatus.ACCEPTED;
+  }
 }
