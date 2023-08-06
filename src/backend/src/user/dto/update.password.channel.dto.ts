@@ -3,13 +3,12 @@ import * as validator from 'class-validator';
 export class UpdatePasswordChannelDto {
   @validator.IsNotEmpty()
   @validator.IsString()
-  @validator.Length(3, 25)
+  @validator.Length(8, 100)
   new_password: string;
 
   @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  channel_name: string;
+  @validator.IsPositive()
+  @validator.IsInt()
+  @validator.IsNumber()
+  channelId: number;
 }

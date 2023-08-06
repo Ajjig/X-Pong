@@ -16,6 +16,9 @@ import {
   Res,
   NotFoundException,
   ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  Query,
   
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -216,7 +219,6 @@ export class UserController {
     @Req() request: any,
     @Body() body: SetUserAsAdminDto,
   ) {
-    console.log(request.user.id);
     return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
       request.user.id,
       body.newAdminId,
@@ -259,8 +261,8 @@ export class UserController {
     @Body() body: UpdatePasswordChannelDto,
   ) {
     return this.UserChannelService.changeChannelPasswordByUsername(
-      request.user.username,
-      body.channel_name,
+      request.user.id,
+      body.channelId,
       body.new_password,
     );
   }
@@ -287,8 +289,8 @@ export class UserController {
     @Body() body: RemoveChannelPasswordDto,
   ) {
     return this.UserChannelService.removeChannelPasswordByUsername(
-      request.user.username,
-      body.channel_name,
+      request.user.id,
+      body.channelId,
     );
   }
 
@@ -505,5 +507,18 @@ export class UserController {
   async getFriends(@Req() request: any) {
     return this.userService.getFriends(request.user.id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/channels/userslist/:channelID')
+  async getChannelUsers(
+    @Req() request: any,
+    @Param('channelID', ParseIntPipe) channelID: number,
+  ) {
+    if (!channelID) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.getChannelUsers(request.user.id, channelID);
+  }
+
 
 }
