@@ -36,13 +36,17 @@ export class GameService {
 
     if (!username) return;
   
-    if (this.handleAlreadyInGame(username, client)) {
-      this.logger.log(`Player ${username} reconnected to previous game`);
-      this.games.forEach((value: Game, key: string) => {
-        if (value.player1Username === username || value.player2Username === username) {
-          value.reconnectPlayer(username, client);
-        }
-      });
+    // check if player is already in a game
+    let isInGame = false; 
+    this.games.forEach((game) => {
+      if (game.player1Username === username || game.player2Username === username) {
+        isInGame = true;
+      }
+    });
+
+    if (isInGame) {
+      client.emit('error', `You are already in a game`);
+      return;
     }
 
     this.queue.push({ username, client });
@@ -91,6 +95,17 @@ export class GameService {
     if (!data.username) return;
     const senderUsername = this.getUserNameBySocket(senderClient);
     if (!senderUsername) return;
+    // check if player is already in a game
+    if (this.games.get(data.username)) {
+      senderClient.emit('error', `Player ${data.username} is already in a game`);
+      return;
+    }
+
+    if (this.games.get(senderUsername)) {
+      senderClient.emit('error', `You are already in a game`);
+      return;
+    }
+
     const recieverClient = this.players.get(data.username);
     if (!recieverClient) {
       senderClient.emit('error', `Player ${data.username} is not connected`);
@@ -157,6 +172,17 @@ export class GameService {
     if (!recieverClient) return;
 
     recieverClient.emit('invite-canceled', {});
+  }
+
+  handleRejectInvite(client: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderUsername = this.getUserNameBySocket(client);
+    if (!senderUsername) return;
+
+    this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    const recieverClient = this.players.get(data.username);
+    if (!recieverClient) return;
+    recieverClient.emit('invite-rejected', {});
   }
 
   handleMessage(client: Socket, data: string): void {
