@@ -255,8 +255,8 @@ export class UserController {
     @Body() body: LeaveChannelDto,
   ) {
     return this.UserChannelService.leaveChannelByUsername(
-      request.user.username,
-      body.channel_name,
+      request.user.id,
+      body.channelId,
     );
   }
 

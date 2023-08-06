@@ -654,7 +654,7 @@ export class UserChannelService {
     return { kicked_user };
   }
 
-  async HandleChannelOwnerLeaveChannel(owner_check: any, username: string) {
+  async HandleChannelOwnerLeaveChannel(owner_check: any, userId: number) {
     if (owner_check == null) {
       throw new HttpException('Channel not exist', 400);
     }
@@ -666,8 +666,9 @@ export class UserChannelService {
       include: { admins: true },
     });
 
+
     const firstAdmin = channel.admins.find(
-      (admin) => admin.username !== username,
+      (admin) => admin.id !== userId,
     );
     if (firstAdmin) {
       await this.prisma.channel.update({
@@ -682,7 +683,7 @@ export class UserChannelService {
 
     // remove the user from the channel
     await this.prisma.user.update({
-      where: { username: username },
+      where: { id: userId },
       data: {
         channels: {
           disconnect: { name: owner_check.name },
@@ -706,58 +707,66 @@ export class UserChannelService {
         muted: {
           disconnect: { username: firstAdmin.username },
         },
+        adminsIds : { 
+          set : channel.adminsIds.filter((id) => id !== firstAdmin.id),
+        },
       },
     });
-
-    return { username };
   }
 
   async leaveChannelByUsername(
-    username: string,
-    channelname: string,
+    userId: number,
+    channelId: number,
   ): Promise<any> {
     // check if the user is a channel member or channel exist
     const member_check = await this.prisma.user.findFirst({
       where: {
-        username: username,
-        channels: { some: { name: channelname } },
+        id: userId,
+        channels: { some: { id: channelId } },
       },
     });
 
     if (member_check == null) {
       throw new HttpException(
         'User is not a member of the channel or channel not exist',
-        400,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     // check if the user is the owner of the channel
     const owner_check = await this.prisma.channel.findFirst({
       where: {
-        name: channelname,
+        id: channelId,
       },
     });
     if (owner_check.ownerId == member_check.id) {
-      const owner_handler = this.HandleChannelOwnerLeaveChannel(
+      this.HandleChannelOwnerLeaveChannel(
         owner_check,
-        username,
+        userId,
       );
     } else {
       // remove the non owner user from the channel
       await this.prisma.channel.update({
-        where: { name: channelname },
+        where: { id: channelId },
         data: {
           members: {
-            disconnect: { username: username },
+            disconnect: { id: userId },
           },
           admins: {
-            disconnect: { username: username },
+            disconnect: { id: userId },
           },
+          // remove the user from the adminsIds list
+          adminsIds: {
+            set: owner_check.adminsIds.filter(
+              (adminId) => adminId !== userId,
+            ),
+          },
+              
         },
       });
     }
 
-    return { username };
+    throw new HttpException('User left the channel', HttpStatus.OK);
   }
 
   getAllPublicChannels(): Promise<any> {
