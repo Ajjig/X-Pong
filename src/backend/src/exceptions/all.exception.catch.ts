@@ -11,8 +11,16 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     const status: number = exception.status || 500;
 
-    this.logger.warn(` ==> ${request.method} ${request.url} ${status} ${exception.message}`);
-
+    
+    if (status < 400) {
+      return response.status(status).json({
+        statusCode: status,
+        timestamp: new Date().toISOString() || new Date(),
+        path: request.url || request.originalUrl,
+        message: exception.message,
+      });
+    }
+    
     if (status < 500) {
       return response.status(status).json({
         statusCode: status,
@@ -22,7 +30,8 @@ export class AllExceptionFilter implements ExceptionFilter {
         messages: exception.response.message || [ exception.message ],
       });
     }
-
+    
+    this.logger.warn(` ==> ${request.method} ${request.url} ${status} ${exception.message}`);
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString() || new Date(),
