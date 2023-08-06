@@ -16,12 +16,12 @@ export class OrigineService {
     if (request.username === user) return true;
   }
 
-  async is_admin_of_channel(channel: string, request: any): Promise<boolean> {
+  async is_admin_of_channel(channel: number, request: any): Promise<boolean> {
     if (!request.username) return false;
 
     const admin_check = await this.prisma.channel.findFirst({
       where: {
-        name: channel,
+        id: channel,
         admins: {
           some: {
             username: request.username,

@@ -320,8 +320,8 @@ export class UserController {
   ) {
     return this.UserChannelService.setUserAsKickedOfChannelByUsername(
       request.user,
-      body.new_kicked,
-      body.channel_name,
+      body.kickedId,
+      body.channelId,
     );
   }
 
@@ -345,44 +345,44 @@ export class UserController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannel(
-    @Req() request,
-    @Body() body: MuteMemberChannelDto,
-  ) {
-    //
-    return this.muteJob.unmuteUser(body.userId, body.channelId);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // @Post('/set_user_as_unmuted_of_channel')
+  // async setUserAsUnmutedOfChannel(
+  //   @Req() request,
+  //   @Body() body: MuteMemberChannelDto,
+  // ) {
+  //   //
+  //   return this.muteJob.unmuteUser(body.userId, body.channelId);
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unbanned_of_channel')
-  async setUserAsUnbannedOfChannelByUsername(
-    @Req() request,
-    @Body() body: BanMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
-      request.user,
-      body.new_banned,
-      body.channel_name,
-    );
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // @Post('/set_user_as_unbanned_of_channel')
+  // async setUserAsUnbannedOfChannelByUsername(
+  //   @Req() request,
+  //   @Body() body: BanMemberChannelDto,
+  // ) {
+  //   return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
+  //     request.user,
+  //     body.new_banned,
+  //     body.channel_name,
+  //   );
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unkicked_of_channel')
-  async setUserAsUnkickedOfChannelByUsername(
-    @Req() request,
-    @Body() body: KickMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
-      request.user,
-      body.new_kicked,
-      body.channel_name,
-    );
-  }
+
+  // @UsePipes(ValidationPipe)
+  // @Post('/set_user_as_unkicked_of_channel')
+  // async setUserAsUnkickedOfChannelByUsername(
+  //   @Req() request,
+  //   @Body() body: KickMemberChannelDto,
+  // ) {
+  //   return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
+  //     request.user,
+  //     body.new_kicked,
+  //     body.channel_name,
+  //   );
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('/:username/info')
