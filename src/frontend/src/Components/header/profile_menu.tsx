@@ -53,22 +53,21 @@ function ProfileSection({}: {}) {
 
     return (
         <Group position="center">
-            <Menu withArrow shadow="md" arrowPosition="side" arrowSize={15}>
+            <Menu withArrow shadow="md" arrowPosition="side" arrowSize={15} position="bottom-end" arrowOffset={15}>
                 <Menu.Target>
                     <UserButton image={profile?.avatarUrl} name={profile?.name} email={profile?.email} />
                 </Menu.Target>
-                <Menu.Dropdown bg={"cos_black.3"}
-                    sx={{
-                        zIndex: 9999,
-                    }}
-                >
+                <Menu.Dropdown>
+                    <Menu.Label>Account</Menu.Label>
                     <Link
                         href={"/profile/" + profile?.id}
                         style={{
                             textDecoration: "none",
                         }}
                     >
-                        <Menu.Item icon={<IconPacman size={rem(14)} />} miw={"200px"}>My account</Menu.Item>
+                        <Menu.Item icon={<IconPacman size={rem(14)} />} miw={"200px"}>
+                            My account
+                        </Menu.Item>
                     </Link>
 
                     <Menu.Item

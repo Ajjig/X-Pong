@@ -1,5 +1,22 @@
 import React, { useEffect } from "react";
-import { Header, MediaQuery, useMantineTheme, Image, Group, Flex, Title, Paper, Space, Box, Button, Loader, createStyles, ActionIcon } from "@mantine/core";
+import {
+    Header,
+    MediaQuery,
+    useMantineTheme,
+    Image,
+    Group,
+    Flex,
+    Title,
+    Paper,
+    Space,
+    Box,
+    Button,
+    Loader,
+    createStyles,
+    ActionIcon,
+    UnstyledButton,
+    MantineTheme,
+} from "@mantine/core";
 import ProfileSection from "./profile_menu";
 import Link from "next/link";
 import DrawerMobile from "./drawer";
@@ -10,6 +27,7 @@ import { useRouter } from "next/router";
 export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const theme = useMantineTheme();
     const router = useRouter();
+    const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
     return (
         <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
@@ -17,41 +35,18 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                 <Flex w="100%" justify="space-between" align="center">
                     <Flex w="100%" justify="space-between">
                         <Group py="md">
-                            <Link
-                                href="/dashboard"
-                                style={{
-                                    textDecoration: "none",
-                                }}
-                            >
+                            <Link href="/dashboard" style={{ textDecoration: "none" }}>
                                 <Flex align="center" justify="center">
-                                    <Image src="/logo.svg" width={40} height={40} />
-                                    <Space w={theme.spacing.xs} />
+                                    <Image src="/logo.svg" width={40} height={40} mr={theme.spacing.xs} />
                                     <Title fw="bolder" color="gray.0" fz="26px" underline={false}>
                                         Xpong
                                     </Title>
                                 </Flex>
                             </Link>
                         </Group>
-                        <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                            <Flex align="center">
-                                <Search />
-                            </Flex>
-                        </MediaQuery>
-                        <Flex align="center">
-                            <MediaQuery largerThan={"sm"} styles={{ display: "none" }}>
-                                <Flex align="center">
-                                    <Search />
-                                </Flex>
-                            </MediaQuery>
-                            <Space w={theme.spacing.md} />
-                            <Play />
-                            <Space w={theme.spacing.md} />
-                            <NotificationPopover />
-                            <Space w={theme.spacing.md} />
-                            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                                <ProfileSection />
-                            </MediaQuery>
-                        </Flex>
+
+                        <Search />
+                        {!isMobile && <LeftMenu />}
                     </Flex>
                     {/* Mobile */}
                     {router.pathname == "/dashboard" && (
@@ -66,10 +61,22 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     );
 }
 
+function LeftMenu() {
+    const theme = useMantineTheme();
+    return (
+        <Flex align="center">
+            <Play />
+            <Space w={theme.spacing.md} />
+            <NotificationPopover />
+            <Space w={theme.spacing.md} />
+            <ProfileSection />
+        </Flex>
+    );
+}
 
 import { Menu, Modal } from "@mantine/core";
 import { IconUserCircle, IconArrowsRandom, IconDeviceGamepad2 } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import socketGame from "@/socket/gameSocket";
 import store, { setOpp } from "@/store/store";
 
@@ -118,16 +125,16 @@ function Play() {
                     </Button>
                 </Flex>
             </Modal>
-            <Menu shadow="md" width={200}>
+            <Menu shadow="md" width={200} withArrow arrowSize={15} position="bottom-end" arrowOffset={42}>
                 <Menu.Target>
-
-                    <Button variant="filled" leftIcon={<IconDeviceGamepad2 size={20} />} h={40} >
-                         Play
-                    </Button>
-
+                    <Box>
+                        <Button variant="filled" leftIcon={<IconDeviceGamepad2 size={20} />} h={40}>
+                            Play
+                        </Button>
+                    </Box>
                 </Menu.Target>
 
-                <Menu.Dropdown ml={-15}>
+                <Menu.Dropdown>
                     <Menu.Label>Play</Menu.Label>
                     <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item>
                     <Menu.Item icon={<IconArrowsRandom size={18} />} onClick={join}>

@@ -11,20 +11,18 @@ import { AcceptFriendRequest } from "./type";
 import { SocketResponse } from "@/Components/type";
 
 export function NotificationPopover() {
-    const [opened, { close, open }] = useDisclosure(false);
+    const [, { close, open }] = useDisclosure(false);
     const [notifications, setNotifications] = React.useState<any[]>([]);
 
     useEffect(() => {
         // subscribe to store to get notifications
         store.subscribe(() => {
-            // console.log("@> HERE: ", store.getState().notifications.friend_requests);
             setNotifications(store.getState().notifications.friend_requests ?? []);
         });
     }, []);
 
     const acceptFriendRequest = (id: number, notificationID: number) => {
         let payload: AcceptFriendRequest = { id: id };
-        console.log("acceptFriendRequest: ", payload);
         chatSocket.emit("accept_friend_request", payload);
 
         chatSocket.on("accept_friend_request", (data: SocketResponse) => {
@@ -52,7 +50,7 @@ export function NotificationPopover() {
     };
 
     return (
-        <Popover position="bottom" withArrow shadow="md" arrowPosition="side" arrowSize={15}>
+        <Popover position="bottom-end" arrowOffset={15} withArrow shadow="md" arrowPosition="side" arrowSize={15}>
             <Popover.Target>
                 <Indicator color="red" offset={7} size={13}>
                     <ActionIcon variant="filled" p={8} color="purple" radius={100} onClick={() => open()} size="45" onMouseEnter={open} onMouseLeave={close}>
@@ -61,8 +59,12 @@ export function NotificationPopover() {
                 </Indicator>
             </Popover.Target>
 
-            <Popover.Dropdown mr={90} bg={"cos_black.3"}>
-                <Stack miw={400}>
+            <Popover.Dropdown mr={90}>
+                <Text size="xs" weight={500} color="dimmed">
+                    Notifications
+                </Text>
+                <Space h={10} />
+                <Stack>
                     {
                         // if there are no notifications
                         notifications.length == 0 && (
@@ -85,7 +87,6 @@ export function NotificationPopover() {
                                     <Title size="sm" weight={700}>
                                         {notification.from}
                                     </Title>
-                                    {/* <Text size="sm">@{notification.from} sent you a friend request</Text> */}
                                     <Text size="sm">{notification.msg}</Text>
                                 </Stack>
                             </Flex>
