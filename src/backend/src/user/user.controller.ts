@@ -374,7 +374,7 @@ export class UserController {
     @Body() body: BanMemberChannelDto,
   ) {
     return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
-      request.user,
+      request.user.id,
       body.BannedId,
       body.channelId,
     );
