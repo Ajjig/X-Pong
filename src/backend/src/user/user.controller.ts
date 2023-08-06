@@ -315,8 +315,8 @@ export class UserController {
   ) {
     return this.UserChannelService.setUserAsBannedOfChannelByUsername(
       request.user.id,
-      body.new_banned,
-      body.channel_name,
+      body.BannedId,
+      body.channelId,
     );
   }
 

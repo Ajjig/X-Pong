@@ -1,17 +1,14 @@
 import * as validator from 'class-validator';
 
 export class BanMemberChannelDto {
-  @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  new_banned: string;
+  @validator.IsNumber()
+  @validator.IsPositive()
+  @validator.IsInt()
+  BannedId: number;
 
   @validator.IsNotEmpty()
-  @validator.IsString()
-  @validator.Length(3, 25)
-  @validator.Matches(/^[a-zA-Z0-9]+$/)
-  @validator.IsLowercase()
-  channel_name: string;
+  @validator.IsNumber()
+  @validator.IsPositive()
+  @validator.IsInt()
+  channelId: number;
 }
