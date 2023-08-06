@@ -335,77 +335,108 @@ export class UserChannelService {
   }
 
   async setUserAsBannedOfChannelByUsername(
-    admin: string,
-    new_banned: string,
-    channelname: string,
+    userId: number,
+    BannedId: number,
+    channelId: number,
   ) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { username: admin },
-      });
+    const SelfadminCheck = await this.OrigineService.is_admin_of_channel(
+      channelId,
+      userId,
+    );
+    const SelfownerCheck = await this.OrigineService.is_owner_of_channel(
+      channelId,
+      userId,
+    );
+    if (SelfadminCheck == false || SelfownerCheck == false) {
+      throw new HttpException(
+        'You are not allowed to Ban Users',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
-      if (user == null) {
-        throw new HttpException('User does not exist', 400);
-      }
+    const checkChannelExist = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+    });
+    if (checkChannelExist == null) {
+      throw new HttpException('Channel does not exist', HttpStatus.NOT_FOUND);
+    }
 
-      const channel = await this.prisma.channel.findUnique({
-        where: { name: channelname },
-      });
+    const bannedUser = await this.prisma.user.findUnique({
+      where: { id: BannedId },
+    });
 
-      if (channel == null) {
-        throw new HttpException('Channel does not exist', 400);
-      }
+    if (bannedUser == null) {
+      throw new HttpException(
+        `User to Ban doesn't exist`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
-      const admin_check = await this.prisma.channel.findFirst({
-        where: {
-          name: channelname,
-          admins: {
-            some: {
-              username: admin,
-            },
+    // check if user is already banned
+    const bannedCheck = await this.prisma.channel.findFirst({
+      where: {
+        id: channelId,
+        banned: {
+          some: {
+            id: BannedId,
           },
         },
-      });
+      },
+    });
 
-      if (admin_check == null) {
-        throw new HttpException('User is not admin of channel', 400);
-      }
+    if (bannedCheck != null) {
+      throw new HttpException('User is already Banned', HttpStatus.BAD_REQUEST);
+    }
 
-      const banned_user = await this.prisma.user.findUnique({
-        where: { username: new_banned },
-      });
-
-      if (banned_user == null) {
-        throw new HttpException('User does not exist', 400);
-      }
-
-      // check if user is already banned
-      const banned_check = await this.prisma.channel.findFirst({
-        where: {
-          name: channelname,
-          banned: {
-            some: {
-              username: new_banned,
-            },
-          },
-        },
-      });
-
-      if (banned_check != null) {
-        throw new HttpException('User is already banned', 400);
-      }
-
+    // IF THE USER IS OWNER OF THE CHANNEL HE CAN Ban ADMINS AND USERS
+    if (SelfownerCheck == true) {
       await this.prisma.channel.update({
-        where: { name: channelname },
+        where: { id: channelId },
         data: {
           banned: {
-            connect: { id: banned_user.id },
+            connect: { id: BannedId },
+          },
+          admins: {
+            disconnect: { id: BannedId },
+          },
+          members: {
+            disconnect: { id: BannedId },
+          },
+          adminsIds: {
+            set: checkChannelExist.adminsIds.filter((id) => id !== BannedId),
           },
         },
       });
-      return { channelname };
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
+      throw new HttpException('User is Banned', HttpStatus.OK);
+    }
+    // IF THE USER IS ADMIN OF THE CHANNEL HE CAN Ban USERS BUT NOT ADMINS AND OWNERS
+    if (SelfadminCheck == true) {
+      const UserToKickIsAdmin = await this.OrigineService.is_admin_of_channel(
+        channelId,
+        BannedId,
+      );
+      const UserToKickIsOwner = await this.OrigineService.is_owner_of_channel(
+        channelId,
+        BannedId,
+      );
+      if (UserToKickIsAdmin == true || UserToKickIsOwner == true) {
+        throw new HttpException(
+          'You are not allowed to Ban Admins or Owners',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          banned: {
+            connect: { id: BannedId },
+          },
+          members: {
+            disconnect: { id: BannedId },
+          },
+        },
+      });
+      throw new HttpException('User is banned', HttpStatus.OK);
     }
   }
 
@@ -477,7 +508,7 @@ export class UserChannelService {
           members: {
             disconnect: { id: new_kicked },
           },
-          adminsIds : {
+          adminsIds: {
             set: checkChannelExist.adminsIds.filter((id) => id !== new_kicked),
           },
         },
