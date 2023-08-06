@@ -146,7 +146,10 @@ export class UserController {
   @Post('/add_friend')
   async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
     if (!body || !request.user.username || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing username or friend_username',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.userService.addFriendByUsername(
       request.user.username,
@@ -162,7 +165,10 @@ export class UserController {
     @Body() body: FriendDto,
   ) {
     if (!body || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing username or friend_username',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.userService.acceptFriendRequestByUsername(
       request.user.username,
@@ -178,7 +184,10 @@ export class UserController {
     @Body() body: BlockFriendDto,
   ) {
     if (!body || !body.friendID) {
-      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing username or friend_username',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.userService.blockFriendByUsername(request.user, body.friendID);
   }
@@ -305,7 +314,7 @@ export class UserController {
     @Body() body: BanMemberChannelDto,
   ) {
     return this.UserChannelService.setUserAsBannedOfChannelByUsername(
-      request.user.username,
+      request.user.id,
       body.new_banned,
       body.channel_name,
     );
@@ -319,7 +328,7 @@ export class UserController {
     @Body() body: KickMemberChannelDto,
   ) {
     return this.UserChannelService.setUserAsKickedOfChannelByUsername(
-      request.user,
+      request.user.id,
       body.kickedId,
       body.channelId,
     );
@@ -345,45 +354,6 @@ export class UserController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unmuted_of_channel')
-  // async setUserAsUnmutedOfChannel(
-  //   @Req() request,
-  //   @Body() body: MuteMemberChannelDto,
-  // ) {
-  //   //
-  //   return this.muteJob.unmuteUser(body.userId, body.channelId);
-  // }
-
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unbanned_of_channel')
-  // async setUserAsUnbannedOfChannelByUsername(
-  //   @Req() request,
-  //   @Body() body: BanMemberChannelDto,
-  // ) {
-  //   return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
-  //     request.user,
-  //     body.new_banned,
-  //     body.channel_name,
-  //   );
-  // }
-
-
-  // @UsePipes(ValidationPipe)
-  // @Post('/set_user_as_unkicked_of_channel')
-  // async setUserAsUnkickedOfChannelByUsername(
-  //   @Req() request,
-  //   @Body() body: KickMemberChannelDto,
-  // ) {
-  //   return this.UserChannelService.setUserAsUnkickedOfChannelByUsername(
-  //     request.user,
-  //     body.new_kicked,
-  //     body.channel_name,
-  //   );
-  // }
-
   @UseGuards(JwtAuthGuard)
   @Get('/:username/info')
   async get_any_user_info(@Req() request, @Param('username') username: string) {
@@ -403,7 +373,10 @@ export class UserController {
       request.user.username,
     );
     if (user == false) {
-      throw new HttpException('User already enabled 2FA', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'User already enabled 2FA',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return user;
   }
@@ -412,14 +385,20 @@ export class UserController {
   @Post('/verify_2fa')
   async verify_2fa(@Req() request, @Body() body: any) {
     if (!body || !request.user.username || !body.code) {
-      throw new HttpException('Missing username or code', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing username or code',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const user = await this.TwoFactorAuthService.verifyToken(
       request.user.username,
       body.code,
     );
     if (user == false) {
-      throw new HttpException('Invalid code or User 2FA Disabled', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid code or User 2FA Disabled',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return user;
   }
@@ -434,7 +413,10 @@ export class UserController {
       request.user.username,
     );
     if (user == false) {
-      throw new HttpException('User already disabled 2FA', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'User already disabled 2FA',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return user;
   }
@@ -465,7 +447,10 @@ export class UserController {
   @Post('/reject_friend_request')
   async rejectFriendRequestByUsername(@Req() request: any, @Body() body: any) {
     if (!body || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing username or friend_username',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.userService.rejectFriendRequestByUsername(
       request.user.username,
@@ -527,7 +512,10 @@ export class UserController {
     @Body() body: RemoveAdminDto,
   ): Promise<any> {
     if (!body || !body.channelId || !body.userId) {
-      throw new HttpException('Missing channel ID or user ID', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing channel ID or user ID',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.UserChannelService.removeAdminFromChannel(
       request.user.id,

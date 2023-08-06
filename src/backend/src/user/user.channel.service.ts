@@ -410,16 +410,30 @@ export class UserChannelService {
   }
 
   async setUserAsKickedOfChannelByUsername(
-    request: any,
+    userId: number,
     new_kicked: number,
-    channelname: number,
+    channelId: number,
   ) {
-    const adminCheck = await this.OrigineService.is_admin_of_channel(
-      channelname,
-      request,
+    const SelfadminCheck = await this.OrigineService.is_admin_of_channel(
+      channelId,
+      userId,
     );
-    if (adminCheck == false) {
-      throw new HttpException('User is not admin of channel', 400);
+    const SelfownerCheck = await this.OrigineService.is_owner_of_channel(
+      channelId,
+      userId,
+    );
+    if (SelfadminCheck == false || SelfownerCheck == false) {
+      throw new HttpException(
+        'You are not allowed to Kick Users',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const checkChannelExist = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+    });
+    if (checkChannelExist == null) {
+      throw new HttpException('Channel does not exist', HttpStatus.NOT_FOUND);
     }
 
     const kicked_user = await this.prisma.user.findUnique({
@@ -427,13 +441,16 @@ export class UserChannelService {
     });
 
     if (kicked_user == null) {
-      throw new HttpException(`doesn't exist`, 400);
+      throw new HttpException(
+        `User to kick doesn't exist`,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    // check if user is already banned
-    const banned_check = await this.prisma.channel.findFirst({
+    // check if user is already kicked
+    const kickedCheck = await this.prisma.channel.findFirst({
       where: {
-        id: channelname,
+        id: channelId,
         kicked: {
           some: {
             id: new_kicked,
@@ -442,20 +459,61 @@ export class UserChannelService {
       },
     });
 
-    if (banned_check != null) {
-      throw new HttpException('User is already Kicked', 400);
+    if (kickedCheck != null) {
+      throw new HttpException('User is already Kicked', HttpStatus.BAD_REQUEST);
     }
 
-    await this.prisma.channel.update({
-      where: { id: channelname },
-      data: {
-        kicked: {
-          connect: { id: kicked_user.id },
+    // IF THE USER IS OWNER OF THE CHANNEL HE CAN KICK ADMINS AND USERS
+    if (SelfownerCheck == true) {
+      await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          kicked: {
+            connect: { id: new_kicked },
+          },
+          admins: {
+            disconnect: { id: new_kicked },
+          },
+          members: {
+            disconnect: { id: new_kicked },
+          },
+          adminsIds : {
+            set: checkChannelExist.adminsIds.filter((id) => id !== new_kicked),
+          },
         },
-      },
-    });
+      });
+      throw new HttpException('User is Kicked', HttpStatus.OK);
+    }
 
-    return { kicked_user };
+    // IF THE USER IS ADMIN OF THE CHANNEL HE CAN KICK USERS BUT NOT ADMINS AND OWNERS
+    if (SelfadminCheck == true) {
+      const UserToKickIsAdmin = await this.OrigineService.is_admin_of_channel(
+        channelId,
+        new_kicked,
+      );
+      const UserToKickIsOwner = await this.OrigineService.is_owner_of_channel(
+        channelId,
+        new_kicked,
+      );
+      if (UserToKickIsAdmin == true || UserToKickIsOwner == true) {
+        throw new HttpException(
+          'You are not allowed to Kick Admins or Owners',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          kicked: {
+            connect: { id: new_kicked },
+          },
+          members: {
+            disconnect: { id: new_kicked },
+          },
+        },
+      });
+      throw new HttpException('User is Kicked', HttpStatus.OK);
+    }
   }
 
   // async setUserAsMutedOfChannelByUsername(
@@ -507,153 +565,6 @@ export class UserChannelService {
   //   return { muted_user };
   // }
 
-  // async setUserAsUnmutedOfChannelByUsername(
-  //   request: any,
-  //   new_unmuted: string,
-  //   channelname: string,
-  // ) {
-  //   const adminCheck = await this.OrigineService.is_admin_of_channel(
-  //     channelname,
-  //     request,
-  //   );
-  //   if (adminCheck == false) {
-  //     throw new HttpException('User is not admin of channel', 400);
-  //   }
-
-  //   const muted_user = await this.prisma.user.findUnique({
-  //     where: { username: new_unmuted },
-  //   });
-
-  //   if (muted_user == null) {
-  //     throw new HttpException('User does not exist', 400);
-  //   }
-
-  //   // check if user is already banned
-  //   const muted_check = await this.prisma.channel.findFirst({
-  //     where: {
-  //       name: channelname,
-  //       muted: {
-  //         some: {
-  //           username: new_unmuted,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (muted_check == null) {
-  //     throw new HttpException('User is not muted', 400);
-  //   }
-
-  //   await this.prisma.channel.update({
-  //     where: { name: channelname },
-  //     data: {
-  //       muted: {
-  //         disconnect: { id: muted_user.id },
-  //       },
-  //     },
-  //   });
-
-  //   return { muted_user };
-  // }
-
-  // async setUserAsUnbannedOfChannelByUsername(
-  //   request: any,
-  //   new_unbanned: string,
-  //   channelname: string,
-  // ) {
-  //   const adminCheck = await this.OrigineService.is_admin_of_channel(
-  //     channelname,
-  //     request,
-  //   );
-  //   if (adminCheck == false) {
-  //     throw new HttpException('User is not admin of channel', 400);
-  //   }
-
-  //   const banned_user = await this.prisma.user.findUnique({
-  //     where: { username: new_unbanned },
-  //   });
-
-  //   if (banned_user == null) {
-  //     throw new HttpException('User does not exist', 400);
-  //   }
-
-  //   // check if user is already banned
-  //   const banned_check = await this.prisma.channel.findFirst({
-  //     where: {
-  //       name: channelname,
-  //       banned: {
-  //         some: {
-  //           username: new_unbanned,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (banned_check == null) {
-  //     throw new HttpException('User is not banned', 400);
-  //   }
-
-  //   await this.prisma.channel.update({
-  //     where: { name: channelname },
-  //     data: {
-  //       banned: {
-  //         disconnect: { id: banned_user.id },
-  //       },
-  //     },
-  //   });
-
-  //   return { banned_user };
-  // }
-
-  // async setUserAsUnkickedOfChannelByUsername(
-  //   request: any,
-  //   new_unkicked: string,
-  //   channelname: string,
-  // ) {
-  //   const adminCheck = await this.OrigineService.is_admin_of_channel(
-  //     channelname,
-  //     request,
-  //   );
-  //   if (adminCheck == false) {
-  //     throw new HttpException('User is not admin of channel', 400);
-  //   }
-
-  //   const kicked_user = await this.prisma.user.findUnique({
-  //     where: { username: new_unkicked },
-  //   });
-
-  //   if (kicked_user == null) {
-  //     throw new HttpException('User does not exist', 400);
-  //   }
-
-  //   // check if user is already banned
-  //   const kicked_check = await this.prisma.channel.findFirst({
-  //     where: {
-  //       name: channelname,
-  //       kicked: {
-  //         some: {
-  //           username: new_unkicked,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   if (kicked_check == null) {
-  //     throw new HttpException('User is not kicked', 400);
-  //   }
-
-  //   await this.prisma.channel.update({
-  //     where: { name: channelname },
-  //     data: {
-  //       kicked: {
-  //         disconnect: { id: kicked_user.id },
-  //       },
-  //     },
-  //   });
-
-  //   return { kicked_user };
-  // }
-
   async HandleChannelOwnerLeaveChannel(owner_check: any, userId: number) {
     if (owner_check == null) {
       throw new HttpException('Channel not exist', 400);
@@ -666,10 +577,7 @@ export class UserChannelService {
       include: { admins: true },
     });
 
-
-    const firstAdmin = channel.admins.find(
-      (admin) => admin.id !== userId,
-    );
+    const firstAdmin = channel.admins.find((admin) => admin.id !== userId);
     if (firstAdmin) {
       await this.prisma.channel.update({
         where: { name: owner_check.name },
@@ -707,8 +615,8 @@ export class UserChannelService {
         muted: {
           disconnect: { username: firstAdmin.username },
         },
-        adminsIds : { 
-          set : channel.adminsIds.filter((id) => id !== firstAdmin.id),
+        adminsIds: {
+          set: channel.adminsIds.filter((id) => id !== firstAdmin.id),
         },
       },
     });
@@ -740,10 +648,7 @@ export class UserChannelService {
       },
     });
     if (owner_check.ownerId == member_check.id) {
-      this.HandleChannelOwnerLeaveChannel(
-        owner_check,
-        userId,
-      );
+      this.HandleChannelOwnerLeaveChannel(owner_check, userId);
     } else {
       // remove the non owner user from the channel
       await this.prisma.channel.update({
@@ -757,11 +662,8 @@ export class UserChannelService {
           },
           // remove the user from the adminsIds list
           adminsIds: {
-            set: owner_check.adminsIds.filter(
-              (adminId) => adminId !== userId,
-            ),
+            set: owner_check.adminsIds.filter((adminId) => adminId !== userId),
           },
-              
         },
       });
     }
@@ -1049,9 +951,9 @@ export class UserChannelService {
         admins: {
           disconnect: { id: adminId },
         },
-        adminsIds : {
+        adminsIds: {
           set: admin_check.adminsIds.filter((id) => id != adminId),
-        }
+        },
       },
     });
 

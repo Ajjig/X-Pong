@@ -16,21 +16,31 @@ export class OrigineService {
     if (request.username === user) return true;
   }
 
-  async is_admin_of_channel(channel: number, request: any): Promise<boolean> {
-    if (!request.username) return false;
-
+  async is_admin_of_channel(channel: number, userId: number): Promise<boolean> {
     const admin_check = await this.prisma.channel.findFirst({
       where: {
         id: channel,
         admins: {
           some: {
-            username: request.username,
+            id: userId,
           },
         },
       },
     });
 
     if (!admin_check) return false;
+    return true;
+  }
+
+  async is_owner_of_channel(channel: number, userId: number): Promise<boolean> {
+    const owner_check = await this.prisma.channel.findFirst({
+      where: {
+        id: channel,
+        ownerId: userId,
+      },
+    });
+
+    if (!owner_check) return false;
     return true;
   }
 }
