@@ -67,8 +67,8 @@ model Channel {
   type     String? // public, private, protected
   password String?
   salt     String?
-  owner    String
-
+  ownerId    Int
+  adminsIds   Int[]
   // relations
 
   members  User[]    @relation("Member")

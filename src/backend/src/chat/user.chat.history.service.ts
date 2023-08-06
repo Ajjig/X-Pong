@@ -104,8 +104,9 @@ export class UserChatHistoryService {
         id: true,
         name: true,
         type: true,
-        owner: true,
+        ownerId: true,
         createdAt: true,
+        admins: true,
         messages: {
           select: {
             content: true,

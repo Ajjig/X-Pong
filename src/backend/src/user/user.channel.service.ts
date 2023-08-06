@@ -44,7 +44,6 @@ export class UserChannelService {
     const checkexist = await this.prisma.channel.findFirst({
       where: { name: channel.name },
     });
-    console.log(checkexist);
 
     if (checkexist != null) {
       throw new HttpException('Channel already exists', 400);
@@ -59,7 +58,8 @@ export class UserChannelService {
         password:
           channel.type === 'protected' ? (await check_password).password : null,
         salt: channel.type === 'protected' ? (await check_password).salt : null,
-        owner: channel.owner ? channel.owner : user.username,
+        ownerId: user.id,
+        adminsIds: { set: [user.id] },
       },
       select: {
         id: true,
@@ -67,7 +67,7 @@ export class UserChannelService {
         admins: true,
         name: true,
         type: true,
-        owner: true,
+        ownerId: true,
       },
     });
 
@@ -75,108 +75,132 @@ export class UserChannelService {
   }
 
   async setUserAsAdminOfChannelByUsername(
-    admin: string,
-    new_admin: string,
-    channelname: string,
+    adminId: number,
+    newAdminId: number,
+    channelId: number,
   ) {
-    try {
+    
       let new_admin_user = await this.prisma.user.findUnique({
-        // check if user exists
-        where: { username: new_admin },
+        where: { id: newAdminId },
+        include: {
+          channels: {
+            where: { id: channelId },
+          },
+          AdminOf: {
+            where: { id: channelId },
+          },
+        },
+
       });
       if (new_admin_user == null) {
-        throw new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
+      }
+      if (new_admin_user.channels.length == 0) {
+        throw new HttpException('User is not member of channel', 400);
+      }
+      if (new_admin_user.AdminOf.length != 0) {
+        throw new HttpException('User is already admin of channel', 400);
       }
 
       let admin_user = await this.prisma.user.findUnique({
-        // check if user exists
-        where: { username: admin },
+        where: { id: adminId },
       });
       if (admin_user == null) {
-        throw new HttpException('User does not exist', 400);
+        throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
       }
 
       let channel = await this.prisma.channel.findUnique({
         // check if channel exists
-        where: { name: channelname },
+        where: { id: channelId },
       });
       if (channel == null) {
-        throw new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', HttpStatus.NOT_FOUND);
       }
 
       let admin_of = await this.prisma.user.findUnique({
         // check if user is admin of channel
-        where: { username: admin },
+        where: { id: adminId },
         include: {
           AdminOf: {
-            where: { name: channelname },
+            where: { id: channelId },
           },
         },
       });
 
-      if (admin_of == null) {
-        throw new HttpException('User is not admin of channel', 400);
+      if (admin_of.AdminOf.length == 0) {
+        throw new HttpException('User is not admin OR not member of channel', 400);
       } else {
         await this.prisma.channel.update({
           // add user as admin of channel
-          where: { name: channelname },
+          where: { id: channelId },
           data: {
             admins: {
               connect: { id: new_admin_user.id },
             },
+            adminsIds: { push : new_admin_user.id  },
             members: { connect: { id: new_admin_user.id } },
           },
         });
         return channel;
       }
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
-    }
+    
   }
 
   async setUserAsMemberOfChannelByID(
-    admin: number, // the requester JWT
+    userId: number, // the requester JWT
     new_member: number,
-    channelname: number,
+    channelId: number,
   ) {
-    try {
-      let new_admin_user = await this.prisma.user.findUnique({
+      let userIdObjet = await this.prisma.user.findUnique({
         // check if user exists
-        where: { id: admin },
+        where: { id: userId },
+        include: {
+          channels: {
+            where: { id: channelId },
+          },
+        },
       });
-      if (new_admin_user == null) {
-        throw new HttpException('Admin does not exist', 400);
+      if (userIdObjet == null) {
+        throw new HttpException('userId does not exist', HttpStatus.NOT_FOUND);
+      }
+      if (userIdObjet.channels.length == 0) {
+        throw new HttpException('User is not member of channel', HttpStatus.UNAUTHORIZED);
       }
 
       let new_user_member = await this.prisma.user.findUnique({
         // check if user exists
         where: { id: new_member },
+        include: {
+          channels: {
+            where: { id: channelId },
+          },
+        },
       });
       if (new_user_member == null) {
-        throw new HttpException('new member does not exist', 400);
+        throw new HttpException('new member does not exist', HttpStatus.NOT_FOUND);
+      }
+      if (new_user_member.channels.length != 0) {
+        throw new HttpException('User is already member of channel', HttpStatus.BAD_REQUEST);
       }
 
       let channel = await this.prisma.channel.findUnique({
         // check if channel exists
-        where: { id: channelname },
+        where: { id: channelId },
       });
       if (channel == null) {
-        throw new HttpException('Channel does not exist', 400);
+        throw new HttpException('Channel does not exist', HttpStatus.NOT_FOUND);
       } else {
         await this.prisma.channel.update({
-          // add user as admin of channel
-          where: { id: channelname },
+          
+          where: { id: channelId },
           data: {
             members: {
               connect: { id: new_user_member.id },
             },
           },
         });
-        return channel;
+        throw new HttpException('User added as member of channel', HttpStatus.OK);
       }
-    } catch (e) {
-      throw new HttpException(e.meta, 400);
-    }
   }
 
   async changeChannelPasswordByUsername(
@@ -198,7 +222,7 @@ export class UserChannelService {
         where: { name: channelname },
       });
 
-      if (channel.owner != admin) {
+      if (channel.ownerId != new_admin_user.id) {
         throw new HttpException('User is not owner of channel', 400);
       } else {
         const check_password =
@@ -271,7 +295,7 @@ export class UserChannelService {
         throw new HttpException('Channel does not exist', 400);
       }
 
-      if (channel.owner != username) {
+      if (channel.ownerId != user.id) {
         throw new HttpException('User is not owner of channel', 400);
       }
 
@@ -626,7 +650,7 @@ export class UserChannelService {
     if (firstAdmin) {
       await this.prisma.channel.update({
         where: { name: owner_check.name },
-        data: { owner: firstAdmin.username },
+        data: { ownerId: firstAdmin.id },
       });
     } else {
       await this.prisma.channel.delete({
@@ -691,7 +715,7 @@ export class UserChannelService {
         name: channelname,
       },
     });
-    if (owner_check.owner == username) {
+    if (owner_check.ownerId == member_check.id) {
       const owner_handler = this.HandleChannelOwnerLeaveChannel(
         owner_check,
         username,
@@ -720,7 +744,7 @@ export class UserChannelService {
       select: {
         name: true,
         type: true,
-        owner: true,
+        ownerId: true,
         id: true,
         createdAt: true,
       },

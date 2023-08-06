@@ -46,7 +46,8 @@ CREATE TABLE "Channel" (
     "type" TEXT,
     "password" TEXT,
     "salt" TEXT,
-    "owner" TEXT NOT NULL,
+    "ownerId" INTEGER NOT NULL,
+    "adminsIds" INTEGER[],
 
     CONSTRAINT "Channel_pkey" PRIMARY KEY ("id")
 );
@@ -59,7 +60,6 @@ CREATE TABLE "Message" (
     "content" TEXT NOT NULL,
     "channelId" INTEGER NOT NULL,
     "senderId" INTEGER NOT NULL,
-    "senderAvatarUrl" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );

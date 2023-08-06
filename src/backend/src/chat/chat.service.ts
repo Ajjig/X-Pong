@@ -348,7 +348,7 @@ export class ChatService {
         name: true,
         id: true,
         type: true,
-        owner: true,
+        ownerId: true,
       },
     });
 

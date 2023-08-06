@@ -41,6 +41,7 @@ import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
 import {joinPublicChannelDto} from '../chat/dto/create-chat.dto';
 import { MuteJob } from './jobs/mute.job';
+import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 
 @Controller('user')
 export class UserController {
@@ -213,12 +214,13 @@ export class UserController {
   @Post('/set_user_as_admin_of_channel')
   async setUserAsAdminOfChannelByUsername(
     @Req() request: any,
-    @Body() body: UpdateAdminChannelDto,
+    @Body() body: SetUserAsAdminDto,
   ) {
+    console.log(request.user.id);
     return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
-      request.user.username,
-      body.new_admin,
-      body.channel_name,
+      request.user.id,
+      body.newAdminId,
+      body.channelId,
     );
   }
 
@@ -230,9 +232,9 @@ export class UserController {
     @Body() body: AddMemberChannelDto,
   ) {
     return this.UserChannelService.setUserAsMemberOfChannelByID(
-      request.user.username,
+      request.user.id,
       body.new_memberID,
-      body.channelID,
+      body.channelId,
     );
   }
 

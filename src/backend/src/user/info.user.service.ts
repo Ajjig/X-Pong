@@ -73,7 +73,7 @@ export class InfoUserService {
         name: true,
         createdAt: true,
         updatedAt: true,
-        owner: true,
+        ownerId: true,
         type: true,
       },
     });
