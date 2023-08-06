@@ -91,6 +91,17 @@ export class GameService {
     if (!data.username) return;
     const senderUsername = this.getUserNameBySocket(senderClient);
     if (!senderUsername) return;
+    // check if player is already in a game
+    if (this.games.get(data.username)) {
+      senderClient.emit('error', `Player ${data.username} is already in a game`);
+      return;
+    }
+
+    if (this.games.get(senderUsername)) {
+      senderClient.emit('error', `You are already in a game`);
+      return;
+    }
+
     const recieverClient = this.players.get(data.username);
     if (!recieverClient) {
       senderClient.emit('error', `Player ${data.username} is not connected`);
