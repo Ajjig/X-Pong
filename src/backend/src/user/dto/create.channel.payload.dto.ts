@@ -1,11 +1,8 @@
 import * as validator from 'class-validator';
 
 export class CreateChannelPayloadDto {
-
-    @validator.IsNotEmpty()
-    @validator.IsString()
-    @validator.Length(8, 100)
-    password: string;
+    
+    password: string | null;
     
     @validator.IsNotEmpty()
     @validator.IsString()
