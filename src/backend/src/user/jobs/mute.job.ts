@@ -76,7 +76,6 @@ export class MuteJob {
         }
       });
       this.schedulerRegistry.deleteTimeout(`mute-${toMuteId}-${channelId}`);
-      throw new HttpException('User unmuted', HttpStatus.ACCEPTED);
     };
 
     const timeoutObject = setTimeout(unmuteCallback, timeoutMs);
