@@ -45,6 +45,7 @@ import { joinPublicChannelDto } from '../chat/dto/create-chat.dto';
 import { MuteJob } from './jobs/mute.job';
 import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
+import { RemoveAdminDto } from './dto/remove.admin.dts';
 
 @Controller('user')
 export class UserController {
@@ -528,15 +529,15 @@ export class UserController {
   @Post('/remove_admin_from_channel')
   async removeAdminFromChannel(
     @Req() request: any,
-    @Body() body: any,
+    @Body() body: RemoveAdminDto,
   ): Promise<any> {
-    if (!body || !body.channelID || !body.user_id) {
+    if (!body || !body.channelId || !body.userId) {
       throw new HttpException('Missing channel ID or user ID', 400);
     }
     return this.UserChannelService.removeAdminFromChannel(
       request.user.id,
-      body.channelID,
-      body.user_id,
+      body.channelId,
+      body.userId,
     );
   }
 }
