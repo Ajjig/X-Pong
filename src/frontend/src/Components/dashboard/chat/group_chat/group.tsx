@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Input, Text, useMantineTheme, Avatar, MantineTheme, Paper, Stack, Badge } from "@mantine/core";
 import { motion } from "framer-motion";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import store, { addNewMessageToGroupChat } from "@/store/store";
 import { IconChevronLeft, IconDots, IconLock, IconSend, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 import chatSocket from "@/socket/chatSocket";
@@ -12,6 +12,7 @@ import { SettingGroupChat } from "./settings";
 export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const theme: MantineTheme = useMantineTheme();
     const [messages, setMessages] = useState<any>([]);
+    const [opened, { open, close }] = useDisclosure();
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
@@ -103,8 +104,9 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                                 </Badge>
                             </Text>
                         </Stack>
+
                         {/* Menu here */}
-                        <SettingGroupChat _chat={chat}>
+                        <SettingGroupChat _chat={chat} opened={opened} open={open} close={close} key={chat.id}>
                             <IconDots size={25} />
                         </SettingGroupChat>
                     </Flex>

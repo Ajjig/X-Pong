@@ -7,3 +7,8 @@ export class SetUserAsAdminDto {
     newAdminId: number;
     channelId: number;
 }
+
+export class RemoveAdminDto {
+    channelId: number;
+    userId: number;
+}

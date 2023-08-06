@@ -25,20 +25,17 @@ import { useState } from "react";
 import api from "@/api";
 import { IconBan, IconCrown, IconDots, IconKarate, IconSettings, IconSettings2, IconUsersGroup, IconVolume3 } from "@tabler/icons-react";
 import store from "@/store/store";
-import { SetUserAsAdminDto } from "./type";
-import { error } from "console";
+import { RemoveAdminDto, SetUserAsAdminDto } from "./type";
 import { AxiosError, AxiosResponse } from "axios";
 import chatSocket from "@/socket/chatSocket";
 import { IconCrownOff } from "@tabler/icons-react";
 
-export function SettingGroupChat({ children, _chat }: { children: React.ReactNode; _chat: any }) {
+export function SettingGroupChat({ _chat, opened, open, close, children }: { _chat: any; opened: boolean; open: any; close: any; children: any }) {
     const [chat, setChat] = useState<any>(_chat);
-    const [opened, { open, close }] = useDisclosure();
     const [Loading, setLoading] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
     const [name, setName] = useState<string>("");
     const [members, setMembers] = useState<any>([]);
-    const [refresh, setRefresh] = useState<boolean>(false);
     const [GroupType, setGroupType] = useState<string>(chat.type);
 
     useEffect(() => {
@@ -57,12 +54,14 @@ export function SettingGroupChat({ children, _chat }: { children: React.ReactNod
             setMembers([...res.data]);
         });
 
+        console.log(store.getState().profile.user.id, "@@", chat.adminsIds);
+
         return () => {
             console.log("unmount");
             // setChat({});
             // setMembers([]);
         };
-    }, [chat, refresh]);
+    }, []);
 
     function makeAdmin(id: number) {
         console.log("make admin");
@@ -75,20 +74,39 @@ export function SettingGroupChat({ children, _chat }: { children: React.ReactNod
             .then((res: AxiosResponse) => {
                 console.log(res.data);
                 chatSocket.emit("reconnect");
-                setRefresh(!refresh);
             })
             .catch((error: AxiosError) => {
                 console.log(error.response);
-                setRefresh(!refresh);
             });
     }
 
     function removeAdmin(id: number) {
         console.log("remove admin");
+        const body: RemoveAdminDto = {
+            channelId: chat.id,
+            userId: id,
+        };
+        console.log(body);
+        api.post(`/user/remove_admin_from_channel`, body)
+            .then((res: AxiosResponse) => {
+                console.log(res.data);
+                chatSocket.emit("reconnect");
+            })
+            .catch((error: AxiosError) => {
+                console.log(error.response);
+            });
     }
 
     return (
         <>
+            <Box
+                onClick={() => open()}
+                sx={{
+                    cursor: "pointer",
+                }}
+            >
+                {children}
+            </Box>
             <Modal
                 title={chat.name}
                 overlayProps={{
@@ -217,7 +235,7 @@ export function SettingGroupChat({ children, _chat }: { children: React.ReactNod
                                         <Menu shadow="md" width={200} position="right" withArrow arrowSize={14} arrowOffset={15}>
                                             {/* {((chat.ownerId != member.id && !chat.adminsIds.includes(member.id)) && store.getState().profile.user.id != member.id) && ( */}
                                             {store.getState().profile.user.id != member.id &&
-                                                (members.includes(store.getState().profile.user.id) || store.getState().profile.user.id == chat.ownerId) && (
+                                                (chat.adminsIds.includes(store.getState().profile.user.id) || store.getState().profile.user.id == chat.ownerId) && (
                                                     <Menu.Target>
                                                         <Button variant="light" color="gray" size="xs">
                                                             <IconSettings2 size={15} />
@@ -259,14 +277,6 @@ export function SettingGroupChat({ children, _chat }: { children: React.ReactNod
                     </Tabs.Panel>
                 </Tabs>
             </Modal>
-            <Box
-                onClick={() => (open(), setRefresh(!refresh))}
-                sx={{
-                    cursor: "pointer",
-                }}
-            >
-                {children}
-            </Box>
         </>
     );
 }
