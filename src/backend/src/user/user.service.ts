@@ -24,18 +24,29 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async setProfileUsernameByusername(
-    username: string,
+    userId: number,
     new_username: string,
   ): Promise<boolean> {
-    try {
-      const user = await this.prisma.user.update({
-        where: { username: username },
-        data: { username: new_username },
-      });
-      return user !== null;
-    } catch (e) {
-      return false;
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+    if (user.username === new_username) {
+      throw new HttpException(
+        'Cannot set same username',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const checkuser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { username: new_username },
+    });
+
+    return true;
   }
 
   async setProfileConfirmedByUsername(username: string) {

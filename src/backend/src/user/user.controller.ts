@@ -86,9 +86,6 @@ export class UserController {
     @Body() body: UpdateUsernameDto,
     @Res() res: Response,
   ) {
-    if (body.new_username === request.user.username) {
-      throw new BadRequestException('Same username');
-    }
     const isUpdates = this.userService.setProfileUsernameByusername(
       request.user.username,
       body.new_username,
@@ -96,8 +93,6 @@ export class UserController {
     if (isUpdates) {
       request.user.username = body.new_username;
       return this.authService.updateProfileAndToken(request.user, res);
-    } else {
-      throw new HttpException('Error user not updated', 400);
     }
   }
 
@@ -116,7 +111,7 @@ export class UserController {
   @Get('/get_stats')
   async getProfileStatsByUsername(@Req() request: any, @Body() body: any) {
     if (!body || !request.user.username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     return this.userService.getProfileStatsByUsername(request.user.username);
   }
@@ -151,7 +146,7 @@ export class UserController {
   @Post('/add_friend')
   async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
     if (!body || !request.user.username || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', 400);
+      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
     }
     return this.userService.addFriendByUsername(
       request.user.username,
@@ -167,7 +162,7 @@ export class UserController {
     @Body() body: FriendDto,
   ) {
     if (!body || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', 400);
+      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
     }
     return this.userService.acceptFriendRequestByUsername(
       request.user.username,
@@ -183,7 +178,7 @@ export class UserController {
     @Body() body: BlockFriendDto,
   ) {
     if (!body || !body.friendID) {
-      throw new HttpException('Missing username or friend_username', 400);
+      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
     }
     return this.userService.blockFriendByUsername(request.user, body.friendID);
   }
@@ -195,7 +190,7 @@ export class UserController {
     @Param('username') username: string,
   ) {
     if (!request.user.username || !username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
 
     return this.userService.getMatchesByUsername(username);
@@ -394,7 +389,7 @@ export class UserController {
   @Get('/:username/info')
   async get_any_user_info(@Req() request, @Param('username') username: string) {
     if (!username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     return this.InfoUserService.get_any_user_info(username);
   }
@@ -403,13 +398,13 @@ export class UserController {
   @Post('/setup_2fa')
   async setup_2fa(@Req() request) {
     if (!request.user.username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const user = await this.TwoFactorAuthService.enableTwoFactorAuth(
       request.user.username,
     );
     if (user == false) {
-      throw new HttpException('User already enabled 2FA', 400);
+      throw new HttpException('User already enabled 2FA', HttpStatus.BAD_REQUEST);
     }
     return user;
   }
@@ -418,14 +413,14 @@ export class UserController {
   @Post('/verify_2fa')
   async verify_2fa(@Req() request, @Body() body: any) {
     if (!body || !request.user.username || !body.code) {
-      throw new HttpException('Missing username or code', 400);
+      throw new HttpException('Missing username or code', HttpStatus.BAD_REQUEST);
     }
     const user = await this.TwoFactorAuthService.verifyToken(
       request.user.username,
       body.code,
     );
     if (user == false) {
-      throw new HttpException('Invalid code or User 2FA Disabled', 400);
+      throw new HttpException('Invalid code or User 2FA Disabled', HttpStatus.BAD_REQUEST);
     }
     return user;
   }
@@ -434,13 +429,13 @@ export class UserController {
   @Post('/disable_2fa')
   async disable_2fa(@Req() request) {
     if (!request.user.username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const user = await this.TwoFactorAuthService.disableTwoFactorAuth(
       request.user.username,
     );
     if (user == false) {
-      throw new HttpException('User already disabled 2FA', 400);
+      throw new HttpException('User already disabled 2FA', HttpStatus.BAD_REQUEST);
     }
     return user;
   }
@@ -454,7 +449,7 @@ export class UserController {
     file: Express.Multer.File,
   ) {
     if (!request.user.username) {
-      throw new HttpException('Missing username', 400);
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const path = await this.UploadService.uploadFile(file);
     await this.UploadService.updateUserAvatar(request.user.username, path);
@@ -471,7 +466,7 @@ export class UserController {
   @Post('/reject_friend_request')
   async rejectFriendRequestByUsername(@Req() request: any, @Body() body: any) {
     if (!body || !body.friend_username) {
-      throw new HttpException('Missing username or friend_username', 400);
+      throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
     }
     return this.userService.rejectFriendRequestByUsername(
       request.user.username,
@@ -486,7 +481,7 @@ export class UserController {
     @Body() body: joinPublicChannelDto,
   ) {
     if (!body || !body.channelID) {
-      throw new HttpException('Missing channel ID', 400);
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
     }
     return this.UserChannelService.joinChannelByUsername(
       request.user.username,
@@ -503,7 +498,7 @@ export class UserController {
     @Param('channelID', ParseIntPipe) channelID: number,
   ) {
     if (!body || !channelID) {
-      throw new HttpException('Missing channel ID', 400);
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
     }
     return this.UserChannelService.getChannelInfo(request.user.id, channelID);
   }
@@ -533,7 +528,7 @@ export class UserController {
     @Body() body: RemoveAdminDto,
   ): Promise<any> {
     if (!body || !body.channelId || !body.userId) {
-      throw new HttpException('Missing channel ID or user ID', 400);
+      throw new HttpException('Missing channel ID or user ID', HttpStatus.BAD_REQUEST);
     }
     return this.UserChannelService.removeAdminFromChannel(
       request.user.id,
