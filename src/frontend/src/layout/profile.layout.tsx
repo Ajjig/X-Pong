@@ -13,6 +13,7 @@ import { IconSend } from "@tabler/icons-react";
 import Message from "../Components/profile/buttons/message";
 import { Match_info } from "@/Components/matchs_history/match_info";
 import chatSocket from "@/socket/chatSocket";
+import { AddFriendRequest } from "./addUser";
 
 interface props {
     id: string;
@@ -42,14 +43,15 @@ export function ProfileLayout({ id }: props) {
             msg: message.message,
         });
         setMessage(null);
-        chatSocket.emit("reconnect")
+        chatSocket.emit("reconnect");
     };
 
     const addUser = () => {
         console.log("addUser: ", profile.username);
-        store.getState().io.socket?.emit("add_friend", {
-            friend_username: profile.username,
-        });
+        const payload: AddFriendRequest = {
+            id: profile.id,
+        };
+        store.getState().io.socket?.emit("add_friend", payload);
     };
 
     const HeaderRef = React.useRef(null);
@@ -122,15 +124,9 @@ export function ProfileLayout({ id }: props) {
                                         </Title>
                                         <Space h={20} />
                                         <Grid>
-                                            <Grid.Col span={12}>
-                                                {/* <Match_info result="1 - 0" /> */}
-                                            </Grid.Col>
-                                            <Grid.Col span={12}>
-                                                {/* <Match_info result="0 - 1" /> */}
-                                            </Grid.Col>
-                                            <Grid.Col span={12}>
-                                                {/* <Match_info result="1 - 0" /> */}
-                                            </Grid.Col>
+                                            <Grid.Col span={12}>{/* <Match_info result="1 - 0" /> */}</Grid.Col>
+                                            <Grid.Col span={12}>{/* <Match_info result="0 - 1" /> */}</Grid.Col>
+                                            <Grid.Col span={12}>{/* <Match_info result="1 - 0" /> */}</Grid.Col>
                                         </Grid>
                                     </Box>
                                 </Paper>

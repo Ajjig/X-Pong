@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { SpotlightStyles } from "./spotlight.styles";
 import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import JoinGroup from "../join_group";
+import { SearchQuery } from "./type";
 
 export default function Spotlight() {
     const [actions, setActions] = useState<SpotlightAction[]>([]);
@@ -57,7 +58,10 @@ export default function Spotlight() {
 
     useEffect(() => {
         if (query == "") setActions([]);
-        else chatSocket.emit("search", { query: query });
+        else {
+            let body: SearchQuery = { query: query };
+            chatSocket.emit("search", body);
+        }
     }, [query]);
     return (
         <>
@@ -75,7 +79,7 @@ export default function Spotlight() {
                 radius={20}
                 classNames={useSpotlightStyles.classes}
             />
-            <JoinGroup show={showJoinGroup} data={selectedGroup} setShowJoinGroup={setShowJoinGroup}  />
+            <JoinGroup show={showJoinGroup} data={selectedGroup} setShowJoinGroup={setShowJoinGroup} />
         </>
     );
 }

@@ -7,6 +7,8 @@ import store, { removeFriendRequest } from "@/store/store";
 import { NotificationType } from "@/socket/types";
 import chatSocket from "@/socket/chatSocket";
 import api from "@/api";
+import { AcceptFriendRequest } from "./type";
+import { SocketResponse } from "@/Components/type";
 
 export function NotificationPopover() {
     const [opened, { close, open }] = useDisclosure(false);
@@ -20,14 +22,18 @@ export function NotificationPopover() {
         });
     }, []);
 
-    const acceptFriendRequest = (username: string, id: number) => {
-        // console.log("@> Accepting friend request from: ", username);
-        chatSocket.emit("accept_friend_request", {
-            friend_username: username,
-        });
+    const acceptFriendRequest = (id: number, notificationID: number) => {
+        let payload: AcceptFriendRequest = { id: id };
+        console.log("acceptFriendRequest: ", payload);
+        chatSocket.emit("accept_friend_request", payload);
 
-        chatSocket.on("accept_friend_request", (data: any) => {
-            store.dispatch(removeFriendRequest(id));
+        chatSocket.on("accept_friend_request", (data: SocketResponse) => {
+            if (data && data.status == 200) {
+                store.dispatch(removeFriendRequest(notificationID));
+                chatSocket.emit("reconnect");
+            } else {
+                alert(data.message ?? "error");
+            }
         });
     };
 
@@ -41,7 +47,7 @@ export function NotificationPopover() {
             .catch((err) => {
                 console.log(err.response);
             });
-        
+
         store.dispatch(removeFriendRequest(id));
     };
 
@@ -86,7 +92,12 @@ export function NotificationPopover() {
                             {/* button accept/reject */}
                             {notification.type == "friendRequest" && (
                                 <Flex justify="flex-end" align="center" py="md">
-                                    <Button size="xs" color="purple" variant="filled" onClick={() => acceptFriendRequest(notification.from, notification.id)}>
+                                    <Button
+                                        size="xs"
+                                        color="purple"
+                                        variant="filled"
+                                        onClick={() => (console.log(notification), acceptFriendRequest(notification.userId, notification.id))}
+                                    >
                                         Accept
                                     </Button>
                                     <Space w={10} />

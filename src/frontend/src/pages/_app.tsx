@@ -9,6 +9,7 @@ import { Loading } from "@/Components/loading/loading";
 import { default_theme } from "@/theme/default";
 import Spotlight from "@/Components/spotlight";
 import api from "@/api";
+import { InviteToGame } from "@/Components/invite_game";
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -46,6 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <MantineProvider theme={default_theme} withGlobalStyles withNormalizeCSS inherit>
                 <Spotlight />
                 <SocketComponent />
+                <InviteToGame />
 
                 <main>
                     <Component {...pageProps} />

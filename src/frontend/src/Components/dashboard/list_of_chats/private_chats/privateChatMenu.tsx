@@ -1,6 +1,6 @@
-import { Avatar, Button, Divider, Flex, Menu, Modal, Space, Title, useMantineTheme } from "@mantine/core";
+import { Avatar, Button, Divider, Flex, Loader, Menu, Modal, Space, Title, useMantineTheme } from "@mantine/core";
 import React, { use, useEffect } from "react";
-import { IconUser } from "@tabler/icons-react";
+import { IconDeviceGamepad2, IconUser } from "@tabler/icons-react";
 import { Text, Box } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
 import { IconBan } from "@tabler/icons-react";
@@ -9,10 +9,12 @@ import api from "@/api";
 import { BlockFriend } from "./type";
 import { AxiosError, AxiosResponse } from "axios";
 import { useDisclosure } from "@mantine/hooks";
+import socketGame from "@/socket/gameSocket";
 
 export function PrivateChatMenu({ user }: any) {
     const router = useRouter();
     const ModelAlert = useDisclosure();
+    const ModelWaitingAcceptChallenge = useDisclosure();
     const theme = useMantineTheme();
     const [errorMessage, setErrorMessage] = React.useState<string>("");
     const [successMessage, setSuccessMessage] = React.useState<string>("");
@@ -25,20 +27,19 @@ export function PrivateChatMenu({ user }: any) {
         return () => {
             setErrorMessage("");
             setSuccessMessage("");
+            ModelWaitingAcceptChallenge[1].close();
         };
     }, []);
 
-
     const ButtonBan = () => {
         ModelAlert[1].open();
+    };
 
-        // api.post("/user/block_friend", body)
-        //     .then((res: AxiosResponse) => {
-        //         console.log(res.data);
-        //     })
-        //     .catch((err: AxiosError) => {
-        //         console.log(err);
-        //     });
+    const inviteToGame = () => {
+        ModelWaitingAcceptChallenge[1].open();
+        socketGame.emit("invite", {
+            username: user.username,
+        });
     };
 
     return (
@@ -72,15 +73,19 @@ export function PrivateChatMenu({ user }: any) {
                         </Flex>
                     </Flex>
 
-                    <Menu.Item icon={<IconUser size={14} />} onClick={ButtonProfile}>
+                    <Menu.Item icon={<IconUser size={20} />} onClick={ButtonProfile}>
                         Profile
                     </Menu.Item>
-                    <Menu.Item color="red" icon={<IconBan size={14} />} onClick={ButtonBan}>
+                    <Menu.Item icon={<IconDeviceGamepad2 size={20} />} onClick={inviteToGame}>
+                        Challenge
+                    </Menu.Item>
+                    <Menu.Item color="red" icon={<IconBan size={20} />} onClick={ButtonBan}>
                         Ban
                     </Menu.Item>
                 </Menu.Dropdown>
             </Menu>
 
+            {/* Modal for ban user */}
             <Modal
                 overlayProps={{
                     opacity: 0.55,
@@ -141,6 +146,47 @@ export function PrivateChatMenu({ user }: any) {
                                     </Button>
                                 </>
                             ) : null}
+                        </Flex>
+                    </Flex>
+                </Box>
+            </Modal>
+
+            {/* Modal waiting other user to accept challenge */}
+            <Modal
+                overlayProps={{
+                    opacity: 0.55,
+                    blur: 8,
+                }}
+                opened={ModelWaitingAcceptChallenge[0]}
+                onClose={ModelWaitingAcceptChallenge[1].close}
+                centered
+                radius={30}
+                closeOnClickOutside={false}
+                withCloseButton={false}
+            >
+                <Box mx="auto" p={20} pt={0} pb={20} pos={"relative"}>
+                    <Flex align="center" justify="center" direction="column">
+                        <Avatar size="xl" src={user.avatarUrl} radius="xl" my={15}/>
+                        <Space w={12} />
+                        <Title fz={"lg"} align="center">Waiting {user.name} to accept your challenge</Title>
+                        <Space py={12} />
+                        <Loader color="purple" variant="dots"/>
+                        <Space py={12} />
+                        <Flex w="100%" justify="center">
+                            <>
+                                <Button
+                                    variant="default"
+                                    color="gray"
+                                    onClick={() => {
+                                        socketGame.emit("cancel-invite", {
+                                            username: user.username,
+                                        });
+                                        ModelWaitingAcceptChallenge[1].close();
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                            </>
                         </Flex>
                     </Flex>
                 </Box>

@@ -14,13 +14,6 @@ import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
 import { NotificationType } from "./types";
 
-type MessageType = {
-    content: string;
-    createdAt: string;
-    sender: string;
-    avatarUrl?: string;
-};
-
 const SocketComponent = () => {
     const [connected, setConnected] = useState(false);
     useEffect(() => {
@@ -70,9 +63,18 @@ const SocketComponent = () => {
             store.dispatch(addNewMessageToPrivateChat(data));
         });
 
-        chatSocket.on("PublicMessage", (newMessage: any) => {
-            // console.log("@@>PublicMessage", newMessage)
-
+        chatSocket.on("PublicMessage", (data: any) => {
+            const newMessage = {
+                content: data.content,
+                createdAt: new Date(),
+                senderId: data.senderId,
+                user: {
+                    avatarUrl: data.avatarUrl,
+                    username: data.senderUsername,
+                },
+                senderUsername: data.senderUsername,
+                channelId: data.channelId,
+            };
             store.dispatch(addNewMessageToGroupChat(newMessage));
         });
 
@@ -83,6 +85,9 @@ const SocketComponent = () => {
 
         chatSocket.on("notification", (data: NotificationType) => {
             store.dispatch(addFriendRequest(data));
+            if (data.type == "AcceptRequest") {
+                chatSocket.emit("reconnect");
+            }
         });
 
         chatSocket.on("privateChat", (data) => {
@@ -91,6 +96,7 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("publicChat", (data) => {
+            console.log("publicChat", data);
             store.dispatch(setGroupChats(data));
         });
 
