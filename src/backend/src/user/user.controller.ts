@@ -564,4 +564,19 @@ export class UserController {
       channelID,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/channels/muted_users/:channelID')
+  async getChannelMutedUsers(
+    @Req() request: any,
+    @Param('channelID', ParseIntPipe) channelID: number,
+  ) {
+    if (!channelID) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.getChannelMutedUsers(
+      request.user.id,
+      channelID,
+    );
+  }
 }

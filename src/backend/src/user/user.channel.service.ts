@@ -1088,4 +1088,40 @@ export class UserChannelService {
 
     return HttpStatus.ACCEPTED;
   }
+
+  async getChannelMutedUsers(userId: number, channelID: number): Promise<any> {
+    const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
+      userId,
+      channelID,
+    );
+    const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
+      userId,
+      channelID,
+    );
+
+    if (SelfAminCheck == false && SelfOwnerCheck == false) {
+      throw new HttpException('User is not an admin of the channel', HttpStatus.BAD_REQUEST);
+    }
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+      select: {
+        muted: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    const channelMuted = channel.muted;
+
+    return channelMuted;
+  }
 }
