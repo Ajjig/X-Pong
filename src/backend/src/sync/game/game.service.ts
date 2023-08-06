@@ -128,6 +128,7 @@ export class GameService {
 
     this.invits.splice(this.invits.indexOf(invit), 1);
     senderClient.emit('invite-accepted', {});
+    recieverClient.emit('invite-accepted', {});
     const id = makeId(this.games);
     const game = new Game({
       id,
