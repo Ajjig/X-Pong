@@ -998,4 +998,63 @@ export class UserChannelService {
 
     return channelMembers;
   }
+
+  async removeAdminFromChannel(
+    userId: number,
+    channelID: number,
+    adminId: number,
+  ): Promise<any> {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelID },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user == null) {
+      throw new NotFoundException('User does not exist');
+    }
+
+    const admin = await this.prisma.user.findUnique({
+      where: { id: adminId },
+    });
+
+    if (admin == null) {
+      throw new NotFoundException('Admin does not exist');
+    }
+
+    const admin_check = await this.prisma.channel.findFirst({
+      where: {
+        id: channelID,
+        admins: { some: { id: adminId } },
+      },
+    });
+
+    if (admin_check.ownerId != userId) {
+      throw new HttpException('User is not the owner of the channel', 400);
+    }
+
+    if (admin_check == null) {
+      throw new HttpException('User is not an admin of the channel', 400);
+    }
+
+    await this.prisma.channel.update({
+      where: { id: channelID },
+      data: {
+        admins: {
+          disconnect: { id: adminId },
+        },
+        adminsIds : {
+          set: admin_check.adminsIds.filter((id) => id != adminId),
+        }
+      },
+    });
+
+    return HttpStatus.ACCEPTED;
+  }
 }

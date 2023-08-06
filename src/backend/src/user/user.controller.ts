@@ -523,4 +523,20 @@ export class UserController {
     }
     return this.UserChannelService.getChannelUsers(request.user.id, channelID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/remove_admin_from_channel')
+  async removeAdminFromChannel(
+    @Req() request: any,
+    @Body() body: any,
+  ): Promise<any> {
+    if (!body || !body.channelID || !body.user_id) {
+      throw new HttpException('Missing channel ID or user ID', 400);
+    }
+    return this.UserChannelService.removeAdminFromChannel(
+      request.user.id,
+      body.channelID,
+      body.user_id,
+    );
+  }
 }
