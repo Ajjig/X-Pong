@@ -182,8 +182,8 @@ export class GameService {
 
     this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
     const sendeClient = this.players.get(data.username);
-    if (recieverClient) recieverClient.emit('invite-rejected', {});
-    if (sendeClient) sendeClient.emit('invite-rejected', {});
+    if (recieverClient) recieverClient.emit('invite-canceled', {});
+    if (sendeClient) sendeClient.emit('invite-canceled', {});
   }
 
   handleMessage(client: Socket, data: string): void {
