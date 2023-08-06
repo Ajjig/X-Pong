@@ -159,6 +159,17 @@ export class GameService {
     recieverClient.emit('invite-canceled', {});
   }
 
+  handleRejectInvite(client: Socket, data: { username: string }): void {
+    if (!data.username) return;
+    const senderUsername = this.getUserNameBySocket(client);
+    if (!senderUsername) return;
+
+    this.invits = this.invits.filter((i) => i.from !== senderUsername && i.to !== data.username);
+    const recieverClient = this.players.get(data.username);
+    if (!recieverClient) return;
+    recieverClient.emit('invite-rejected', {});
+  }
+
   handleMessage(client: Socket, data: string): void {
     this.logger.log(`Message from ${client.id} : ${data}`);
   }
