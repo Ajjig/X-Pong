@@ -6,7 +6,6 @@ export class BanMemberChannelDto {
   @validator.IsInt()
   BannedId: number;
 
-  @validator.IsNotEmpty()
   @validator.IsNumber()
   @validator.IsPositive()
   @validator.IsInt()
