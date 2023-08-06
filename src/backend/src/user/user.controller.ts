@@ -355,16 +355,16 @@ export class UserController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannel(
-    @Req() request,
-    @Body() body: MuteMemberChannelDto,
-  ) {
-    //
-    return this.muteJob.unmuteUser(body.userId, body.channelId);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // @Post('/set_user_as_unmuted_of_channel')
+  // async setUserAsUnmutedOfChannel(
+  //   @Req() request,
+  //   @Body() body: MuteMemberChannelDto,
+  // ) {
+  //   //
+  //   return this.muteJob.unmuteUser(body.userId, body.channelId);
+  // }
 
   // @UseGuards(JwtAuthGuard)
   // @UsePipes(ValidationPipe)
