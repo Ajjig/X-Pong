@@ -211,6 +211,7 @@ export class UserChannelService {
           },
         },
       });
+
       throw new HttpException('User added as member of channel', HttpStatus.OK);
     }
   }
@@ -1036,12 +1037,12 @@ export class UserChannelService {
     channelID: number,
   ): Promise<any> {
     const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
-      userId,
       channelID,
+      userId,
     );
     const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
-      userId,
       channelID,
+      userId,
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
