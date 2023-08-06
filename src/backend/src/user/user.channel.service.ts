@@ -12,6 +12,7 @@ import { compare, genSalt, hash } from 'bcryptjs';
 import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
 import { compareSync } from 'bcrypt';
+import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 
 @Injectable()
 export class UserChannelService {
@@ -21,9 +22,12 @@ export class UserChannelService {
     private OrigineService: OrigineService,
   ) {}
 
-  async createChannelByUsername(username: string, channel: any) {
+  async createChannelByUsername(
+    userId: number,
+    channel: CreateChannelPayloadDto,
+  ) {
     const user = await this.prisma.user.findUnique({
-      where: { username: username },
+      where: { id: userId },
     });
 
     if (user == null) {
@@ -947,7 +951,7 @@ export class UserChannelService {
     return channel;
   }
 
-  async getChannelUsers(userId : number, channelID: number): Promise<any> {
+  async getChannelUsers(userId: number, channelID: number): Promise<any> {
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelID },
       select: {

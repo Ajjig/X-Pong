@@ -19,7 +19,6 @@ import {
   HttpCode,
   HttpStatus,
   Query,
-  
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -42,9 +41,10 @@ import { RemoveChannelPasswordDto } from './dto/remove.channel.password.dto';
 import { BanMemberChannelDto } from './dto/ban.member.channel.dto';
 import { KickMemberChannelDto } from './dto/kick.member.channel.dto';
 import { MuteMemberChannelDto } from './dto/mute.member.channel.dto';
-import {joinPublicChannelDto} from '../chat/dto/create-chat.dto';
+import { joinPublicChannelDto } from '../chat/dto/create-chat.dto';
 import { MuteJob } from './jobs/mute.job';
 import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
+import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 
 @Controller('user')
 export class UserController {
@@ -66,8 +66,11 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('id/:uid')
-  async getUserById(@Req() request: any,@Param('uid') uid: string) {
-    const user = await this.authService.findUserById(request.user.username, uid);
+  async getUserById(@Req() request: any, @Param('uid') uid: string) {
+    const user = await this.authService.findUserById(
+      request.user.username,
+      uid,
+    );
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -174,14 +177,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('/block_friend')
-  async blockFriendByUsername(@Req() request: any, @Body() body: BlockFriendDto) {
+  async blockFriendByUsername(
+    @Req() request: any,
+    @Body() body: BlockFriendDto,
+  ) {
     if (!body || !body.friendID) {
       throw new HttpException('Missing username or friend_username', 400);
     }
-    return this.userService.blockFriendByUsername(
-      request.user,
-      body.friendID,
-    );
+    return this.userService.blockFriendByUsername(request.user, body.friendID);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -198,16 +201,20 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post('/create_channel')
   async createChannelByUsername(
     @Req() request: any,
-    @Body() body: Prisma.ChannelCreateInput,
+    @Body() body: CreateChannelPayloadDto,
   ) {
-    if (!body || !request.user.username || !body) {
-      throw new HttpException('Missing username or channel', 400);
+    if (!body || !request.user.id) {
+      throw new HttpException(
+        'Missing username or channel',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return this.UserChannelService.createChannelByUsername(
-      request.user.username,
+      request.user.id,
       body,
     );
   }
@@ -335,7 +342,11 @@ export class UserController {
     @Req() request,
     @Body() body: MuteMemberChannelDto,
   ) {
-    return this.muteJob.muteUser(body.userId, body.channelId, body.timeoutMs || 5 * 60 * 1000);
+    return this.muteJob.muteUser(
+      body.userId,
+      body.channelId,
+      body.timeoutMs || 5 * 60 * 1000,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -345,7 +356,7 @@ export class UserController {
     @Req() request,
     @Body() body: MuteMemberChannelDto,
   ) {
-    // 
+    //
     return this.muteJob.unmuteUser(body.userId, body.channelId);
   }
 
@@ -456,10 +467,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/reject_friend_request')
-  async rejectFriendRequestByUsername(
-    @Req() request: any,
-    @Body() body: any,
-    ) {
+  async rejectFriendRequestByUsername(@Req() request: any, @Body() body: any) {
     if (!body || !body.friend_username) {
       throw new HttpException('Missing username or friend_username', 400);
     }
@@ -467,7 +475,6 @@ export class UserController {
       request.user.username,
       body.friend_username,
     );
-  
   }
 
   @UseGuards(JwtAuthGuard)
@@ -482,7 +489,7 @@ export class UserController {
     return this.UserChannelService.joinChannelByUsername(
       request.user.username,
       body.channelID,
-      body.password
+      body.password,
     );
   }
 
@@ -496,10 +503,7 @@ export class UserController {
     if (!body || !channelID) {
       throw new HttpException('Missing channel ID', 400);
     }
-    return this.UserChannelService.getChannelInfo(
-      request.user.id,
-      channelID,
-    );
+    return this.UserChannelService.getChannelInfo(request.user.id, channelID);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -519,6 +523,4 @@ export class UserController {
     }
     return this.UserChannelService.getChannelUsers(request.user.id, channelID);
   }
-
-
 }
