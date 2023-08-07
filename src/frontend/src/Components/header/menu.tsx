@@ -5,10 +5,12 @@ import Link from "next/link";
 import store from "@/store/store";
 import { Personalinformation } from "./personal_information";
 import { useDisclosure } from "@mantine/hooks";
+import { Two_factor_authentication } from "./Two-factor-authentication";
 
 function ProfileSection({}: {}) {
     const [profile, setProfile] = useState<any>(null);
     const [PersonalinformationOpened, PersonalinformationSettings] = useDisclosure();
+    const [TwoFactorAuthenticationOpened, TwoFactorAuthenticationSettings] = useDisclosure();
 
     useEffect(() => {
         setProfile(store.getState().profile.user);
@@ -30,7 +32,7 @@ function ProfileSection({}: {}) {
                     <Menu.Item icon={<IconUser size={rem(20)} />} miw={"200px"} onClick={PersonalinformationSettings.open}>
                         Personal information
                     </Menu.Item>
-                    <Menu.Item icon={<Icon2fa size={rem(20)} />} miw={"200px"}>
+                    <Menu.Item icon={<Icon2fa size={rem(20)} />} miw={"200px"} onClick={TwoFactorAuthenticationSettings.open}>
                         Two-factor authentication
                     </Menu.Item>
 
@@ -41,6 +43,11 @@ function ProfileSection({}: {}) {
             </Menu>
 
             <Personalinformation opened={PersonalinformationOpened} open={PersonalinformationSettings.open} close={PersonalinformationSettings.close} />
+            <Two_factor_authentication
+                opened={TwoFactorAuthenticationOpened}
+                open={TwoFactorAuthenticationSettings.open}
+                close={TwoFactorAuthenticationSettings.close}
+            />
         </Group>
     );
 }

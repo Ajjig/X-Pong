@@ -33,7 +33,7 @@ export const default_theme: MantineThemeOverride = {
         Input: {
             styles: {
                 input: {
-                    borderRadius: 40,
+                    borderRadius: 10,
                 },
             },
         },
