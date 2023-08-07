@@ -12,9 +12,11 @@ import store, {
 import { useEffect, useState } from "react";
 import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
-import { NotificationType, SocketResponse } from "./types";
+import { AchievementDto, NotificationType, SocketResponse } from "./types";
 import { notifications } from "@mantine/notifications";
 import { TypeMessage } from "@/Components/dashboard/type";
+import api from "@/api";
+import { Image } from "@mantine/core";
 
 const SocketComponent = () => {
     const [connected, setConnected] = useState(false);
@@ -102,6 +104,16 @@ const SocketComponent = () => {
             if (data.type == "AcceptRequest") {
                 chatSocket.emit("reconnect");
             }
+        });
+
+        socketGame.on("achievement", (data: AchievementDto) => {
+            console.log(data);
+            notifications.show({
+                title: data.name,
+                message: data.description,
+                color: "blue",
+                icon: <Image src={api.getUri() + data.iconUrl.slice(1)} width={40} height={40} radius="xl" />,
+            });
         });
 
         chatSocket.on("privateChat", (data) => {

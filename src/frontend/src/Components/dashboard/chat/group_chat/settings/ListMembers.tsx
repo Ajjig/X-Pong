@@ -33,7 +33,7 @@ export function ListMembers({ members, chat, muteList, getMembers, getMuteList, 
                 </Text>
                 <Flex>
                     <Button variant="light" color="gray" size="xs" onClick={() => setInvited.open()}>
-                        invite
+                        Add
                     </Button>
                     <Space w={10} />
                     <LeaveTheGroup chat={chat} />

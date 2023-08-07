@@ -46,7 +46,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Provider store={store}>
             {/* <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}> */}
             <MantineProvider theme={default_theme} withGlobalStyles withNormalizeCSS inherit>
-                <Notifications />
+                <Notifications position="top-right"/>
                 <Spotlight />
                 <SocketComponent />
                 <InviteToGame />
