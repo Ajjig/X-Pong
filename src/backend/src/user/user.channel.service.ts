@@ -1017,12 +1017,12 @@ export class UserChannelService {
 
   async getChannelBannedUsers(userId: number, channelID: number): Promise<any> {
     const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
-      userId,
       channelID,
+      userId,
     );
     const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
-      userId,
       channelID,
+      userId,
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
@@ -1111,12 +1111,12 @@ export class UserChannelService {
 
   async getChannelMutedUsers(userId: number, channelID: number): Promise<any> {
     const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
-      userId,
       channelID,
+      userId,
     );
     const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
-      userId,
       channelID,
+      userId,
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
