@@ -1,28 +1,13 @@
-import React, { useEffect } from "react";
-import {
-    Header,
-    MediaQuery,
-    useMantineTheme,
-    Image,
-    Group,
-    Flex,
-    Title,
-    Paper,
-    Space,
-    Box,
-    Button,
-    Loader,
-    createStyles,
-    ActionIcon,
-    UnstyledButton,
-    MantineTheme,
-} from "@mantine/core";
-import ProfileSection from "./profile_menu";
+import React from "react";
+import { Header, useMantineTheme, Image, Group, Flex, Title, Paper, Space } from "@mantine/core";
+import ProfileSection from "./menu";
 import Link from "next/link";
 import DrawerMobile from "./drawer";
 import { Search } from "./search";
 import { NotificationPopover } from "./notification";
 import { useRouter } from "next/router";
+import { Play } from "./play";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const theme = useMantineTheme();
@@ -71,77 +56,5 @@ export function LeftMenu({ withUser = true }: { withUser?: boolean }) {
             <Space w={theme.spacing.md} />
             {withUser && <ProfileSection />}
         </Flex>
-    );
-}
-
-import { Menu, Modal } from "@mantine/core";
-import { IconUserCircle, IconArrowsRandom, IconDeviceGamepad2 } from "@tabler/icons-react";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import socketGame from "@/socket/gameSocket";
-import store, { setOpp } from "@/store/store";
-
-const useModelStyle = createStyles((theme) => ({
-    content: {
-        backgroundColor: "transparent",
-    },
-    overlay: {
-        backdropFilter: "blur(5px)",
-    },
-}));
-
-function Play() {
-    const [visible, { close, open }] = useDisclosure(false);
-    const ModelStyle = useModelStyle();
-    const router = useRouter();
-
-    const join = () => {
-        open();
-        // join request
-        socketGame.emit("join", { msg: "join" });
-    };
-
-    const cancel = () => {
-        close();
-        // cancel request
-        socketGame.emit("cancel-join", { msg: "cancel" });
-    };
-
-    useEffect(() => {
-        socketGame.on("match", (data) => {
-            console.log(data);
-            store.dispatch(setOpp(data));
-            router.push(`/game/${data.roomName}`);
-        });
-    }, []);
-
-    return (
-        <>
-            <Modal opened={visible} onClose={close} title="" centered withCloseButton={false} closeOnClickOutside={false} classNames={ModelStyle.classes}>
-                <Flex direction="column" align="center" justify="center">
-                    <Loader />
-                    <Space h={50} />
-                    <Button variant="outline" onClick={cancel}>
-                        Cancel
-                    </Button>
-                </Flex>
-            </Modal>
-            <Menu shadow="md" width={200} withArrow arrowSize={15} position="bottom-end" arrowOffset={42}>
-                <Menu.Target>
-                    <Box>
-                        <Button variant="filled" leftIcon={<IconDeviceGamepad2 size={20} />} h={40}>
-                            Play
-                        </Button>
-                    </Box>
-                </Menu.Target>
-
-                <Menu.Dropdown>
-                    <Menu.Label>Play</Menu.Label>
-                    <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item>
-                    <Menu.Item icon={<IconArrowsRandom size={18} />} onClick={join}>
-                        Play with random
-                    </Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
-        </>
     );
 }

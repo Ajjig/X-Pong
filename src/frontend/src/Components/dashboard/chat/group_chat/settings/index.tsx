@@ -12,15 +12,15 @@ import {
     Avatar,
     Tabs,
     SegmentedControl,
-    Menu,
-    Badge,
     Divider,
     useMantineTheme,
+    PasswordInput,
+    TextInput,
 } from "@mantine/core";
 import { useState } from "react";
 import api from "@/api";
 import { IconSettings, IconUsersGroup } from "@tabler/icons-react";
-import store from "@/store/store";
+import store, { setCurrentChatGroup } from "@/store/store";
 import { AxiosError, AxiosResponse } from "axios";
 import chatSocket from "@/socket/chatSocket";
 import { ListMembers } from "./ListMembers";
@@ -97,7 +97,7 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
                 {children}
             </Box>
             <Modal
-                title={_chat.name}
+                title={!Loading && _chat.name}
                 overlayProps={{
                     opacity: 0.55,
                     blur: 8,
@@ -106,7 +106,7 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
                 onClose={close}
                 centered
                 radius={30}
-                withCloseButton={!Loading as boolean | undefined}
+                withCloseButton={!Loading}
                 padding={20}
                 scrollAreaComponent={ScrollArea.Autosize}
             >
@@ -316,6 +316,7 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
         setLoading(true);
         api.post("/user/channel/update", payload)
             .then((res: AxiosResponse) => {
+
                 setLoading(false);
                 Notifications.show({
                     title: "Success",
@@ -355,7 +356,8 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
                 ]}
             />
             <Input.Wrapper label="Group Name">
-                <Input
+                <TextInput
+                    px={12}
                     size="sm"
                     placeholder="New name"
                     value={name}
@@ -370,7 +372,7 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
             <Space h={20} />
             {GroupType == "protected" && (
                 <Input.Wrapper label="Password">
-                    <Input
+                    <PasswordInput
                         size="sm"
                         placeholder="New password"
                         value={password}
