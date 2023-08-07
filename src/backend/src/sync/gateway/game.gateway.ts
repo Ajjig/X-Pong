@@ -71,7 +71,7 @@ export class GameGateway {
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     const userdata = await this.gameService.getUserData(client)
 
-    if (!userdata) {
+    if (!userdata || userdata.is2f) {
       client.disconnect();
       return;
     }
