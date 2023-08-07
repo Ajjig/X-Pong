@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
@@ -15,35 +15,27 @@ export class TwoFactorAuthService {
   }
 
   async generateQRCodeUrl(username: string, secret: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      qrcode.toDataURL(
-        speakeasy.otpauthURL({
-          secret: secret,
-          label: username,
-          issuer: 'PingPong 1970',
-        }),
-        (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        },
-      );
+    console.log('secret', secret);
+    const otpAuthUrl = speakeasy.otpauthURL({
+      secret: secret,
+      label: username,
+      issuer: 'SKYPONG TM',
     });
+    const qrCodeUrl = await qrcode.toDataURL(otpAuthUrl);
+    
+    return qrCodeUrl;
   }
 
-  async verifyToken(username: string, code: string): Promise<boolean> {
+  async verifyToken(userId: number, code: string): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username,
+        id: userId,
       },
     });
 
     if (!user || user.istwoFactor === false || !user.twoFactorAuthSecret) {
-      return false;
+      throw new HttpException('2FA is not enabled for this user', HttpStatus.BAD_REQUEST);
     }
-
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorAuthSecret,
       encoding: 'base32',
@@ -52,11 +44,11 @@ export class TwoFactorAuthService {
     return verified;
   }
 
-  async enableTwoFactorAuth(username: string): Promise<string | boolean> {
+  async enableTwoFactorAuth(userId: number): Promise<string | boolean> {
     // check if user enabled 2FA
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username,
+        id: userId,
       },
     });
 
@@ -64,10 +56,10 @@ export class TwoFactorAuthService {
       return false;
     } else {
       const secret = this.generateSecret();
-      const qrCodeUrl = await this.generateQRCodeUrl(username, secret);
+      const qrCodeUrl = await this.generateQRCodeUrl(user.username, secret);
       await this.prisma.user.update({
         where: {
-          username: username,
+          username: user.username,
         },
         data: {
           istwoFactor: true,

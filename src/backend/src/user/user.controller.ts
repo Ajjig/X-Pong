@@ -403,11 +403,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('/setup_2fa')
   async setup_2fa(@Req() request) {
-    if (!request.user.username) {
+    if (!request.user.id) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const user = await this.TwoFactorAuthService.enableTwoFactorAuth(
-      request.user.username,
+      request.user.id,
     );
     if (user == false) {
       throw new HttpException(
@@ -421,14 +421,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('/verify_2fa')
   async verify_2fa(@Req() request, @Body() body: any) {
-    if (!body || !request.user.username || !body.code) {
+    if (!body || !request.user.id || !body.code) {
       throw new HttpException(
         'Missing username or code',
         HttpStatus.BAD_REQUEST,
       );
     }
     const user = await this.TwoFactorAuthService.verifyToken(
-      request.user.username,
+      request.user.id,
       body.code,
     );
     if (user == false) {
