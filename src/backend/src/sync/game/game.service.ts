@@ -191,8 +191,6 @@ export class GameService {
     this.players.delete(username);
     
     this.queue = this.queue.filter((p) => p.username !== username);
-    
-    this.logger.log(`Player ${username} disconnected`);
 
     // remove from players
     this.players[username] = null;
@@ -222,6 +220,7 @@ export class GameService {
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
         uid: number,
         username: string,
+        is2f: boolean,
         iat: number,
         exp: number;
       };
@@ -236,6 +235,7 @@ export class GameService {
       const userdecoded = jwt.verify(token, process.env.JWT_SECRET) as {
         uid: number,
         username: string,
+        is2f: boolean,
         iat: number,
         exp: number;
       };
