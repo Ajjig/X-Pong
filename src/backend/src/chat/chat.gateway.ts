@@ -318,8 +318,13 @@ export class ChatGateway {
         0,
       );
 
+      const UserNotifications = await this.chatService.loadUserNotifications(
+        userdata.username,
+      );
+
     client.emit('publicChat', publicChat);
     client.emit('privateChat', privateChat);
+    client.emit('notifications', UserNotifications);
   }
 
   @SubscribeMessage('getLatestChannels')
