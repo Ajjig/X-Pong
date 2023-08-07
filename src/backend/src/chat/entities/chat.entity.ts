@@ -51,6 +51,7 @@ export class notifications {
   updatedAt: Date;
   userId: number;
   avatarUrl: string;
+  friendId : number;
 }
 
 export class joinPublicChannel {
