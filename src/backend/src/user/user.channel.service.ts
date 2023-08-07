@@ -265,7 +265,7 @@ export class UserChannelService {
     password: string,
   ) {
     try {
-      const channelcheck = await this.prisma.channel.findUnique({
+      const channelcheck = await this.prisma.channel.findFirst({
         where: { name: channelname },
       });
       if (channelcheck == null) {
@@ -598,63 +598,63 @@ export class UserChannelService {
   //   return { muted_user };
   // }
 
-  async HandleChannelOwnerLeaveChannel(owner_check: any, userId: number) {
-    if (owner_check == null) {
-      throw new HttpException('Channel not exist', 400);
-    }
+  // async HandleChannelOwnerLeaveChannel(owner_check: any, userId: number) {
+  //   if (owner_check == null) {
+  //     throw new HttpException('Channel not exist', 400);
+  //   }
 
-    /* update the owner of the channel with the first admin 
-    of the channel if no admin exist then delete the channel*/
-    const channel = await this.prisma.channel.findUnique({
-      where: { name: owner_check.name },
-      include: { admins: true },
-    });
+  //   /* update the owner of the channel with the first admin
+  //   of the channel if no admin exist then delete the channel*/
+  //   const channel = await this.prisma.channel.findUnique({
+  //     where: { name: owner_check.name },
+  //     include: { admins: true },
+  //   });
 
-    const firstAdmin = channel.admins.find((admin) => admin.id !== userId);
-    if (firstAdmin) {
-      await this.prisma.channel.update({
-        where: { name: owner_check.name },
-        data: { ownerId: firstAdmin.id },
-      });
-    } else {
-      await this.prisma.channel.delete({
-        where: { name: owner_check.name },
-      });
-      throw new HttpException('Owner left and Channel deleted', HttpStatus.OK);
-    }
+  //   const firstAdmin = channel.admins.find((admin) => admin.id !== userId);
+  //   if (firstAdmin) {
+  //     await this.prisma.channel.update({
+  //       where: { name: owner_check.name },
+  //       data: { ownerId: firstAdmin.id },
+  //     });
+  //   } else {
+  //     await this.prisma.channel.delete({
+  //       where: { name: owner_check.name },
+  //     });
+  //     throw new HttpException('Owner left and Channel deleted', HttpStatus.OK);
+  //   }
 
-    // remove the user from the channel
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        channels: {
-          disconnect: { name: owner_check.name },
-        },
-        AdminOf: {
-          disconnect: { name: owner_check.name },
-        },
-      },
-    });
+  //   // remove the user from the channel
+  //   await this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: {
+  //       channels: {
+  //         disconnect: { name: owner_check.name },
+  //       },
+  //       AdminOf: {
+  //         disconnect: { name: owner_check.name },
+  //       },
+  //     },
+  //   });
 
-    // remove the the new owner from kicked or banned or muted list
-    await this.prisma.channel.update({
-      where: { name: owner_check.name },
-      data: {
-        kicked: {
-          disconnect: { username: firstAdmin.username },
-        },
-        banned: {
-          disconnect: { username: firstAdmin.username },
-        },
-        muted: {
-          disconnect: { username: firstAdmin.username },
-        },
-        adminsIds: {
-          set: channel.adminsIds.filter((id) => id !== firstAdmin.id),
-        },
-      },
-    });
-  }
+  //   // remove the the new owner from kicked or banned or muted list
+  //   await this.prisma.channel.update({
+  //     where: { name: owner_check.name },
+  //     data: {
+  //       kicked: {
+  //         disconnect: { username: firstAdmin.username },
+  //       },
+  //       banned: {
+  //         disconnect: { username: firstAdmin.username },
+  //       },
+  //       muted: {
+  //         disconnect: { username: firstAdmin.username },
+  //       },
+  //       adminsIds: {
+  //         set: channel.adminsIds.filter((id) => id !== firstAdmin.id),
+  //       },
+  //     },
+  //   });
+  // }
 
   async leaveChannelByUsername(
     userId: number,
@@ -1188,7 +1188,19 @@ export class UserChannelService {
       );
     }
 
-    if (payload.channelName != null) {
+    if (
+      channel.type != payload.channelType &&
+      payload.channelType != null
+    ) {
+      await this.prisma.channel.update({
+        where: { id: payload.channelId },
+        data: {
+          type: payload.channelType,
+        },
+      });
+    }
+
+    if (payload.channelName != channel.name && payload.channelName != null) {
       const channel_name_check = await this.prisma.channel.findFirst({
         where: { name: payload.channelName },
       });

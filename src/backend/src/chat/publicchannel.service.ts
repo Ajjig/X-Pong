@@ -29,7 +29,7 @@ export class PublicChannelService {
   }
 
   async checkSingleChannelExsting(channelId: string): Promise<boolean> {
-    const checkchannel = await this.prisma.channel.findUnique({
+    const checkchannel = await this.prisma.channel.findFirst({
       where: {
         name: channelId,
       },
