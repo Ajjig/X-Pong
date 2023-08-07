@@ -46,6 +46,7 @@ import { MuteJob } from './jobs/mute.job';
 import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 import { RemoveAdminDto } from './dto/remove.admin.dts';
+import { UpdateChannelDto } from './dto/update.channel.dto';
 
 @Controller('user')
 export class UserController {
@@ -109,7 +110,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_stats/:id')
-  async getProfileStatsByUsername(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
+  async getProfileStatsByUsername(
+    @Req() request: any,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     if (!request.user.username) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
@@ -189,7 +193,10 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.userService.blockFriendByUsername(request.user.id, body.friendID);
+    return this.userService.blockFriendByUsername(
+      request.user.id,
+      body.friendID,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -363,7 +370,11 @@ export class UserController {
     @Body() body: MuteMemberChannelDto,
   ) {
     //
-    return this.muteJob.unmuteUser(request.user.id, body.userId, body.channelId);
+    return this.muteJob.unmuteUser(
+      request.user.id,
+      body.userId,
+      body.channelId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -601,6 +612,21 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.userService.unblockUserById(request.user.id, body.friend_username);
+    return this.userService.unblockUserById(
+      request.user.id,
+      body.friend_username,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/channel/update')
+  async updateChannel(
+    @Req() request: any,
+    @Body() body: UpdateChannelDto,
+  ): Promise<any> {
+    if (!body) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.updateChannel(request.user.id, body);
   }
 }

@@ -40,7 +40,7 @@ export function LeaveTheGroup({ chat }: { chat: any }) {
 
     return (
         <Button variant="filled" color="red" size="xs" onClick={() => LeaveGroup()}>
-            leave
+            Leave
         </Button>
     );
 }

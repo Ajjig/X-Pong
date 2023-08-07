@@ -1,18 +1,34 @@
 import React, { useEffect } from "react";
-import { Modal, Box, LoadingOverlay, Flex, Space, Input, Button, ScrollArea, Text, Avatar, Tabs, SegmentedControl, Menu, Badge } from "@mantine/core";
+import {
+    Modal,
+    Box,
+    LoadingOverlay,
+    Flex,
+    Space,
+    Input,
+    Button,
+    ScrollArea,
+    Text,
+    Avatar,
+    Tabs,
+    SegmentedControl,
+    Menu,
+    Badge,
+    Divider,
+    useMantineTheme,
+} from "@mantine/core";
 import { useState } from "react";
 import api from "@/api";
 import { IconSettings, IconUsersGroup } from "@tabler/icons-react";
 import store from "@/store/store";
-import { MuteMemberChannelDto, BanMemberChannelDto } from "../type";
 import { AxiosError, AxiosResponse } from "axios";
 import chatSocket from "@/socket/chatSocket";
-import { IconCrownOff } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
 import { ListMembers } from "./ListMembers";
 import { MuteList } from "./MuteList";
 import { BanList } from "./BanList";
 import { useDisclosure } from "@mantine/hooks";
+import { AddMemberChannelDto, UpdateChannelDto } from "./type";
+import { Notifications } from "@mantine/notifications";
 
 export function SettingGroupChat({ _chat, opened, open, close, children }: { _chat: any; opened: boolean; open: any; close: any; children: any }) {
     const [Loading, setLoading] = useState<boolean>(false);
@@ -24,7 +40,8 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
     const [invitedOpened, invited] = useDisclosure();
 
     useEffect(() => {
-        console.log("mount");
+        // console.log("mount");
+        invited.close();
 
         getMembers();
         if (_chat.ownerId == store.getState().profile.user.id || _chat.adminsIds.includes(store.getState().profile.user.id)) {
@@ -34,7 +51,7 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
         chatSocket.emit("reconnect");
 
         return () => {
-            console.log("unmount");
+            // console.log("unmount");
         };
     }, [refresh]);
 
@@ -95,7 +112,7 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
             >
                 <LoadingOverlay visible={Loading} overlayBlur={3} />
                 {invitedOpened ? (
-                    <InviteMember id={_chat.id} chat={_chat} />
+                    <AddMember id={_chat.id} chat={_chat} members={members} setInvited={invited} />
                 ) : (
                     <Main
                         setInvited={invited}
@@ -117,14 +134,107 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
         </>
     );
 }
-function InviteMember({ id, chat }: any) {
-    return <Box>test</Box>;
+function AddMember({ chat, members, setInvited }: any) {
+    const [friends, setfriends] = useState<any>([]);
+
+    useEffect(() => {
+        getFriends();
+    }, []);
+
+    function getFriends() {
+        api.get("/user/friends/list")
+            .then((res: AxiosResponse) => {
+                console.log(res?.data);
+                setfriends(
+                    res?.data?.filter((friend: { FriendID: number }) => {
+                        let found = false;
+                        members.forEach((member: any) => {
+                            if (member?.id == friend?.FriendID) {
+                                found = true;
+                            }
+                        });
+                        return !found;
+                    })
+                );
+                // setfriends(res?.data);
+            })
+            .catch((err: AxiosError) => {
+                console.log(err.response);
+            });
+    }
+
+    function addFriendToGroup(id: number) {
+        let payload: AddMemberChannelDto = {
+            channelId: chat.id,
+            new_memberID: id,
+        };
+
+        console.log(payload);
+        api.post("/user/set_user_as_member_of_channel", payload)
+            .then((res: AxiosResponse) => {
+                setfriends(friends.filter((friend: any) => friend?.friend?.id != id));
+                Notifications.show({
+                    title: "Success",
+                    message: "Member added successfully",
+                    color: "green",
+                });
+            })
+            .catch((err: AxiosError<{ message?: string }>) => {
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message,
+                    color: "red",
+                });
+            });
+    }
+
+    return (
+        <>
+            <Flex justify="space-between" align="center">
+                <Text fz="sm" color="gray.5">
+                    Add Member
+                </Text>
+            </Flex>
+            <Space h={10} />
+            {friends.map((Friend: any) => {
+                return (
+                    <Flex justify="space-between" align="center" py={10} px={10} key={Friend?.FriendID}>
+                        <Flex align="center" gap={10}>
+                            <Avatar size={30} radius="xl" src={Friend?.friend?.avatarUrl} />
+                            <Text fz="sm">{Friend?.friend?.username}</Text>
+                        </Flex>
+
+                        <Button
+                            size="xs"
+                            variant="light"
+                            color="gray"
+                            onClick={() => {
+                                addFriendToGroup(Friend?.FriendID);
+                            }}
+                        >
+                            Add
+                        </Button>
+                    </Flex>
+                );
+            })}
+            <Space h={10} />
+            <Button
+                size="xs"
+                variant="light"
+                color="gray"
+                onClick={() => {
+                    setInvited.close();
+                }}
+            >
+                Cancel
+            </Button>
+        </>
+    );
 }
 
 function Main({ close, GroupType, setGroupType, getMembers, members, getBanList, getMuteList, banList, muteList, setLoading, _chat, setInvited }: any) {
     const [name, setName] = useState<string>("");
     const [chat, setChat] = useState<any>(_chat);
-    const [password, setPassword] = useState<string>("");
 
     useEffect(() => {
         setName(chat.name);
@@ -150,16 +260,7 @@ function Main({ close, GroupType, setGroupType, getMembers, members, getBanList,
                 )}
             </Tabs.List>
 
-            <Setting
-                close={close}
-                GroupType={GroupType}
-                setGroupType={setGroupType}
-                setLoading={setLoading}
-                name={name}
-                setName={setName}
-                password={password}
-                setPassword={setPassword}
-            />
+            <Setting close={close} GroupType={GroupType} setGroupType={setGroupType} setLoading={setLoading} name={name} setName={setName} chat={chat} />
 
             <Memebers
                 setInvited={setInvited}
@@ -179,7 +280,15 @@ function Memebers({ members, chat, muteList, getMembers, getMuteList, getBanList
     return (
         <Tabs.Panel value="Members" pt="xs">
             <Flex direction="column" p={10} gap={10}>
-                <ListMembers members={members} chat={chat} muteList={muteList} getMembers={getMembers} getMuteList={getMuteList} getBanList={getBanList} setInvited={setInvited}/>
+                <ListMembers
+                    members={members}
+                    chat={chat}
+                    muteList={muteList}
+                    getMembers={getMembers}
+                    getMuteList={getMuteList}
+                    getBanList={getBanList}
+                    setInvited={setInvited}
+                />
                 <Space h={8} />
                 <Flex direction="column" gap={10}>
                     <Space h={8} />
@@ -192,9 +301,46 @@ function Memebers({ members, chat, muteList, getMembers, getMuteList, getBanList
     );
 }
 
-function Setting({ close, GroupType, setGroupType, setLoading, name, setName, password, setPassword }: any) {
+function Setting({ close, GroupType, setGroupType, setLoading, name, setName, chat }: any) {
+    const [password, setPassword] = useState<string>("");
+    const theme = useMantineTheme();
+    const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+
+    function UpdateGroup() {
+        let payload: UpdateChannelDto = {
+            channelId: chat.id,
+            channelName: name,
+            channelType: GroupType.toLowerCase(),
+            channelPassword: password == "" ? null : password,
+        };
+        setLoading(true);
+        api.post("/user/channel/update", payload)
+            .then((res: AxiosResponse) => {
+                setLoading(false);
+                Notifications.show({
+                    title: "Success",
+                    message: "Group updated successfully",
+                    color: "green",
+                });
+                chatSocket.emit("reconnect");
+                close();
+            })
+            .catch((err: AxiosError<{ message?: string }>) => {
+                setLoading(false);
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message,
+                    color: "red",
+                });
+            });
+    }
+
     return (
         <Tabs.Panel value="Settings" pt="xs" px={30} pb={20}>
+            <Space h={8} />
+            <Text size="xs" weight={500} color="gray.4">
+                Credentials
+            </Text>
             <SegmentedControl
                 my={10}
                 fullWidth
@@ -209,27 +355,74 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, pa
                 ]}
             />
             <Input.Wrapper label="Group Name">
-                <Input size="sm" placeholder="" value={name} variant="filled" w={"100%"} onChange={(e) => setName(e.currentTarget.value)} />
+                <Input
+                    size="sm"
+                    placeholder="New name"
+                    value={name}
+                    variant="unstyled"
+                    w={"100%"}
+                    onChange={(e) => setName(e.currentTarget.value)}
+                    sx={{
+                        borderBottom: `1px solid ${theme.colors.gray[7]}`,
+                    }}
+                />
             </Input.Wrapper>
             <Space h={20} />
-            <Input.Wrapper label="Password">
-                <Input size="sm" placeholder="new password" value={password} variant="filled" w={"100%"} onChange={(e) => setPassword(e.currentTarget.value)} />
-            </Input.Wrapper>
+            {GroupType == "protected" && (
+                <Input.Wrapper label="Password">
+                    <Input
+                        size="sm"
+                        placeholder="New password"
+                        value={password}
+                        variant="unstyled"
+                        sx={{
+                            borderBottom: `1px solid ${theme.colors.gray[7]}`,
+                        }}
+                        w={"100%"}
+                        onChange={(e) => setPassword(e.currentTarget.value)}
+                    />
+                </Input.Wrapper>
+            )}
+
             <Space h={20} />
-            <Flex justify="flex-end">
+            <Flex justify="flex-end" direction={"column"} gap={"sm"}>
                 <Button
                     fullWidth
                     size="xs"
                     variant="filled"
                     onClick={() => {
-                        setLoading(true);
-                        setTimeout(() => {
-                            setLoading(false);
-                            close();
-                        }, 1000);
+                        UpdateGroup();
                     }}
                 >
                     Save
+                </Button>
+                <Space h={5} />
+                <Divider />
+                <Space h={5} />
+                <Text color="red" size="xs" weight={700}>
+                    Danger Zone
+                </Text>
+                <Button
+                    fullWidth
+                    size="xs"
+                    color="red"
+                    variant="filled"
+                    onClick={() => {
+                        if (confirmDelete) {
+                            setLoading(true);
+                            setTimeout(() => {
+                                setLoading(false);
+                                close();
+                            }, 1000);
+                        } else {
+                            setConfirmDelete(true);
+                            setTimeout(() => {
+                                setConfirmDelete(false);
+                            }, 1000);
+                        }
+                    }}
+                >
+                    {confirmDelete ? "Are you sure?" : "Delete Group"}
                 </Button>
             </Flex>
         </Tabs.Panel>

@@ -9,9 +9,16 @@ export class NotificationType {
     updatedAt: Date;
     userId: number;
     avatarUrl: string;
+    friendId : number;
 }
 
 export class SocketResponse {
     message: string | null;
     status: number;
+}
+
+export class AchievementDto {
+    name: string;
+    description: string;
+    iconUrl: string;
 }

@@ -9,6 +9,7 @@ import chatSocket from "@/socket/chatSocket";
 import api from "@/api";
 import { AcceptFriendRequest } from "./type";
 import { SocketResponse } from "@/Components/type";
+import { Notifications } from "@mantine/notifications";
 
 export function NotificationPopover() {
     const [, { close, open }] = useDisclosure(false);
@@ -24,13 +25,20 @@ export function NotificationPopover() {
     const acceptFriendRequest = (id: number, notificationID: number) => {
         let payload: AcceptFriendRequest = { id: id };
         chatSocket.emit("accept_friend_request", payload);
-
-        chatSocket.on("accept_friend_request", (data: SocketResponse) => {
-            if (data && data.status == 200) {
+        
+        chatSocket.on("accept_friend_request", (data: SocketResponse | any) => {
+            if (data == null) return;
+            if (data && data?.status == 200) {
                 store.dispatch(removeFriendRequest(notificationID));
                 chatSocket.emit("reconnect");
             } else {
-                alert(data.message ?? "error");
+                if (data?.status) {
+                    Notifications.show({
+                        title: "Error",
+                        message: data.message,
+                        color: "red",
+                    });
+                }
             }
         });
     };
@@ -97,7 +105,7 @@ export function NotificationPopover() {
                                         size="xs"
                                         color="purple"
                                         variant="filled"
-                                        onClick={() => (console.log(notification), acceptFriendRequest(notification.userId, notification.id))}
+                                        onClick={() => (console.log(notification), acceptFriendRequest(notification.friendId, notification.id))}
                                     >
                                         Accept
                                     </Button>
