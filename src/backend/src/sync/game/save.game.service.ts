@@ -1,4 +1,3 @@
-import { Achievements } from './../../../node_modules/.prisma/client/index.d';
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { ResultDto } from "../dto/result.dto";
@@ -9,43 +8,43 @@ const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
   "first-win": {
     name: "First Win",
     description: "Win your first game",
-    iconUrl: "/upload/achievements/firstwin.jpg",
+    iconUrl: "/achievements/firstwin.jpg",
   },
 
   "3-goals": {
     name: "Such a hat-trick",
     description: "Score 3 goals in a game before your opponent scores 1",
-    iconUrl: "/upload/achievements/3goals.jpg",
+    iconUrl: "/achievements/3goals.jpg",
   },
 
   "5-goals": {
     name: "The king who scored 5 goals",
     description: "Score 5 goals in a game before your opponent scores 1",
-    iconUrl: "/upload/achievements/5goals.jpg",
+    iconUrl: "/achievements/5goals.jpg",
   },
 
   "harry-maguire": {
     name: "Harry Maguire!",
     description: "Lose with difference of 3 goals",
-    iconUrl: "/upload/achievements/harrymaguire.jpg",
+    iconUrl: "/achievements/harrymaguire.jpg",
   },
 
   "5-wins": {
     name: "5 wins",
     description: "Win 5 games",
-    iconUrl: "/upload/achievements/5wins.jpg",
+    iconUrl: "/achievements/5wins.jpg",
   },
 
   "10-wins": {
     name: "10 wins",
     description: "Win 10 games",
-    iconUrl: "/upload/achievements/10wins.jpg",
+    iconUrl: "/achievements/10wins.jpg",
   },
 
   "50-wins": {
     name: "50 wins",
     description: "Win 50 games",
-    iconUrl: "/upload/achievements/50wins.jpg",
+    iconUrl: "/achievements/50wins.jpg",
   },
 };
   
@@ -94,6 +93,67 @@ export class SaveGameService {
     if (winnerWins === 50) {
       await this.saveAchievement(result.winner, result.winnerClient, "50-wins");
     }
+
+    // update user stats ladder by wins
+    try {
+      const winnerId = (await this.getUserByUsername(result.winner)).id; 
+      if (winnerWins === 2) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Bronze' }
+        });
+      }
+    
+      if (winnerWins === 3) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Silver' }
+        });
+      }
+
+      if (winnerWins === 4) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Gold' }
+        });
+      }
+
+      if (winnerWins === 5) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Platinum' }
+        });
+      }
+
+      if (winnerWins === 10) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Diamond' }
+        });
+      }
+
+      if (winnerWins === 20) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Master' }
+        });
+      }
+
+      if (winnerWins === 30) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Legend' }
+        });
+      }
+
+      if (winnerWins === 50) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'The Chosen One' }
+        });
+      }
+    }
+    catch (error) { }
 
   }
 
