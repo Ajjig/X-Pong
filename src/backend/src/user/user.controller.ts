@@ -110,7 +110,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/get_stats/:id')
-  async getProfileStatsByUsername(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
+  async getProfileStatsByUsername(
+    @Req() request: any,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     if (!request.user.username) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
@@ -190,7 +193,10 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.userService.blockFriendByUsername(request.user.id, body.friendID);
+    return this.userService.blockFriendByUsername(
+      request.user.id,
+      body.friendID,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -364,7 +370,11 @@ export class UserController {
     @Body() body: MuteMemberChannelDto,
   ) {
     //
-    return this.muteJob.unmuteUser(request.user.id, body.userId, body.channelId);
+    return this.muteJob.unmuteUser(
+      request.user.id,
+      body.userId,
+      body.channelId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -602,11 +612,14 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.userService.unblockUserById(request.user.id, body.friend_username);
+    return this.userService.unblockUserById(
+      request.user.id,
+      body.friend_username,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/update_channel')
+  @Post('/channel/update')
   async updateChannel(
     @Req() request: any,
     @Body() body: UpdateChannelDto,
@@ -614,9 +627,6 @@ export class UserController {
     if (!body) {
       throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
     }
-    return this.UserChannelService.updateChannel(
-      request.user.id,
-      body
-    );
+    return this.UserChannelService.updateChannel(request.user.id, body);
   }
 }
