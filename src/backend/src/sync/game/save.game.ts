@@ -8,25 +8,43 @@ const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
   "first-win": {
     name: "First Win",
     description: "Win your first game",
-    iconUrl: "https://i.imgur.com/5ZQqZ5u.png",
+    iconUrl: "/upload/achievements/firstwin.jpg",
   },
 
   "3-goals": {
     name: "Such a hat-trick",
     description: "Score 3 goals in a game before your opponent scores 1",
-    iconUrl: "https://i.imgur.com/5ZQqZ5u.png",
+    iconUrl: "/upload/achievements/3goals.jpg",
   },
 
   "5-goals": {
     name: "The king who scored 5 goals",
     description: "Score 5 goals in a game before your opponent scores 1",
-    iconUrl: "https://i.imgur.com/5ZQqZ5u.png",
+    iconUrl: "/upload/achievements/5goals.jpg",
   },
 
   "harry-maguire": {
     name: "Harry Maguire!",
     description: "Lose with difference of 3 goals",
-    iconUrl: "https://img.a.transfermarkt.technology/portrait/big/177907-1663841733.jpg",
+    iconUrl: "/upload/achievements/harrymaguire.jpg",
+  },
+
+  "5-wins": {
+    name: "5 wins",
+    description: "Win 5 games",
+    iconUrl: "/upload/achievements/5wins.jpg",
+  },
+
+  "10-wins": {
+    name: "10 wins",
+    description: "Win 10 games",
+    iconUrl: "/upload/achievements/10wins.jpg",
+  },
+
+  "50-wins": {
+    name: "50 wins",
+    description: "Win 50 games",
+    iconUrl: "/upload/achievements/50wins.jpg",
   },
 };
   
@@ -58,6 +76,24 @@ export class SaveGameService {
       await this.saveAchievement(result.winner, result.winnerClient, "3-goals");
       await this.saveAchievement(result.loser, result.loserClient, "harry-maguire");
     }
+
+    const winnerWins = (await this.getUserByUsername(result.winner)).Userstats.wins;
+    if (winnerWins === 1) {
+      await this.saveAchievement(result.winner, result.winnerClient, "first-win");
+    }
+
+    if (winnerWins === 5) {
+      await this.saveAchievement(result.winner, result.winnerClient, "5-wins");
+    }
+
+    if (winnerWins === 10) {
+      await this.saveAchievement(result.winner, result.winnerClient, "10-wins");
+    }
+
+    if (winnerWins === 50) {
+      await this.saveAchievement(result.winner, result.winnerClient, "50-wins");
+    }
+
   }
 
   async createUsersStatsIfNotExists(username: string) {
