@@ -43,11 +43,6 @@ export class GameService {
     else
       this.queue.push({ username, client });
 
-    if (this.isInGame(username)) {
-      client.emit('error', `You are already in a game`);
-      return;
-    }
-
     this.logger.log(`Player ${username} waiting for an opponent`);
     if (this.queue.length >= 2) {
       let p1 = this.queue.shift();
