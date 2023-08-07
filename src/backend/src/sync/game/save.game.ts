@@ -72,7 +72,7 @@ export class SaveGameService {
       await this.saveAchievement(result.winner, result.winnerClient, "5-goals");
     }
 
-    if (result.score.winner === 1 && result.score.loser === 0) {
+    if (result.score.winner === 3 && result.score.loser === 0) {
       await this.saveAchievement(result.winner, result.winnerClient, "3-goals");
       await this.saveAchievement(result.loser, result.loserClient, "harry-maguire");
     }
