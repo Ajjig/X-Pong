@@ -189,7 +189,7 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.userService.blockFriendByUsername(request.user, body.friendID);
+    return this.userService.blockFriendByUsername(request.user.id, body.friendID);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -590,5 +590,17 @@ export class UserController {
       throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
     }
     return this.UserChannelService.deleteChannel(request.user.id, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/unblock_friend_user')
+  async unblockUser(@Req() request: any, @Body() body: any) {
+    if (!body || !body.friend_username) {
+      throw new HttpException(
+        'Missing friend_username',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.userService.unblockUserById(request.user.id, body.friend_username);
   }
 }

@@ -843,6 +843,24 @@ export class UserChannelService {
       throw new HttpException('Channel is protected', 400);
     }
 
+    if (user.id == channel.ownerId) {
+      await this.prisma.channel.update({
+        where: { id: channelID },
+        data: {
+          members: {
+            connect: { username: username },
+          },
+          admins: {
+            connect: { username: username },
+          },
+          adminsIds: {
+            set: channel.adminsIds.concat(user.id),
+          },
+        },
+      });
+      return HttpStatus.ACCEPTED;
+    }
+
     await this.prisma.channel.update({
       where: { id: channelID },
       data: {
@@ -999,12 +1017,12 @@ export class UserChannelService {
 
   async getChannelBannedUsers(userId: number, channelID: number): Promise<any> {
     const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
-      userId,
       channelID,
+      userId,
     );
     const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
-      userId,
       channelID,
+      userId,
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
@@ -1093,12 +1111,12 @@ export class UserChannelService {
 
   async getChannelMutedUsers(userId: number, channelID: number): Promise<any> {
     const SelfAminCheck = await this.OrigineService.is_admin_of_channel(
-      userId,
       channelID,
+      userId,
     );
     const SelfOwnerCheck = await this.OrigineService.is_owner_of_channel(
-      userId,
       channelID,
+      userId,
     );
 
     if (SelfAminCheck == false && SelfOwnerCheck == false) {
