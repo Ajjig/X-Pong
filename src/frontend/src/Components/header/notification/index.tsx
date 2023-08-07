@@ -14,18 +14,22 @@ import { Notifications } from "@mantine/notifications";
 export function NotificationPopover() {
     const [, { close, open }] = useDisclosure(false);
     const [notifications, setNotifications] = React.useState<any[]>([]);
+    const [numberOfNewNotifications, setNumberOfNewNotifications] = React.useState<number>(0);
 
     useEffect(() => {
         // subscribe to store to get notifications
         store.subscribe(() => {
             setNotifications(store.getState().notifications.friend_requests ?? []);
         });
+        chatSocket.on("notification", () => {
+            setNumberOfNewNotifications((prev) => prev + 1);
+        });
     }, []);
 
     const acceptFriendRequest = (id: number, notificationID: number) => {
         let payload: AcceptFriendRequest = { id: id };
         chatSocket.emit("accept_friend_request", payload);
-        
+
         chatSocket.on("accept_friend_request", (data: SocketResponse | any) => {
             if (data == null) return;
             if (data && data?.status == 200) {
@@ -60,8 +64,8 @@ export function NotificationPopover() {
     return (
         <Popover position="bottom-end" arrowOffset={15} withArrow shadow="md" arrowPosition="side" arrowSize={15}>
             <Popover.Target>
-                <Indicator color="red" offset={7} size={13}>
-                    <ActionIcon variant="filled" p={8} color="purple" radius={100} onClick={() => open()} size="45" onMouseEnter={open} onMouseLeave={close}>
+                <Indicator color="red" offset={7} size={17} disabled={numberOfNewNotifications == 0} label={numberOfNewNotifications}>
+                    <ActionIcon variant="filled" p={8} color="purple" radius={100} onClick={() => (open(), setNumberOfNewNotifications(0))} size="45" onMouseEnter={open} onMouseLeave={close}>
                         <IconBell size={25} />
                     </ActionIcon>
                 </Indicator>
@@ -76,9 +80,9 @@ export function NotificationPopover() {
                     {
                         // if there are no notifications
                         notifications.length == 0 && (
-                            <Flex align="center" h={100} justify="center">
-                                <IconBellExclamation size={25} />
-                                <Space w={10} />
+                            <Flex align="center" h={150} w={300} justify="center" direction="column">
+                                <IconBellExclamation size={40} />
+                                <Space h={10} />
                                 <Title size="sm" weight={700}>
                                     No notifications
                                 </Title>
@@ -105,7 +109,7 @@ export function NotificationPopover() {
                                         size="xs"
                                         color="purple"
                                         variant="filled"
-                                        onClick={() => (console.log(notification), acceptFriendRequest(notification.friendId, notification.id))}
+                                        onClick={() => (acceptFriendRequest(notification.friendId, notification.id))}
                                     >
                                         Accept
                                     </Button>
