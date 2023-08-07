@@ -18,6 +18,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<any> {
-    return this.AuthService.findUserByUsername(payload.username);
+    if (payload.is2f) {
+      return false;
+    }
+    return this.AuthService.getUserById(payload.uid);
   }
 }

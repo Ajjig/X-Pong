@@ -12,6 +12,7 @@ import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
 import { notEqual } from 'assert';
 import { NotEquals } from 'class-validator';
+import { UpdateUserProfileDto } from 'src/user/dto/update.user.profile.dto';
 
 dotenv.config();
 
@@ -672,4 +673,6 @@ export class ChatService {
       server.to(user.socketId).emit(event, data);
     }
   }
+
+  
 }

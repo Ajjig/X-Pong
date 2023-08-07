@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
+import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
 
 export type userStatstype = {
   achievements?: string[];
@@ -366,5 +367,43 @@ export class UserService {
     });
 
     return new HttpException('User unblocked', HttpStatus.OK);
+  }
+
+  async update_user_profile(userId: number, payload: UpdateUserProfileDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User id not found`);
+    }
+    if (payload.avatarUrl !== null) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { avatarUrl: payload.avatarUrl },
+      });
+    }
+    if (payload.name !== user.name) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { name: payload.name },
+      });
+    }
+
+    if (payload.username !== user.username) {
+      const usernameExist = await this.prisma.user.findUnique({
+        where: { username: payload.username },
+      });
+      if (usernameExist) {
+        throw new HttpException(
+          'Username already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { username: payload.username },
+      });
+    }
+    return HttpStatus.OK;
   }
 }

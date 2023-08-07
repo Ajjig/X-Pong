@@ -12,7 +12,9 @@ import { Response } from 'express';
 @Injectable()
 export class AuthService {
   logger: Logger;
-  constructor(private prisma: PrismaService, private JwtService: JwtService) {
+  constructor(
+    private prisma: PrismaService, private JwtService: JwtService,
+  ) {
     this.logger = new Logger('AUTH-SERVICE');
   }
 
@@ -49,6 +51,22 @@ export class AuthService {
         istwoFactor: true,
         id: true,
       },
+    });
+  }
+
+  async getUserById(id: number) {
+    return await this.prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        onlineStatus: true,
+        confirmed: true,
+        istwoFactor: true,
+        id: true,
+      }
     });
   }
 
@@ -152,10 +170,11 @@ export class AuthService {
 
   async login(user: any, res: Response) {
     try {
-      const payload = { username: user.username, uid: user.id };
+      const is2f = user.istwoFactor;
+      const payload = { username: user.username, uid: user.id, is2f: is2f};
       const token = this.JwtService.sign(payload);
       res.cookie('jwt', token, { httpOnly: false, path: '/' });
-      res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
+      res.redirect((!is2f) ? process.env.FRONTEND_REDIRECT_LOGIN_URL : process.env.FRONTEND_REDIRECT_LOGIN_2FA_URL);
     } catch (error) {
       throw new BadRequestException('ERROR:', error.message);
     }

@@ -19,6 +19,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -47,6 +48,8 @@ import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 import { RemoveAdminDto } from './dto/remove.admin.dts';
 import { UpdateChannelDto } from './dto/update.channel.dto';
+import * as jwt from 'jsonwebtoken';
+import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
 
 @Controller('user')
 export class UserController {
@@ -418,26 +421,37 @@ export class UserController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/verify_2fa')
-  async verify_2fa(@Req() request, @Body() body: any) {
+  async verify_2fa(@Req() request, @Body() body: any, @Res() res: Response) {
     if (!body || !request.user.id || !body.code) {
       throw new HttpException(
         'Missing username or code',
         HttpStatus.BAD_REQUEST,
       );
     }
-    const user = await this.TwoFactorAuthService.verifyToken(
-      request.user.id,
-      body.code,
-    );
-    if (user == false) {
-      throw new HttpException(
-        'Invalid code or User 2FA Disabled',
-        HttpStatus.BAD_REQUEST,
-      );
+    try {
+      const user = await this.TwoFactorAuthService.verifyToken(request.user.id, body.code);
+      if (user == true) {
+        const payload = {
+          username: request.user.username,
+          uid: request.user.id,
+          is2f: false,
+        };
+        const token = jwt.sign(payload, process.env.JWT_SECRET);
+        res.cookie('jwt', token, { httpOnly: false, path: '/' });
+        res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
+
+      } else {
+
+        throw new HttpException(
+          'Invalid code or User 2FA Disabled',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+    } catch (error) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return user;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -473,6 +487,20 @@ export class UserController {
     const path = await this.UploadService.uploadFile(file);
     await this.UploadService.updateUserAvatar(request.user.id, path);
     return { path, message: 'Avatar uploaded successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @Post('/update_user_profile')
+  async update_user_profile(
+    @Req() request,
+    @Body() body: UpdateUserProfileDto,
+  ) {
+    if (!request.user.id || !body) {
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.userService.update_user_profile(request.user.id, body);
   }
 
   @UseGuards(JwtAuthGuard)
