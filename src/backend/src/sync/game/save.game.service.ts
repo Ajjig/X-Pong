@@ -1,4 +1,4 @@
-import { Achievements } from './../../../node_modules/.prisma/client/index.d';
+import { Achievements } from '.prisma/client';
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { ResultDto } from "../dto/result.dto";
