@@ -286,7 +286,7 @@ export class UserService {
         Friends: {
           where: { friendshipStatus: 'Accepted' },
           select: {
-            user: { select: { id: true, username: true, avatarUrl: true } },
+            user: { select: { id: true, username: true, avatarUrl: true, name : true } },
           },
         },
       },
