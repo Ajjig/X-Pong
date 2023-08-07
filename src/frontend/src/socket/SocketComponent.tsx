@@ -124,6 +124,15 @@ const SocketComponent = () => {
         chatSocket.on("publicChat", (data) => {
             // console.log("publicChat", data);
             store.dispatch(setGroupChats(data));
+
+            /* update the chat in current group */
+            // const currentGroup: any = store.getState().chats.currentChatGroup;
+            // if (currentGroup) {
+            //     const newGroup = data.find((group: any) => group.id == currentGroup.id);
+            //     if (newGroup) {
+            //         store.dispatch(setGroupChats([newGroup]));
+            //     }
+            // }
         });
 
         // listen to all events from server

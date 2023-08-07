@@ -10,15 +10,20 @@ import { TypeMessage } from "../../type";
 import { SettingGroupChat } from "./settings";
 import { notifications } from "@mantine/notifications";
 
-export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
+export function ChatGroup({ user, setSelected, chat: _chat }: { user: any; setSelected: any; chat: any }) {
     const theme: MantineTheme = useMantineTheme();
     const [messages, setMessages] = useState<any>([]);
     const [opened, { open, close }] = useDisclosure();
     const [isMuted, setIsMuted] = useState<boolean>(false);
+    const [chat, setChat] = useState<any>(_chat);
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
         setMessages(chat.messages);
+
+        store.subscribe(() => {
+            setChat(store.getState().chats.GroupChats.find((chat: any) => chat.id == _chat.id));
+        });
 
         chatSocket.on("PublicMessage", (data: any) => {
             if (data?.status) {
