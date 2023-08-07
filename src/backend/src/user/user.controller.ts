@@ -433,7 +433,7 @@ export class UserController {
       );
     }
     try {
-      const user = await this.TwoFactorAuthService.verifyToken(uid , body.code);
+      const user = await this.TwoFactorAuthService.verifyToken(uid, body.code);
       if (user == true) {
         const payload = {
           username: username,
@@ -443,15 +443,12 @@ export class UserController {
         const token = jwt.sign(payload, process.env.JWT_SECRET);
         res.cookie('jwt', token, { httpOnly: false, path: '/' });
         throw new HttpException('Verify 2FA Success', HttpStatus.OK);
-
       } else {
-
         throw new HttpException(
           'Invalid code or User 2FA Disabled',
           HttpStatus.BAD_REQUEST,
         );
       }
-
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

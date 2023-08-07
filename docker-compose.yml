@@ -36,3 +36,18 @@ services:
     environment:
       - PGDATA=/var/lib/postgresql/custom-data
     restart: unless-stopped
+
+  # frontend:
+  #   container_name: frontend
+  #   build: ./src/frontend
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - warper-network
+  #   volumes:
+  #     - ./src/frontend/:/workspace
+  #   ports:
+  #     - "3001:3001"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - nestjs

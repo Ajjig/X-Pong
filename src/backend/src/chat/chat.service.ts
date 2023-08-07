@@ -223,6 +223,7 @@ export class ChatService {
         username: string;
         iat: number;
         exp: number;
+        is2f: boolean;
       };
       if (context) {
         context.switchToWs().getData().userId = userdecoded.uid;
@@ -244,6 +245,7 @@ export class ChatService {
         username: string;
         iat: number;
         exp: number;
+        is2f: boolean;
       };
       if (context) {
         context.switchToWs().getData().userId = userdecoded.uid;

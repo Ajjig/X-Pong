@@ -445,7 +445,7 @@ export class ChatGateway {
   // socket Connection Handler
   async handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     let userdata: any = await this.chatService.jwtdecoder(client);
-    if (!userdata) {
+    if (!userdata || userdata.is2f) {
       client.emit('error', 'Unauthorized user to connect');
       client.disconnect();
       return;

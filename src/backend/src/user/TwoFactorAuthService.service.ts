@@ -21,7 +21,7 @@ export class TwoFactorAuthService {
     //   issuer: 'SKYPONG TM',
     // });
     let qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
-  
+
     return qrCodeUrl;
   }
 
@@ -33,13 +33,27 @@ export class TwoFactorAuthService {
     });
 
     if (!user || user.istwoFactor === false || !user.twoFactorAuthSecret) {
-      throw new HttpException('2FA is not enabled for this user', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        '2FA is not enabled for this user',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorAuthSecret,
       encoding: 'base32',
       token: code,
     });
+    if (verified == true) {
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          istwoFactor: true,
+        },
+      });
+    }
+
     return verified;
   }
 
@@ -61,7 +75,7 @@ export class TwoFactorAuthService {
           username: user.username,
         },
         data: {
-          istwoFactor: true,
+          // istwoFactor: true,
           twoFactorAuthSecret: secret.base32,
         },
       });
