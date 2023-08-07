@@ -467,6 +467,10 @@ export class ChatService {
     }
 
     // update the friendship status to accepted
+    console.log("user : ", username);
+    console.log("friendUser : ", friendRequest);
+    console.log("user : ", user.id);
+    console.log("friendUser : ", friendUser.id);
     const userFriend = await this.prisma.friends.updateMany({
       where: {
         requestSentToID: user.id,
@@ -521,6 +525,7 @@ export class ChatService {
           msg: user.username + ' accepted your friend request',
           user: { connect: { id: friendUser.id } },
           avatarUrl: user.avatarUrl,
+          friendId : user.id
         },
       });
       friendClient.emit('notification', notification);
@@ -620,9 +625,9 @@ export class ChatService {
         msg: user.username + ' sent you a friend request',
         user: { connect: { id: friend.id } },
         avatarUrl: user.avatarUrl,
+        friendId : user.id
       },
     });
-    notification_SIDE.userId = user.id;
     this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
 
     return my_side;

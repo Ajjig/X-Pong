@@ -291,6 +291,7 @@ export class UserService {
                 id: true,
                 username: true,
                 avatarUrl: true,
+                name: true,
               },
             },
           },
