@@ -94,6 +94,67 @@ export class SaveGameService {
       await this.saveAchievement(result.winner, result.winnerClient, "50-wins");
     }
 
+    // update user stats ladder by wins
+    try {
+      const winnerId = (await this.getUserByUsername(result.winner)).id; 
+      if (winnerWins === 2) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Bronze' }
+        });
+      }
+    
+      if (winnerWins === 3) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Silver' }
+        });
+      }
+
+      if (winnerWins === 4) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Gold' }
+        });
+      }
+
+      if (winnerWins === 5) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Platinum' }
+        });
+      }
+
+      if (winnerWins === 10) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Diamond' }
+        });
+      }
+
+      if (winnerWins === 20) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Master' }
+        });
+      }
+
+      if (winnerWins === 30) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'Legend' }
+        });
+      }
+
+      if (winnerWins === 50) {
+        await this.prisma.userstats.update({
+          where: { userId: winnerId },
+          data: { ladder: 'The Chosen One' }
+        });
+      }
+    }
+    catch (error) { }
+
   }
 
   async createUsersStatsIfNotExists(username: string) {
