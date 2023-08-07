@@ -6,6 +6,7 @@ import { AccessControlMiddleware } from './middlewares/access.control.middleware
 import * as cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions } from 'socket.io';
+import { join } from 'path';
 
 
 
@@ -18,6 +19,8 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   app.use(cookieParser());
   app.useWebSocketAdapter(new IoAdapter(app));
