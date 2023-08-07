@@ -316,7 +316,6 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
         setLoading(true);
         api.post("/user/channel/update", payload)
             .then((res: AxiosResponse) => {
-
                 setLoading(false);
                 Notifications.show({
                     title: "Success",
@@ -325,6 +324,29 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
                 });
                 chatSocket.emit("reconnect");
                 close();
+            })
+            .catch((err: AxiosError<{ message?: string }>) => {
+                setLoading(false);
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message,
+                    color: "red",
+                });
+            });
+    }
+
+    function DeleteGroup() {
+        api.post(`/user/delete_channel/${chat.id}`)
+            .then((res: AxiosResponse) => {
+                setLoading(false);
+                Notifications.show({
+                    title: "Success",
+                    message: "Group deleted successfully",
+                    color: "green",
+                });
+                chatSocket.emit("reconnect");
+                close();
+                store.dispatch(setCurrentChatGroup(null));
             })
             .catch((err: AxiosError<{ message?: string }>) => {
                 setLoading(false);
@@ -412,10 +434,7 @@ function Setting({ close, GroupType, setGroupType, setLoading, name, setName, ch
                     onClick={() => {
                         if (confirmDelete) {
                             setLoading(true);
-                            setTimeout(() => {
-                                setLoading(false);
-                                close();
-                            }, 1000);
+                            DeleteGroup();
                         } else {
                             setConfirmDelete(true);
                             setTimeout(() => {
