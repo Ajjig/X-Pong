@@ -10,6 +10,7 @@ import {
 import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
+import { join } from 'path';
 
 export type userStatstype = {
   achievements?: string[];
@@ -278,7 +279,11 @@ export class UserService {
 
     if (!user.avatarUrl)
       throw new NotFoundException(`User id ${id} has no avatar`);
-    return user.avatarUrl;
+    if (user.avatarUrl.startsWith('http'))
+      return user.avatarUrl;
+    if (user.avatarUrl.startsWith('/'))
+      return process.env.BACKEND_URL + user.avatarUrl;
+    return process.env.BACKEND_URL + '/' + user.avatarUrl;
   }
 
   async getFriends(id: number) {
