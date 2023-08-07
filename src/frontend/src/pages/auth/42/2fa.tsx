@@ -1,6 +1,5 @@
-import { Title, Box, Flex, Loader, Paper, Group, PinInput, Space, Button } from "@mantine/core";
+import { Title, Box, Flex, Paper, Group, PinInput, Space, Button } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import api from "@/api";
 import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/router";
@@ -16,7 +15,7 @@ export default function callback() {
                 console.log(res.data);
                 router.push("/dashboard");
             })
-            .catch((err: AxiosError<{message: string}>) => {
+            .catch((err: AxiosError<{ message: string }>) => {
                 console.log(err.response?.data);
                 setError(err.response?.data.message ?? "Something went wrong");
             });

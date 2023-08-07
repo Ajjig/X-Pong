@@ -57,7 +57,7 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
     useEffect(() => {
         setActive(store.getState().profile.user.istwoFactor);
         console.log("Here", store.getState().profile.user.istwoFactor);
-        setImage(undefined)
+        setImage(undefined);
     }, [opened]);
 
     return (

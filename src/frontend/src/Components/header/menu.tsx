@@ -42,7 +42,11 @@ function ProfileSection({}: {}) {
                 </Menu.Dropdown>
             </Menu>
 
-            <Personalinformation opened={PersonalinformationOpened} open={PersonalinformationSettings.open} close={PersonalinformationSettings.close} />
+            <Personalinformation
+                opened={PersonalinformationOpened}
+                open={PersonalinformationSettings.open}
+                close={PersonalinformationSettings.close}
+            />
             <Two_factor_authentication
                 opened={TwoFactorAuthenticationOpened}
                 open={TwoFactorAuthenticationSettings.open}
