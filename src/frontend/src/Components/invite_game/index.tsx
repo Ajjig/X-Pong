@@ -74,6 +74,7 @@ export function InviteToGame() {
                             variant="subtle"
                             color="gray"
                             onClick={() => {
+                                socketGame.emit("reject-invite", inviteInfo);
                                 close();
                             }}
                         >

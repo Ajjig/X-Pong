@@ -12,7 +12,9 @@ import store, {
 import { useEffect, useState } from "react";
 import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
-import { NotificationType } from "./types";
+import { NotificationType, SocketResponse } from "./types";
+import { notifications } from "@mantine/notifications";
+import { TypeMessage } from "@/Components/dashboard/type";
 
 const SocketComponent = () => {
     const [connected, setConnected] = useState(false);
@@ -37,6 +39,15 @@ const SocketComponent = () => {
 
         store.dispatch(setSocket(socketGame));
         store.dispatch(setSocket(chatSocket));
+
+        socketGame.on("error", (err: string) => {
+            console.log(err);
+            notifications.show({
+                title: "Error",
+                message: err,
+                color: "red",
+            });
+        });
 
         // Event handler for socket connection
         chatSocket.on("connect", () => {
@@ -63,7 +74,10 @@ const SocketComponent = () => {
             store.dispatch(addNewMessageToPrivateChat(data));
         });
 
-        chatSocket.on("PublicMessage", (data: any) => {
+        chatSocket.on("PublicMessage", (data: SocketResponse | any) => {
+            if (data?.status) {
+                return;
+            }
             const newMessage = {
                 content: data.content,
                 createdAt: new Date(),
@@ -96,7 +110,7 @@ const SocketComponent = () => {
         });
 
         chatSocket.on("publicChat", (data) => {
-            console.log("publicChat", data);
+            // console.log("publicChat", data);
             store.dispatch(setGroupChats(data));
         });
 

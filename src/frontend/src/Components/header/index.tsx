@@ -61,7 +61,7 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     );
 }
 
-function LeftMenu() {
+export function LeftMenu({ withUser = true }: { withUser?: boolean }) {
     const theme = useMantineTheme();
     return (
         <Flex align="center">
@@ -69,7 +69,7 @@ function LeftMenu() {
             <Space w={theme.spacing.md} />
             <NotificationPopover />
             <Space w={theme.spacing.md} />
-            <ProfileSection />
+            {withUser && <ProfileSection />}
         </Flex>
     );
 }

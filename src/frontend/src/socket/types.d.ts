@@ -10,3 +10,8 @@ export class NotificationType {
     userId: number;
     avatarUrl: string;
 }
+
+export class SocketResponse {
+    message: string | null;
+    status: number;
+}

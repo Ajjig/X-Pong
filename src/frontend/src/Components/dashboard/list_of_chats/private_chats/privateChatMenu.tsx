@@ -24,6 +24,12 @@ export function PrivateChatMenu({ user }: any) {
     };
 
     useEffect(() => {
+        if (socketGame.connected == false) socketGame.connect();
+
+        socketGame.on("invite-canceled", () => {
+            ModelWaitingAcceptChallenge[1].close();
+        });
+
         return () => {
             setErrorMessage("");
             setSuccessMessage("");
@@ -166,11 +172,13 @@ export function PrivateChatMenu({ user }: any) {
             >
                 <Box mx="auto" p={20} pt={0} pb={20} pos={"relative"}>
                     <Flex align="center" justify="center" direction="column">
-                        <Avatar size="xl" src={user.avatarUrl} radius="xl" my={15}/>
+                        <Avatar size="xl" src={user.avatarUrl} radius="xl" my={15} />
                         <Space w={12} />
-                        <Title fz={"lg"} align="center">Waiting {user.name} to accept your challenge</Title>
+                        <Title fz={"lg"} align="center">
+                            Waiting {user.name} to accept your challenge
+                        </Title>
                         <Space py={12} />
-                        <Loader color="purple" variant="dots"/>
+                        <Loader color="purple" variant="dots" />
                         <Space py={12} />
                         <Flex w="100%" justify="center">
                             <>

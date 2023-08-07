@@ -38,6 +38,10 @@ export function DashboardLayout() {
                 setGroup(g);
                 setChat(null);
             }
+            if (!s && !g) {
+                setChat(null);
+                setGroup(null);
+            }
         });
         setFullHeight({
             height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)`,

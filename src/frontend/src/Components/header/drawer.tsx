@@ -1,7 +1,8 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Group, Burger, useMantineTheme, MediaQuery, Space } from "@mantine/core";
+import { Drawer, Group, Burger, useMantineTheme, MediaQuery, Space, Box, Flex } from "@mantine/core";
 import List_of_chats from "../dashboard/list_of_chats";
 import UserInfo from "../dashboard/userInfo";
+import { LeftMenu } from ".";
 
 interface props {}
 
@@ -13,6 +14,10 @@ function DrawerMobile({}: props) {
         <>
             <Drawer opened={opened} onClose={close} withOverlay position="right">
                 {/* Drawer content */}
+                <Flex justify={"flex-end"}>
+                    <LeftMenu withUser={false} />
+                </Flex>
+                <Space h="15px" />
                 <UserInfo />
                 <Space h="15px" />
                 <List_of_chats />

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import chatSocket from "@/socket/chatSocket";
 import { joinPublicChannel, groupInfoType } from "./type";
 import { AxiosError, AxiosResponse } from "axios";
+import { notifications } from "@mantine/notifications";
 
 export default function JoinGroup({ show, data, setShowJoinGroup }: { show: boolean; data: any; setShowJoinGroup: any }) {
     const [opened, { open, close }] = useDisclosure();
@@ -132,6 +133,11 @@ export default function JoinGroup({ show, data, setShowJoinGroup }: { show: bool
                                                 })
                                                 .catch((err: AxiosError<{ message?: string }>) => {
                                                     setErrorPassword(err.response?.data?.message || "An error occurred");
+                                                    notifications.show({
+                                                        title: "Error",
+                                                        message: err.response?.data?.message || "An error occurred",
+                                                        color: "red",
+                                                    })
                                                 });
                                         }}
                                     >

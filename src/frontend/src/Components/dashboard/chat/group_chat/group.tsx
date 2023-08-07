@@ -8,17 +8,31 @@ import chatSocket from "@/socket/chatSocket";
 import { Message } from "./message";
 import { TypeMessage } from "../../type";
 import { SettingGroupChat } from "./settings";
+import { notifications } from "@mantine/notifications";
 
 export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const theme: MantineTheme = useMantineTheme();
     const [messages, setMessages] = useState<any>([]);
     const [opened, { open, close }] = useDisclosure();
+    const [isMuted, setIsMuted] = useState<boolean>(false);
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
         setMessages(chat.messages);
 
-        chatSocket.on("PublicMessage", (data: TypeMessage) => {
+        chatSocket.on("PublicMessage", (data: any) => {
+            if (data?.status) {
+                notifications.show({
+                    title: "Error",
+                    message: data.message,
+                    color: "red",
+                });
+                setIsMuted(true);
+                // remove the last message
+                setMessages((prev: any) => prev.slice(0, prev.length - 1));
+                return;
+            }
+
             const newMessage = {
                 content: data.content,
                 createdAt: new Date(),
@@ -148,7 +162,7 @@ export function ChatGroup({ user, setSelected, chat }: { user: any; setSelected:
                     );
                 })}
             </Box>
-            <InputMessage user={user} chat={chat} setMessages={setMessages} />
+            {!isMuted && (<InputMessage user={user} chat={chat} setMessages={setMessages} />)}
         </Paper>
     );
 }
