@@ -29,9 +29,11 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                                 </Flex>
                             </Link>
                         </Group>
-
-                        <Search />
-                        {!isMobile && <LeftMenu />}
+                        <Group>
+                            <Search />
+                            {!isMobile && <LeftMenu />}
+                            {isMobile && <ProfileSection closeDrawer={null} />}
+                        </Group>
                     </Flex>
                     {/* Mobile */}
                     {router.pathname == "/dashboard" && (
@@ -46,15 +48,16 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     );
 }
 
-export function LeftMenu({ withUser = true }: { withUser?: boolean }) {
+export function LeftMenu({ withUser = true, closeDrawer = null }: { withUser?: boolean; closeDrawer?: any }) {
     const theme = useMantineTheme();
+
     return (
         <Flex align="center">
             <Play />
             <Space w={theme.spacing.md} />
             <NotificationPopover />
             <Space w={theme.spacing.md} />
-            {withUser && <ProfileSection />}
+            {withUser && <ProfileSection closeDrawer={closeDrawer} />}
         </Flex>
     );
 }

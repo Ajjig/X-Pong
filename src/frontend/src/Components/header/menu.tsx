@@ -7,7 +7,7 @@ import { Personalinformation } from "./personal_information";
 import { useDisclosure } from "@mantine/hooks";
 import { Two_factor_authentication } from "./Two-factor-authentication";
 
-function ProfileSection({}: {}) {
+function ProfileSection({ closeDrawer }: { closeDrawer: any }) {
     const [profile, setProfile] = useState<any>(null);
     const [PersonalinformationOpened, PersonalinformationSettings] = useDisclosure();
     const [TwoFactorAuthenticationOpened, TwoFactorAuthenticationSettings] = useDisclosure();
@@ -29,10 +29,18 @@ function ProfileSection({}: {}) {
                 </Menu.Target>
                 <Menu.Dropdown>
                     <Menu.Label>Settings</Menu.Label>
-                    <Menu.Item icon={<IconUser size={rem(20)} />} miw={"200px"} onClick={PersonalinformationSettings.open}>
+                    <Menu.Item
+                        icon={<IconUser size={rem(20)} />}
+                        miw={"200px"}
+                        onClick={() => (closeDrawer && closeDrawer(), PersonalinformationSettings.open())}
+                    >
                         Personal information
                     </Menu.Item>
-                    <Menu.Item icon={<Icon2fa size={rem(20)} />} miw={"200px"} onClick={TwoFactorAuthenticationSettings.open}>
+                    <Menu.Item
+                        icon={<Icon2fa size={rem(20)} />}
+                        miw={"200px"}
+                        onClick={() => (TwoFactorAuthenticationSettings.open(), closeDrawer && closeDrawer())}
+                    >
                         Two-factor authentication
                     </Menu.Item>
 
@@ -42,11 +50,7 @@ function ProfileSection({}: {}) {
                 </Menu.Dropdown>
             </Menu>
 
-            <Personalinformation
-                opened={PersonalinformationOpened}
-                open={PersonalinformationSettings.open}
-                close={PersonalinformationSettings.close}
-            />
+            <Personalinformation opened={PersonalinformationOpened} open={PersonalinformationSettings.open} close={PersonalinformationSettings.close} />
             <Two_factor_authentication
                 opened={TwoFactorAuthenticationOpened}
                 open={TwoFactorAuthenticationSettings.open}
