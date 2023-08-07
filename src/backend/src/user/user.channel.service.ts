@@ -1189,6 +1189,17 @@ export class UserChannelService {
     }
 
     if (payload.channelName != null) {
+      const channel_name_check = await this.prisma.channel.findFirst({
+        where: { name: payload.channelName },
+      });
+
+      if (channel_name_check != null) {
+        throw new HttpException(
+          'Channel name is already taken',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       await this.prisma.channel.update({
         where: { id: payload.channelId },
         data: {
