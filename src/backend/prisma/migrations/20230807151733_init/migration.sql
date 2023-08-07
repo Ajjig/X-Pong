@@ -33,6 +33,7 @@ CREATE TABLE "Notification" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
     "avatarUrl" TEXT NOT NULL DEFAULT 'https://w7.pngwing.com/pngs/494/808/png-transparent-internet-bot-digital-marketing-telegram-chatbots-computer-network-text-smiley.png',
+    "friendId" INTEGER NOT NULL,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
@@ -86,6 +87,7 @@ CREATE TABLE "Friends" (
     "requestSentByID" INTEGER NOT NULL,
     "requestSentToID" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
+    "friendId" INTEGER NOT NULL,
 
     CONSTRAINT "Friends_pkey" PRIMARY KEY ("id")
 );
@@ -237,6 +239,9 @@ ALTER TABLE "DirectMessage" ADD CONSTRAINT "DirectMessage_receiverId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "Friends" ADD CONSTRAINT "Friends_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Friends" ADD CONSTRAINT "Friends_friendId_fkey" FOREIGN KEY ("friendId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Matchs" ADD CONSTRAINT "Matchs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
