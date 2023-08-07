@@ -20,6 +20,8 @@ import {
   HttpStatus,
   Query,
   UnauthorizedException,
+  ParseFilePipe,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -50,6 +52,7 @@ import { RemoveAdminDto } from './dto/remove.admin.dts';
 import { UpdateChannelDto } from './dto/update.channel.dto';
 import * as jwt from 'jsonwebtoken';
 import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
+
 
 @Controller('user')
 export class UserController {
@@ -486,7 +489,13 @@ export class UserController {
     if (!request.user.id) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
-    console.log(file);
+    if (!file.mimetype.includes('image')) {
+      throw new HttpException(
+        'File is not a image file',
+        HttpStatus.BAD_REQUEST,
+      );  
+    }
+
     const path = await this.UploadService.uploadFile(file);
     await this.UploadService.updateUserAvatar(request.user.id, path);
     return { path, message: 'Avatar uploaded successfully' };
