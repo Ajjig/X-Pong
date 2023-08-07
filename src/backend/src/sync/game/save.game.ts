@@ -9,43 +9,43 @@ const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
   "first-win": {
     name: "First Win",
     description: "Win your first game",
-    iconUrl: "/upload/achievements/firstwin.jpg",
+    iconUrl: "/achievements/firstwin.jpg",
   },
 
   "3-goals": {
     name: "Such a hat-trick",
     description: "Score 3 goals in a game before your opponent scores 1",
-    iconUrl: "/upload/achievements/3goals.jpg",
+    iconUrl: "/achievements/3goals.jpg",
   },
 
   "5-goals": {
     name: "The king who scored 5 goals",
     description: "Score 5 goals in a game before your opponent scores 1",
-    iconUrl: "/upload/achievements/5goals.jpg",
+    iconUrl: "/achievements/5goals.jpg",
   },
 
   "harry-maguire": {
     name: "Harry Maguire!",
     description: "Lose with difference of 3 goals",
-    iconUrl: "/upload/achievements/harrymaguire.jpg",
+    iconUrl: "/achievements/harrymaguire.jpg",
   },
 
   "5-wins": {
     name: "5 wins",
     description: "Win 5 games",
-    iconUrl: "/upload/achievements/5wins.jpg",
+    iconUrl: "/achievements/5wins.jpg",
   },
 
   "10-wins": {
     name: "10 wins",
     description: "Win 10 games",
-    iconUrl: "/upload/achievements/10wins.jpg",
+    iconUrl: "/achievements/10wins.jpg",
   },
 
   "50-wins": {
     name: "50 wins",
     description: "Win 50 games",
-    iconUrl: "/upload/achievements/50wins.jpg",
+    iconUrl: "/achievements/50wins.jpg",
   },
 };
   
