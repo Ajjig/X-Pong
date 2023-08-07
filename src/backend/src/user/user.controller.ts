@@ -47,6 +47,7 @@ import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 import { RemoveAdminDto } from './dto/remove.admin.dts';
 import { UpdateChannelDto } from './dto/update.channel.dto';
+import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
 
 @Controller('user')
 export class UserController {
@@ -470,8 +471,22 @@ export class UserController {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const path = await this.UploadService.uploadFile(file);
-    await this.UploadService.updateUserAvatar(request.user.id, path);
+    // await this.UploadService.updateUserAvatar(request.user.id, path);
     return path;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @Post('/update_user_profile')
+  async update_user_profile(
+    @Req() request,
+    @Body() body: UpdateUserProfileDto,
+  ) {
+    if (!request.user.id || !body) {
+      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.userService.update_user_profile(request.user.id, body);
   }
 
   @UseGuards(JwtAuthGuard)
