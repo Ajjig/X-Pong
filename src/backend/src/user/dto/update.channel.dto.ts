@@ -6,7 +6,10 @@ export class UpdateChannelDto {
     @validator.IsInt()
     channelId : number;
 
-    channelName: string | null;
+    @validator.IsNotEmpty()
+    @validator.IsString()
+    @validator.Length(3, 20)
+    channelName: string;
     channelPassword: string | null;
 
     @validator.IsIn(['public', 'private', 'protected'])
