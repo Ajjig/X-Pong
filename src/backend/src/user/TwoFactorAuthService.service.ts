@@ -15,7 +15,6 @@ export class TwoFactorAuthService {
   }
 
   async generateQRCodeUrl(username: string, secret: string): Promise<string> {
-    console.log('secret', secret);
     const otpAuthUrl = speakeasy.otpauthURL({
       secret: secret,
       label: username,
