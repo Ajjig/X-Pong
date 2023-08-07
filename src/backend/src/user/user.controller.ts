@@ -423,23 +423,26 @@ export class UserController {
 
   @Post('/verify_2fa')
   async verify_2fa(@Req() request, @Body() body: any, @Res() res: Response) {
-    if (!body || !request.user.id || !body.code) {
+    const token = jwt.verify(request.cookies.jwt, process.env.JWT_SECRET);
+    const uid = (token as any).uid;
+    const username = (token as any).username;
+    if (!body.code || !token || !uid || !username) {
       throw new HttpException(
         'Missing username or code',
         HttpStatus.BAD_REQUEST,
       );
     }
     try {
-      const user = await this.TwoFactorAuthService.verifyToken(request.user.id, body.code);
+      const user = await this.TwoFactorAuthService.verifyToken(uid , body.code);
       if (user == true) {
         const payload = {
-          username: request.user.username,
-          uid: request.user.id,
+          username: username,
+          uid: uid,
           is2f: false,
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET);
         res.cookie('jwt', token, { httpOnly: false, path: '/' });
-        res.redirect(process.env.FRONTEND_REDIRECT_LOGIN_URL);
+        throw new HttpException('Verify 2FA Success', HttpStatus.OK);
 
       } else {
 
@@ -450,6 +453,9 @@ export class UserController {
       }
 
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid credentials');
     }
   }
