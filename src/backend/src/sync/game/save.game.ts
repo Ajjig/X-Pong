@@ -1,3 +1,4 @@
+import { Achievements } from './../../../node_modules/.prisma/client/index.d';
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { ResultDto } from "../dto/result.dto";
@@ -179,12 +180,14 @@ export class SaveGameService {
 
     if (userAchievements.find((a) => a.name === ACHIEVEMENTS[achievement].name)) return;
 
-    await this.prisma.achievements.create({
+    await this.prisma.userstats.update({
+      where: { id: userStatsId },
       data: {
-        name: ACHIEVEMENTS[achievement].name,
-        description: ACHIEVEMENTS[achievement].description,
-        iconUrl: ACHIEVEMENTS[achievement].iconUrl,
-        user: { connect: { id: userStatsId } },
+        achievements: {
+          create: {
+            ...ACHIEVEMENTS[achievement],
+          },
+        },
       },
     });
 
