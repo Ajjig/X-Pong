@@ -38,16 +38,16 @@ export class GameService {
     if (!username) return;
   
 
+    if (this.queue.find((p) => p.username === username))
+      client.emit('error', `You are already in the queue`);
+    else
+      this.queue.push({ username, client });
 
     if (this.isInGame(username)) {
       client.emit('error', `You are already in a game`);
       return;
     }
 
-    if (this.queue.find((p) => p.username === username))
-      client.emit('error', `You are already in the queue`);
-    else
-      this.queue.push({ username, client });
     this.logger.log(`Player ${username} waiting for an opponent`);
     if (this.queue.length >= 2) {
       let p1 = this.queue.shift();
@@ -295,6 +295,10 @@ export class GameService {
         isInGame = true;
       }
     });
+
+    const isInQueue = this.queue.find((p) => p.username === username);
+  
+    if (isInQueue) isInGame = true;
     return isInGame;
   }
 
