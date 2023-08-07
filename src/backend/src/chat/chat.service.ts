@@ -597,6 +597,7 @@ export class ChatService {
         FriendID: friend.id,
         requestSentByID: user.id,
         requestSentToID: friend.id,
+        friend : { connect : { id : friend.id } }
       },
     });
 
@@ -606,6 +607,7 @@ export class ChatService {
         FriendID: user.id,
         requestSentByID: user.id,
         requestSentToID: friend.id,
+        friend : { connect : { id : user.id } }
       },
     });
 
