@@ -469,9 +469,10 @@ export class UserController {
     if (!request.user.id) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
+    console.log(file);
     const path = await this.UploadService.uploadFile(file);
     await this.UploadService.updateUserAvatar(request.user.id, path);
-    return path;
+    return { path, message: 'Avatar uploaded successfully' };
   }
 
   @UseGuards(JwtAuthGuard)
