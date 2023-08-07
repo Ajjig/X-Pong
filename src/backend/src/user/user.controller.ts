@@ -46,6 +46,7 @@ import { MuteJob } from './jobs/mute.job';
 import { SetUserAsAdminDto } from './dto/set.user.as.admin.dto';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
 import { RemoveAdminDto } from './dto/remove.admin.dts';
+import { UpdateChannelDto } from './dto/update.channel.dto';
 
 @Controller('user')
 export class UserController {
@@ -602,5 +603,20 @@ export class UserController {
       );
     }
     return this.userService.unblockUserById(request.user.id, body.friend_username);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/update_channel')
+  async updateChannel(
+    @Req() request: any,
+    @Body() body: UpdateChannelDto,
+  ): Promise<any> {
+    if (!body) {
+      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    }
+    return this.UserChannelService.updateChannel(
+      request.user.id,
+      body
+    );
   }
 }

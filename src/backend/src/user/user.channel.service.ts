@@ -13,6 +13,7 @@ import { UserPasswordService } from './user.password.service';
 import { OrigineService } from './user.validate.origine.service';
 import { compareSync } from 'bcrypt';
 import { CreateChannelPayloadDto } from './dto/create.channel.payload.dto';
+import { UpdateChannelDto } from './dto/update.channel.dto';
 
 @Injectable()
 export class UserChannelService {
@@ -1167,6 +1168,53 @@ export class UserChannelService {
     await this.prisma.channel.delete({
       where: { id: channelID },
     });
+
+    return HttpStatus.ACCEPTED;
+  }
+
+  async updateChannel(userId: number, payload: UpdateChannelDto): Promise<any> {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: payload.channelId },
+    });
+
+    if (channel == null) {
+      throw new NotFoundException('Channel does not exist');
+    }
+
+    if (channel.ownerId != userId) {
+      throw new HttpException(
+        'User is not the owner of the channel',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (payload.channelName != null) {
+      await this.prisma.channel.update({
+        where: { id: payload.channelId },
+        data: {
+          name: payload.channelName,
+          type: payload.channelType,
+        },
+      });
+    }
+
+    if (payload.channelPassword != null && payload.channelType == 'protected') {
+      const check_password = this.UserPasswordService.validatePassword(
+        payload.channelPassword,
+      );
+      if ((await check_password).validated == false) {
+        throw new HttpException('Weak password', HttpStatus.BAD_REQUEST);
+      } else {
+        await this.prisma.channel.update({
+          where: { id: payload.channelId },
+          data: {
+            password: (await check_password).password,
+            salt: (await check_password).salt,
+            type: payload.channelType,
+          },
+        });
+      }
+    }
 
     return HttpStatus.ACCEPTED;
   }
