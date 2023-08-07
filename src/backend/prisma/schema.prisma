@@ -28,6 +28,7 @@ model User {
   socketId            String?
 
   Friends Friends[] @relation("UserFriends") // many to many
+  UserFriends Friends[] @relation("Friend") // many to many
 
   // channels
   privateChannels  String[] // array of private channel ids
@@ -124,6 +125,9 @@ model Friends {
   // relations
   user   User @relation("UserFriends", fields: [userId], references: [id])
   userId Int
+
+  friend  User @relation("Friend", fields: [friendId], references: [id])
+  friendId Int
   // relations
 }
 
