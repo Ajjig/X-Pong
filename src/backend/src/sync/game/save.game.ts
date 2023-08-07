@@ -1,3 +1,4 @@
+import { Achievements } from './../../../node_modules/.prisma/client/index.d';
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { ResultDto } from "../dto/result.dto";
@@ -72,7 +73,7 @@ export class SaveGameService {
       await this.saveAchievement(result.winner, result.winnerClient, "5-goals");
     }
 
-    if (result.score.winner === 1 && result.score.loser === 0) {
+    if (result.score.winner === 3 && result.score.loser === 0) {
       await this.saveAchievement(result.winner, result.winnerClient, "3-goals");
       await this.saveAchievement(result.loser, result.loserClient, "harry-maguire");
     }
@@ -179,12 +180,14 @@ export class SaveGameService {
 
     if (userAchievements.find((a) => a.name === ACHIEVEMENTS[achievement].name)) return;
 
-    await this.prisma.achievements.create({
+    await this.prisma.userstats.update({
+      where: { id: userStatsId },
       data: {
-        name: ACHIEVEMENTS[achievement].name,
-        description: ACHIEVEMENTS[achievement].description,
-        iconUrl: ACHIEVEMENTS[achievement].iconUrl,
-        user: { connect: { id: userStatsId } },
+        achievements: {
+          create: {
+            ...ACHIEVEMENTS[achievement],
+          },
+        },
       },
     });
 

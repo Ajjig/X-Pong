@@ -12,7 +12,7 @@ const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
 const BALL_SPEED = 8.69;
 const PLAYER_SPEED = 2.69;
-const GOALS_TO_WIN = 1;
+const GOALS_TO_WIN = 5;
 
 export class Game {
   private readonly id: string;
