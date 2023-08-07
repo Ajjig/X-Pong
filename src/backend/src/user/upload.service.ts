@@ -30,10 +30,10 @@ export class UploadService {
     return filePath;
   }
 
-  async updateUserAvatar(username: string, filePath: string): Promise<void> {
+  async updateUserAvatar(userId: number, filePath: string): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username,
+        id: userId,
       },
     });
 
@@ -43,7 +43,7 @@ export class UploadService {
 
     await this.prisma.user.update({
       where: {
-        username: username,
+        id: userId,
       },
       data: {
         avatarUrl: filePath,

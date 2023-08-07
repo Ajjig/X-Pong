@@ -443,11 +443,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('/disable_2fa')
   async disable_2fa(@Req() request) {
-    if (!request.user.username) {
+    if (!request.user.id) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const user = await this.TwoFactorAuthService.disableTwoFactorAuth(
-      request.user.username,
+      request.user.id,
     );
     if (user == false) {
       throw new HttpException(
@@ -466,11 +466,11 @@ export class UserController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    if (!request.user.username) {
+    if (!request.user.id) {
       throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
     const path = await this.UploadService.uploadFile(file);
-    await this.UploadService.updateUserAvatar(request.user.username, path);
+    await this.UploadService.updateUserAvatar(request.user.id, path);
     return path;
   }
 

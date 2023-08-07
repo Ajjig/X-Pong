@@ -69,10 +69,10 @@ export class TwoFactorAuthService {
     }
   }
 
-  async disableTwoFactorAuth(username: string): Promise<boolean> {
+  async disableTwoFactorAuth(userId: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username,
+        id: userId,
       },
     });
 
@@ -82,7 +82,7 @@ export class TwoFactorAuthService {
 
     await this.prisma.user.update({
       where: {
-        username: username,
+        id: userId,
       },
       data: {
         istwoFactor: false,
