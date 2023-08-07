@@ -32,7 +32,7 @@ export class TwoFactorAuthService {
       },
     });
 
-    if (!user || user.istwoFactor === false || !user.twoFactorAuthSecret) {
+    if (!user || !user.twoFactorAuthSecret) {
       throw new HttpException(
         '2FA is not enabled for this user',
         HttpStatus.BAD_REQUEST,
