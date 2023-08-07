@@ -3,6 +3,7 @@ import {
   HttpException,
   UploadedFile,
   UseInterceptors,
+  HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import * as fs from 'fs/promises';
@@ -38,7 +39,7 @@ export class UploadService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', 404);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     await this.prisma.user.update({
