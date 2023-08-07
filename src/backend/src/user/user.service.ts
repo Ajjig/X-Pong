@@ -205,7 +205,10 @@ export class UserService {
     });
 
     if (otherside.count == 0) {
-      throw new HttpException('You are not a friend or already blocked', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'You are not a friend or already blocked',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     await this.prisma.user.updateMany({
@@ -330,20 +333,27 @@ export class UserService {
     });
 
     if (otherside.count == 0) {
-      throw new HttpException('You are not a friend or already blocked', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'You are not a friend or already blocked',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     await this.prisma.user.updateMany({
       where: {
         id: friend.id,
       },
-      data: { blockedIds: { set: friend.blockedIds.filter((id) => id !== user.id)} },
+      data: {
+        blockedIds: { set: friend.blockedIds.filter((id) => id !== user.id) },
+      },
     });
     await this.prisma.user.updateMany({
       where: {
         id: user.id,
       },
-      data: { blockedIds: { set: friend.blockedIds.filter((id) => id !== friend.id)}  },
+      data: {
+        blockedIds: { set: friend.blockedIds.filter((id) => id !== friend.id) },
+      },
     });
 
     return new HttpException('User unblocked', HttpStatus.OK);
