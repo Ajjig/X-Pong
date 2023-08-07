@@ -1,9 +1,7 @@
 
 import { Logger } from '@nestjs/common';
-import { MoveEventDto } from '../dto/move.event.dio';
 import { Engine, Bodies, Body, Events, World, Runner } from 'matter-js';
 import { SaveGameService } from './save.game.service';
-import { ResultDto } from '../dto/result.dto';
 
 const WIDTH = 900;
 const HEIGHT = 500;
