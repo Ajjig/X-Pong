@@ -9,19 +9,19 @@ import * as qrcode from 'qrcode';
 export class TwoFactorAuthService {
   constructor(private prisma: PrismaService) {}
 
-  generateSecret(): string {
+  generateSecret(): any {
     const secret = speakeasy.generateSecret({ length: 20 });
-    return secret.base32;
+    return secret;
   }
 
-  async generateQRCodeUrl(username: string, secret: string): Promise<string> {
-    const otpAuthUrl = speakeasy.otpauthURL({
-      secret: secret,
-      label: username,
-      issuer: 'SKYPONG TM',
-    });
-    const qrCodeUrl = await qrcode.toDataURL(otpAuthUrl);
-    
+  async generateQRCodeUrl(username: string, secret: any): Promise<string> {
+    // const otpAuthUrl = speakeasy.otpauthURL({
+    //   secret: secret.base32,
+    //   label: username,
+    //   issuer: 'SKYPONG TM',
+    // });
+    let qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+  
     return qrCodeUrl;
   }
 
@@ -62,7 +62,7 @@ export class TwoFactorAuthService {
         },
         data: {
           istwoFactor: true,
-          twoFactorAuthSecret: secret,
+          twoFactorAuthSecret: secret.base32,
         },
       });
       return qrCodeUrl;
