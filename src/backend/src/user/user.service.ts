@@ -282,16 +282,22 @@ export class UserService {
   async getFriends(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: id },
-      include: {
-        Friends: {
-          where: { friendshipStatus: 'Accepted' },
-          select: {
-            user: { select: { id: true, username: true, avatarUrl: true, name : true } },
+      select: { Friends: {
+        select: {
+          FriendID : true,
+          friendshipStatus : true,
+
+          user : {
+            select : {
+              username : true,
+              avatarUrl : true,
+              name : true,
+              id : true,
+            },
           },
         },
-      },
+      }},
     });
-
     if (!user) {
       throw new NotFoundException(`User id not found`);
     }
