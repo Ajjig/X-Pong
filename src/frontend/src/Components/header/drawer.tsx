@@ -2,7 +2,9 @@ import { useDisclosure } from "@mantine/hooks";
 import { Drawer, Group, Burger, useMantineTheme, MediaQuery, Space, Box, Flex } from "@mantine/core";
 import List_of_chats from "../dashboard/list_of_chats";
 import UserInfo from "../dashboard/userInfo";
-import { LeftMenu } from ".";
+import { Play } from "./play";
+import { NotificationPopover } from "./notification";
+import ProfileSection from "./menu";
 
 interface props {}
 
@@ -15,7 +17,7 @@ function DrawerMobile({}: props) {
             <Drawer opened={opened} onClose={close} withOverlay position="right">
                 {/* Drawer content */}
                 <Flex justify={"flex-end"}>
-                    <LeftMenu withUser={false} />
+                    <LeftMenu withUser={false} closeDrawer={null} />
                 </Flex>
                 <Space h="15px" />
                 <UserInfo />
@@ -29,6 +31,20 @@ function DrawerMobile({}: props) {
                 </Group>
             </MediaQuery>
         </>
+    );
+}
+
+function LeftMenu({ withUser = true, closeDrawer = null }: { withUser?: boolean; closeDrawer?: any }) {
+    const theme = useMantineTheme();
+
+    return (
+        <Flex align="center">
+            <Play />
+            <Space w={theme.spacing.md} />
+            <NotificationPopover />
+            <Space w={theme.spacing.md} />
+            {withUser && <ProfileSection closeDrawer={closeDrawer} />}
+        </Flex>
     );
 }
 

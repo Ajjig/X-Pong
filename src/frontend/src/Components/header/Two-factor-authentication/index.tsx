@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { Modal, Box, LoadingOverlay, Flex, Text, Switch, Title, Image, Space } from "@mantine/core";
+import { Modal, Box, LoadingOverlay, Flex, Text, Switch, Title, Image, Space, Group, PinInput } from "@mantine/core";
 
 import { useState } from "react";
 import store, { set2fa } from "@/store/store";
@@ -12,15 +12,17 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
     const [loading, setLoading] = useState<boolean>(false);
     const [active, setActive] = useState<boolean>(false);
     const [image, setImage] = useState<any>();
+    const [pinCode, setPinCode] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
 
     function Setup2FA() {
         setLoading(true);
         api.post("/user/setup_2fa")
             .then((res: AxiosResponse) => {
-                console.log(res.data);
+                // console.log(res.data);
                 setImage(res.data);
                 setLoading(false);
-                store.dispatch(set2fa(true));
+                // store.dispatch(set2fa(true));
             })
             .catch((err: AxiosError<{ message: string }>) => {
                 notifications.show({
@@ -54,10 +56,35 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
             });
     }
 
+    function verify(e: string) {
+        api.post("/user/verify_2fa", { code: e })
+            .then((res: AxiosResponse) => {
+                console.log(res.data);
+                notifications.show({
+                    title: "Success",
+                    message: "Two-factor authentication enabled",
+                    color: "green",
+                });
+                setLoading(false);
+                store.dispatch(set2fa(true));
+                close();
+            })
+            .catch((err: AxiosError<{ message: string }>) => {
+                notifications.show({
+                    title: "Error",
+                    message: err.response?.data.message,
+                    color: "red",
+                });
+
+                console.log(err.response?.data);
+                setError(err.response?.data.message ?? "Something went wrong");
+            });
+    }
+
     useEffect(() => {
         setActive(store.getState().profile.user.istwoFactor);
-        console.log("Here", store.getState().profile.user.istwoFactor);
         setImage(undefined);
+        setPinCode("");
     }, [opened]);
 
     return (
@@ -94,6 +121,28 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
                                 <Text size="sm" color="dummy" align="center" pt={20}>
                                     Scan the QR code with your <br /> authenticator app.
                                 </Text>
+                                <Box>
+                                    <Space h={20} />
+                                    <Title size="sm" weight={700} align="center">
+                                        Enter the 6-digit code from your authenticator app
+                                    </Title>
+                                    <Group position="center" mt={20}>
+                                        <PinInput
+                                            size="lg"
+                                            radius="xl"
+                                            variant="filled"
+                                            color="purple"
+                                            length={6}
+                                            value={pinCode}
+                                            onChange={(e) => {
+                                                setError(null);
+                                                setPinCode(e);
+                                                if (pinCode.length === 5) verify(e);
+                                            }}
+                                            error={error != null}
+                                        />
+                                    </Group>
+                                </Box>
                             </>
                         )}
                     </Flex>
