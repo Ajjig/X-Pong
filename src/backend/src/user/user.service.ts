@@ -87,7 +87,7 @@ export class UserService {
       throw new NotFoundException(`User id ${userId} not found`);
     }
 
-    return user;
+    return {stats: user.Userstats, matchs: user.Matchs};
   }
 
   async getUserDataByUsername(username: string, reqUsername: string) {
