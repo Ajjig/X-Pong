@@ -66,8 +66,31 @@ export class UserService {
   async getProfileStatsByID(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { Userstats: true },
+      include: {
+        Userstats: {
+          select: {
+            achievements: true,
+            wins: true,
+            losses: true,
+            ladder: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+      }},
     });
+    // get user matchs
+    if (!user) {
+      throw new NotFoundException(`User id ${userId} not found`);
+    }
+
+    let matches = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        Matchs: true,
+      },
+    }).Matchs;
+
+    user.Userstats['matches'] = matches ?? [];
     return user.Userstats;
   }
 
@@ -78,7 +101,7 @@ export class UserService {
       where: { username: username },
       include: {
         Userstats: true,
-        Matchs: isSameUser,
+        Matchs: true,
         Friends: isSameUser, // Send extra data if user is logged in
         channels: isSameUser,
         AdminOf: isSameUser,
