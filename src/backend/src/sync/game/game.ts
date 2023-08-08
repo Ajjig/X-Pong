@@ -221,6 +221,7 @@ export class Game {
       this.client1 && this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
       this.client2 && this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
       this.endGameCallback(this.id);
+      this.stopGame();
     }
   }
 
@@ -290,10 +291,10 @@ export class Game {
   }
 
   move(client: any, move) {
-    if (client === this.client1) {
+    if (client.id === this.client1.id) {
       this.playersDir.player1.up = move.up;
       this.playersDir.player1.down = move.down;
-    } else if (client === this.client2) {
+    } else if (client.id === this.client2.id) {
       this.playersDir.player2.up = move.up;
       this.playersDir.player2.down = move.down;
     }
@@ -365,6 +366,7 @@ export class Game {
       this.score.player2 = 0;
     }
     this.endGameCallback(this.id);
+    this.stopGame();
   }
 
   stopGame() {

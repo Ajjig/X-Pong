@@ -283,7 +283,6 @@ export class GameService {
       this.logger.error(`Game '${id}' cannod be stopped`);
       return;
     }
-    game.stopGame();
     this.games.delete(id);
     this.logger.log(`Game '${id}' stopped`);
   }
