@@ -137,7 +137,6 @@ export class Game {
   
 
   updateBall = () => {
-    console.log(Date());
     Body.setVelocity(this.ball, this.ballDir);
     this.updatePlayers();
     this.updateGame();
