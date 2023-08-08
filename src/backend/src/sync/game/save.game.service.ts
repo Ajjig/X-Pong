@@ -53,6 +53,55 @@ const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
         description: 'Win 50 games',
         iconUrl: '/achievements/50wins.jpg',
     },
+
+    'bronze': {
+        name: 'Bronze',
+        description: 'You are a bronze player now',
+        iconUrl: '/levels/bronze.svg',
+    },
+
+    'silver': {
+        name: 'Silver',
+        description: 'You are promoted to silver',
+        iconUrl: '/levels/silver.svg',
+    },
+
+    'gold': {
+        name: 'Gold',
+        description: 'Another promotion, you are a gold player now',
+        iconUrl: '/levels/gold.svg',
+    },
+
+    'platinum': {
+        name: 'Platinum',
+        description: 'Platinum player!!!',
+        iconUrl: '/levels/platinum.svg',
+    },
+
+    'diamond': {
+        name: 'Diamond',
+        description: 'You are a diamond player now',
+        iconUrl: '/levels/diamond.svg',
+    },
+
+    'master': {
+        name: 'Master',
+        description: 'You are ping pong master now',
+        iconUrl: '/levels/master.svg',
+    },
+
+    'legend': {
+        name: 'Legend',
+        description: 'A legend',
+        iconUrl: '/levels/legend.svg',
+    },
+
+    'the-chosen-one': {
+        name: 'The Chosen One',
+        description: 'Your are the GOAT',
+        iconUrl: '/levels/the_chosen_one.svg',
+    },
+
 };
 
 @Injectable()
@@ -132,6 +181,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Bronze' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['bronze']);
                 
             }
 
@@ -140,6 +190,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Silver' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['silver']);
             }
 
             if (winnerWins === 4) {
@@ -147,6 +198,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Gold' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['gold']);
             }
 
             if (winnerWins === 5) {
@@ -154,6 +206,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Platinum' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['platinum']);
             }
 
             if (winnerWins === 10) {
@@ -161,6 +214,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Diamond' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['diamond']);
             }
 
             if (winnerWins === 20) {
@@ -168,6 +222,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Master' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['master']);
             }
 
             if (winnerWins === 30) {
@@ -175,6 +230,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Legend' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['legend']);
             }
 
             if (winnerWins === 50) {
@@ -182,6 +238,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'The Chosen One' },
                 });
+                result.winnerClient && result.winnerClient.emit('achievement', ACHIEVEMENTS['the-chosen-one']);
             }
         } catch (error) {}
     }
