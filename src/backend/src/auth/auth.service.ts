@@ -99,6 +99,10 @@ export class AuthService {
                 onlineStatus: true,
                 id: true,
                 Friends : {
+                  where : {
+                    friendId : userId,
+                    userId : lookupId,
+                  },
                   select : {
                     friendId : true,
                     friendshipStatus : true,  
