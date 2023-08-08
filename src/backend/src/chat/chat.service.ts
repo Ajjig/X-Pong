@@ -607,8 +607,8 @@ export class ChatService {
             status: HttpStatus.CREATED,
             message: 'Friend request sent',
         };
+        this.emitToUser(Server, userobject.username, 'add_friend', response);
 
-        return response;
     }
 
     async loadUserNotifications(userId: number): Promise<notificationsDto[]> {
