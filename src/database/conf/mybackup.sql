@@ -99,6 +99,7 @@ CREATE TABLE "Matchs" (
     "playerScore" INTEGER NOT NULL DEFAULT 0,
     "opponentScore" INTEGER NOT NULL DEFAULT 0,
     "mode" TEXT NOT NULL DEFAULT 'Undefined',
+    "opponenId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" INTEGER NOT NULL,
@@ -179,9 +180,6 @@ CREATE UNIQUE INDEX "User_oauthId_key" ON "User"("oauthId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_twoFactorAuthSecret_key" ON "User"("twoFactorAuthSecret");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Channel_name_key" ON "Channel"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Userstats_userId_key" ON "Userstats"("userId");
