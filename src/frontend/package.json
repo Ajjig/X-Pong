@@ -6,6 +6,7 @@
     "dev": "next dev -- -p 3001",
     "build": "next build",
     "start": "next start",
+	"launch": "next build && next start -- -p 3001",
     "lint": "next lint",
     "init": "npm install --legacy-peer-deps"
   },
