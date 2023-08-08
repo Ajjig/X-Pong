@@ -73,8 +73,8 @@ export class UserController {
 
     @UseGuards(JwtAuthGuard)
     @Get('id/:uid')
-    async getUserById(@Req() request: any, @Param('uid') uid: string) {
-        const user = await this.authService.findUserById(request.user.username, uid);
+    async getUserById(@Req() request: any, @Param('uid') uid: number) {
+        const user = await this.authService.findUserById(request.user.id, +uid);
         if (!user) {
             throw new NotFoundException('User not found');
         }
