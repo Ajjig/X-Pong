@@ -68,6 +68,10 @@ export function GameLayout({ gameID }: props) {
         });
 
         setOppinfo(store.getState().game.opp);
+
+        return () => {
+            messageGame = "";
+        };
     }, []);
 
     function createWorld() {

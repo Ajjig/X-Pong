@@ -11,6 +11,7 @@ import Spotlight from "@/Components/spotlight";
 import api from "@/api";
 import { InviteToGame } from "@/Components/invite_game";
 import { Notifications } from "@mantine/notifications";
+import Rematch from "@/Components/rematch";
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -46,10 +47,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <Provider store={store}>
             {/* <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}> */}
             <MantineProvider theme={default_theme} withGlobalStyles withNormalizeCSS inherit>
-                <Notifications position="top-right"/>
+                <Notifications position="top-right" />
                 <Spotlight />
                 <SocketComponent />
                 <InviteToGame />
+                <Rematch />
 
                 <main>
                     <Component {...pageProps} />

@@ -37,6 +37,11 @@ export function Play() {
             store.dispatch(setOpp(data));
             router.push(`/game/${data.roomName}`);
         });
+
+        socketGame.on("cancel-join", () => {
+            console.log("cancel-join");
+            close();
+        });
     }, []);
 
     return (

@@ -20,19 +20,20 @@ const initialStateProfile = {
         roomName: "",
         player: 0,
         opponentName: "",
+        opponentId: 0,
     },
 };
 
 const gameStateSlice = createSlice({
     name: "gameState",
-    initialState: initialStateProfile as { gameState: gameState, opp: oppType},
+    initialState: initialStateProfile as { gameState: gameState; opp: oppType },
     reducers: {
         setGameState: (state, action) => {
             state.gameState = action.payload;
         },
         setOpp: (state, action) => {
             state.opp = action.payload;
-        }
+        },
     },
 });
 
