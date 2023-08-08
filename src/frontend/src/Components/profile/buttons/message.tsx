@@ -1,10 +1,15 @@
 import React from "react";
-import { Popover, ActionIcon, Text, Flex, Input, Button, MantineTheme, Space, useMantineTheme } from "@mantine/core";
+import { Popover, ActionIcon, Text, Flex, Input, Button, MantineTheme, Space, useMantineTheme, Tooltip } from "@mantine/core";
 import { IconMessage, IconSend } from "@tabler/icons-react";
 
-interface props {message: string | null, setMessage: any, profile: any, sendMessage: any}
+interface props {
+    message: string | null;
+    setMessage: any;
+    profile: any;
+    sendMessage: any;
+}
 
-export default function Message({message, setMessage, profile, sendMessage}: props) {
+export default function Message({ message, setMessage, profile, sendMessage }: props) {
     const theme = useMantineTheme();
 
     return (
@@ -12,7 +17,7 @@ export default function Message({message, setMessage, profile, sendMessage}: pro
             <Popover.Target>
                 <ActionIcon
                     variant="filled"
-                    p={10}
+                    p={0}
                     size="xl"
                     color="gray"
                     radius="md"
@@ -21,7 +26,9 @@ export default function Message({message, setMessage, profile, sendMessage}: pro
                         color: theme.colors.gray[1],
                     }}
                 >
-                    <IconMessage />
+                    <Tooltip label="send message" position="top" p={10}>
+                        <IconMessage />
+                    </Tooltip>
                 </ActionIcon>
             </Popover.Target>
             {message != null ? (
