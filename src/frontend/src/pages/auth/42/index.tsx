@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import api from "@/api";
 
-export default function callback() {
+export default function Callback() {
     const [error, setError] = useState<string>("");
 
     useEffect(() => {

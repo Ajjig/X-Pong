@@ -4,7 +4,7 @@ import api from "@/api";
 import { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/router";
 
-export default function callback() {
+export default function TwoFA() {
     const [error, setError] = useState<string | null>(null);
     const [pinCode, setPinCode] = useState<string>("");
     const router = useRouter();
@@ -20,8 +20,6 @@ export default function callback() {
                 setError(err.response?.data.message ?? "Something went wrong");
             });
     }
-
-    useEffect(() => {}, []);
 
     return (
         <Flex w={"100%"} h={"100vh"} justify={"center"} align={"center"}>
