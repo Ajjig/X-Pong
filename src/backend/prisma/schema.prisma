@@ -139,7 +139,7 @@ model Matchs {
   playerScore   Int    @default(0)
   opponentScore Int    @default(0)
   mode          String @default("Undefined")
-
+  opponenId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

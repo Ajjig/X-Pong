@@ -192,6 +192,7 @@ export class SaveGameService {
               id: winnerUser.id,
             },
           },
+          opponenId: loserUser.id,
         },
       });
   
@@ -207,6 +208,7 @@ export class SaveGameService {
               id: loserUser.id,
             },
           },
+          opponenId: winnerUser.id,
         },
       });
   
