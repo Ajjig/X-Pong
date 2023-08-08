@@ -62,7 +62,7 @@ export function InviteToGame() {
             >
                 <LoadingOverlay visible={Loading} overlayBlur={3} />
                 <Flex maw={300} mx="auto" py={20} pos={"relative"} direction="column" align="center">
-                    <Avatar size="80px" radius={"100%"} src={api.getUri() + "user/avatar/" + inviteInfo.id} mb={0} />
+                    {inviteInfo?.id && <Avatar size="80px" radius={"100%"} src={api.getUri() + "user/avatar/" + inviteInfo.id} mb={0} />}
                     <Space h={10} />
                     <Flex>
                         <Space w={10} />

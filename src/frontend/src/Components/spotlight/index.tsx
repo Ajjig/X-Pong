@@ -7,6 +7,7 @@ import { SpotlightStyles } from "./spotlight.styles";
 import { SpotlightAction, SpotlightProvider } from "@mantine/spotlight";
 import JoinGroup from "../join_group";
 import { SearchQuery } from "./type";
+import api from "@/api";
 
 export default function Spotlight() {
     const [actions, setActions] = useState<SpotlightAction[]>([]);
@@ -44,7 +45,7 @@ export default function Spotlight() {
                     }
                     return {
                         group: "Users",
-                        icon: <Avatar size="lg" src={action.avatarUrl} radius={20} />,
+                        icon: <>{action?.id && <Avatar size="lg" src={api.getUri() + "user/avatar/" + action.id} radius={20} />}</>,
                         title: action.name,
                         description: action.username,
                         onTrigger: () => {

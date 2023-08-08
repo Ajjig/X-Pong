@@ -181,9 +181,6 @@ CREATE UNIQUE INDEX "User_oauthId_key" ON "User"("oauthId");
 CREATE UNIQUE INDEX "User_twoFactorAuthSecret_key" ON "User"("twoFactorAuthSecret");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Channel_name_key" ON "Channel"("name");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Userstats_userId_key" ON "Userstats"("userId");
 
 -- CreateIndex

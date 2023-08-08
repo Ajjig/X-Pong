@@ -56,7 +56,7 @@ export function MuteList({ muteList, getMembers, members, chat, getMuteList }: p
             {muteList.map((member: any) => (
                 <Flex justify="space-between" align="center" py={5} px={15} key={member.id}>
                     <Flex align="center" gap={10}>
-                        <Avatar size={30} radius="xl" src={member.avatarUrl} />
+                        {member.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${member.id}`} />}
                         <Text fz="sm">{member.name}</Text>
                     </Flex>
                     <Button

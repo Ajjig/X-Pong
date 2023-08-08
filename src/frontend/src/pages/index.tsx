@@ -67,7 +67,7 @@ export default function Home() {
     return (
         <Suspense fallback={<Loading />}>
             <Box className={cx(classes.container, classes.animation_apperance)}>
-                <Head title="70sPong" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
+                <Head title="Xpong" description="Xpong" keywords="Xpong" icon="/favicon.ico" />
                 {/* <Box className={classes.container_scene}> */}
                 <Canvas shadows>
                     <Scene />

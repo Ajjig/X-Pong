@@ -29,7 +29,7 @@ export class PublicChannelService {
   }
 
   async checkSingleChannelExsting(channelId: string): Promise<boolean> {
-    const checkchannel = await this.prisma.channel.findUnique({
+    const checkchannel = await this.prisma.channel.findFirst({
       where: {
         name: channelId,
       },
@@ -107,11 +107,11 @@ export class PublicChannelService {
     return false;
   }
 
-  async latestchannels(username: string): Promise<any> {
+  async latestchannels(userId: number): Promise<any> {
     // filter the channels that the user is a member of
     const user = await this.prisma.user.findUnique({
       where: {
-        username: username,
+        id: userId,
       },
     });
     const lastestchannels = await this.prisma.channel.findMany({

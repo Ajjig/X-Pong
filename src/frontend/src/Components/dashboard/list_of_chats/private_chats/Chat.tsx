@@ -2,6 +2,7 @@ import { Avatar, Box, Flex, useMantineTheme, Text, Divider } from "@mantine/core
 import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import store, { setCurrentChat, setCurrentChatGroup } from "@/store/store";
+import api from "@/api";
 
 export function Chat({ chat }: { chat: any }) {
     const theme = useMantineTheme();
@@ -16,7 +17,7 @@ export function Chat({ chat }: { chat: any }) {
     function date_last_message(): string {
         if (chat.chat.length == 0) return "";
         const last_message = chat.chat[chat.chat.length - 1];
-        
+
         const date = new Date(last_message.createdAt);
         const date_now = new Date();
 
@@ -64,8 +65,8 @@ export function Chat({ chat }: { chat: any }) {
                 store.dispatch(setCurrentChatGroup(null));
             }}
         >
-            <Flex p="sm" align="center" sx={{cursor: "pointer"}}>
-                <Avatar src={chat.otherUser.avatarUrl} size="45px" radius="xl" />
+            <Flex p="sm" align="center" sx={{ cursor: "pointer" }}>
+                {chat?.otherUser?.id && <Avatar src={api.getUri() + `user/avatar/${chat.otherUser.id}`} size="45px" radius="xl" />}
                 <Flex justify="space-between" w="100%">
                     <Box ml={15}>
                         <Text fz="md" fw="bold" color="gray.1">

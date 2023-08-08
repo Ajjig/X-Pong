@@ -1,4 +1,6 @@
 import { request } from 'http';
+import * as jwt from 'jsonwebtoken';
+import { Response } from 'express';
 import {
   Injectable,
   HttpException,
@@ -397,7 +399,7 @@ export class UserService {
     return new HttpException('User unblocked', HttpStatus.OK);
   }
 
-  async update_user_profile(userId: number, payload: UpdateUserProfileDto) {
+  async update_user_profile(userId: number, payload: UpdateUserProfileDto, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -431,7 +433,19 @@ export class UserService {
         where: { id: userId },
         data: { username: payload.username },
       });
+
+      const newToken = jwt.sign(
+        {
+          uid: userId,
+          username: payload.username,
+          is2f: false,
+        },
+        process.env.JWT_SECRET,
+      );
+      res.cookie('jwt', newToken, { httpOnly: false, path: '/' });
+      throw new HttpException('Username updated', HttpStatus.OK);
+      
     }
-    return HttpStatus.OK;
+    throw new HttpException('Profile updated', HttpStatus.OK);
   }
 }

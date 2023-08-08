@@ -1,25 +1,27 @@
 import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  Post,
-  UseGuards,
-  Req,
-  UploadedFile,
-  UseInterceptors,
-  Param,
-  BadRequestException,
-  UsePipes,
-  ValidationPipe,
-  Logger,
-  Res,
-  NotFoundException,
-  ParseIntPipe,
-  HttpCode,
-  HttpStatus,
-  Query,
-  UnauthorizedException,
+    Body,
+    Controller,
+    Get,
+    HttpException,
+    Post,
+    UseGuards,
+    Req,
+    UploadedFile,
+    UseInterceptors,
+    Param,
+    BadRequestException,
+    UsePipes,
+    ValidationPipe,
+    Logger,
+    Res,
+    NotFoundException,
+    ParseIntPipe,
+    HttpCode,
+    HttpStatus,
+    Query,
+    UnauthorizedException,
+    ParseFilePipe,
+    ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -53,612 +55,433 @@ import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly UserChannelService: UserChannelService,
-    private readonly InfoUserService: InfoUserService,
-    private readonly TwoFactorAuthService: TwoFactorAuthService,
-    private readonly UploadService: UploadService,
-    private readonly authService: AuthService,
-    private readonly muteJob: MuteJob,
-  ) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly UserChannelService: UserChannelService,
+        private readonly InfoUserService: InfoUserService,
+        private readonly TwoFactorAuthService: TwoFactorAuthService,
+        private readonly UploadService: UploadService,
+        private readonly authService: AuthService,
+        private readonly muteJob: MuteJob,
+    ) {}
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  async getAllUsers(@Res() res: Response) {
-    res.redirect('/user/profile');
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('id/:uid')
-  async getUserById(@Req() request: any, @Param('uid') uid: string) {
-    const user = await this.authService.findUserById(
-      request.user.username,
-      uid,
-    );
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_username') // change username
-  async setProfileUsernameByusername(
-    @Req() request: any,
-    @Body() body: UpdateUsernameDto,
-    @Res() res: Response,
-  ) {
-    const isUpdates = this.userService.setProfileUsernameByusername(
-      request.user.username,
-      body.new_username,
-    );
-    if (isUpdates) {
-      request.user.username = body.new_username;
-      return this.authService.updateProfileAndToken(request.user, res);
-    }
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/set_confirmed')
-  async setProfileConfirmedByUsername(@Req() request: any) {
-    if (!request.user.username) {
-      throw new BadRequestException('Missing username');
-    }
-    return this.userService.setProfileConfirmedByUsername(
-      request.user.username,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/get_stats/:id')
-  async getProfileStatsByUsername(
-    @Req() request: any,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    if (!request.user.username) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
-    }
-    return this.userService.getProfileStatsByID(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  async getProfile(@Req() request: any) {
-    if (!request.user.username) {
-      throw new BadRequestException('Missing username');
-    }
-    const username = request.user.username;
-    return this.userService.getUserDataByUsername(username, username);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/:username')
-  async getUserDataByUsername(
-    @Req() request: any,
-    @Param('username') username: string,
-  ) {
-    if (!username) {
-      throw new BadRequestException('Missing username');
-    }
-    return await this.userService.getUserDataByUsername(
-      username,
-      request.user.username,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/add_friend')
-  async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
-    if (!body || !request.user.username || !body.friend_username) {
-      throw new HttpException(
-        'Missing username or friend_username',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return this.userService.addFriendByUsername(
-      request.user.username,
-      body.friend_username,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/accept_friend_request')
-  async acceptFriendRequestByUsername(
-    @Req() request: any,
-    @Body() body: FriendDto,
-  ) {
-    if (!body || !body.friend_username) {
-      throw new HttpException(
-        'Missing username or friend_username',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return this.userService.acceptFriendRequestByUsername(
-      request.user.username,
-      body.friend_username,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/block_friend')
-  async blockFriendByUsername(
-    @Req() request: any,
-    @Body() body: BlockFriendDto,
-  ) {
-    if (!body || !body.friendID) {
-      throw new HttpException(
-        'Missing username or friend_username',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return this.userService.blockFriendByUsername(
-      request.user.id,
-      body.friendID,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/:username/matches')
-  async getMatchesByUsername(
-    @Req() request: any,
-    @Param('username') username: string,
-  ) {
-    if (!request.user.username || !username) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    async getAllUsers(@Res() res: Response) {
+        res.redirect('/user/profile');
     }
 
-    return this.userService.getMatchesByUsername(username);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/create_channel')
-  async createChannelByUsername(
-    @Req() request: any,
-    @Body() body: CreateChannelPayloadDto,
-  ) {
-    if (!body || !request.user.id) {
-      throw new HttpException(
-        'Missing username or channel',
-        HttpStatus.BAD_REQUEST,
-      );
+    @UseGuards(JwtAuthGuard)
+    @Get('id/:uid')
+    async getUserById(@Req() request: any, @Param('uid') uid: string) {
+        const user = await this.authService.findUserById(request.user.username, uid);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return user;
     }
-    return this.UserChannelService.createChannelByUsername(
-      request.user.id,
-      body,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_admin_of_channel')
-  async setUserAsAdminOfChannelByUsername(
-    @Req() request: any,
-    @Body() body: SetUserAsAdminDto,
-  ) {
-    return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
-      request.user.id,
-      body.newAdminId,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_member_of_channel') // invite new user
-  async setUserAsMemberOfChannelByID(
-    @Req() request: any,
-    @Body() body: AddMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsMemberOfChannelByID(
-      request.user.id,
-      body.new_memberID,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/leave_channel')
-  async leaveChannelByUsername(
-    @Req() request: any,
-    @Body() body: LeaveChannelDto,
-  ) {
-    return this.UserChannelService.leaveChannelByUsername(
-      request.user.id,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/change_channel_password')
-  async changeChannelPasswordByUsername(
-    @Req() request: any,
-    @Body() body: UpdatePasswordChannelDto,
-  ) {
-    return this.UserChannelService.changeChannelPasswordByUsername(
-      request.user.id,
-      body.channelId,
-      body.new_password,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/check_channel_password')
-  async checkChannelPasswordByUsername(
-    @Req() request: any,
-    @Body() body: CheckChannelPasswordDto,
-  ) {
-    return this.UserChannelService.checkChannelPasswordByUsername(
-      request.user.username,
-      body.channel_name,
-      body.password,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/remove_channel_password')
-  async removechannelpasswordByUsername(
-    @Req() request: any,
-    @Body() body: RemoveChannelPasswordDto,
-  ) {
-    return this.UserChannelService.removeChannelPasswordByUsername(
-      request.user.id,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_banned_of_channel')
-  async setUserAsBannedOfChannelByUsername(
-    @Req() request: any,
-    @Body() body: BanMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsBannedOfChannelByUsername(
-      request.user.id,
-      body.BannedId,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_kicked_of_channel')
-  async setUserAsKickedOfChannelByUsername(
-    @Req() request: any,
-    @Body() body: KickMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsKickedOfChannelByUsername(
-      request.user.id,
-      body.kickedId,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/avatar/:id')
-  async getAvatar(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
-    res.redirect(await this.userService.getAvatarUrlById(id));
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_muted_of_channel')
-  async setUserAsMutedOfChannel(
-    @Req() request,
-    @Body() body: MuteMemberChannelDto,
-  ) {
-    return this.muteJob.muteUser(
-      request.user.id,
-      body.userId,
-      body.channelId,
-      body.timeoutMs || 5 * 60 * 1000,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unmuted_of_channel')
-  async setUserAsUnmutedOfChannel(
-    @Req() request,
-    @Body() body: MuteMemberChannelDto,
-  ) {
-    //
-    return this.muteJob.unmuteUser(
-      request.user.id,
-      body.userId,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/set_user_as_unbanned_of_channel')
-  async setUserAsUnbannedOfChannelByUsername(
-    @Req() request,
-    @Body() body: BanMemberChannelDto,
-  ) {
-    return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
-      request.user.id,
-      body.BannedId,
-      body.channelId,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/:username/info')
-  async get_any_user_info(@Req() request, @Param('username') username: string) {
-    if (!username) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_username') // change username
+    async setProfileUsernameByusername(@Req() request: any, @Body() body: UpdateUsernameDto, @Res() res: Response) {
+        const isUpdates = this.userService.setProfileUsernameByusername(request.user.username, body.new_username);
+        if (isUpdates) {
+            request.user.username = body.new_username;
+            return this.authService.updateProfileAndToken(request.user, res);
+        }
     }
-    return this.InfoUserService.get_any_user_info(username);
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/setup_2fa')
-  async setup_2fa(@Req() request) {
-    if (!request.user.id) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @Post('/set_confirmed')
+    async setProfileConfirmedByUsername(@Req() request: any) {
+        if (!request.user.username) {
+            throw new BadRequestException('Missing username');
+        }
+        return this.userService.setProfileConfirmedByUsername(request.user.username);
     }
-    const user = await this.TwoFactorAuthService.enableTwoFactorAuth(
-      request.user.id,
-    );
-    if (user == false) {
-      throw new HttpException(
-        'User already enabled 2FA',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return user;
-  }
 
-  @Post('/verify_2fa')
-  async verify_2fa(@Req() request, @Body() body: any, @Res() res: Response) {
-    const token = jwt.verify(request.cookies.jwt, process.env.JWT_SECRET);
-    const uid = (token as any).uid;
-    const username = (token as any).username;
-    if (!body.code || !token || !uid || !username) {
-      throw new HttpException(
-        'Missing username or code',
-        HttpStatus.BAD_REQUEST,
-      );
+    @UseGuards(JwtAuthGuard)
+    @Get('/get_stats/:id')
+    async getProfileStatsByUsername(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
+        if (!request.user.username) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.getProfileStatsByID(id);
     }
-    try {
-      const user = await this.TwoFactorAuthService.verifyToken(uid, body.code);
-      if (user == true) {
-        const payload = {
-          username: username,
-          uid: uid,
-          is2f: false,
-        };
-        const token = jwt.sign(payload, process.env.JWT_SECRET);
-        res.cookie('jwt', token, { httpOnly: false, path: '/' });
-        throw new HttpException('Verify 2FA Success', HttpStatus.OK);
-      } else {
-        throw new HttpException(
-          'Invalid code or User 2FA Disabled',
-          HttpStatus.BAD_REQUEST,
+
+    @UseGuards(JwtAuthGuard)
+    @Get('profile')
+    async getProfile(@Req() request: any) {
+        if (!request.user.username) {
+            throw new BadRequestException('Missing username');
+        }
+        const username = request.user.username;
+        return this.userService.getUserDataByUsername(username, username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/:username')
+    async getUserDataByUsername(@Req() request: any, @Param('username') username: string) {
+        if (!username) {
+            throw new BadRequestException('Missing username');
+        }
+        return await this.userService.getUserDataByUsername(username, request.user.username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/add_friend')
+    async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
+        if (!body || !request.user.username || !body.friend_username) {
+            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.addFriendByUsername(request.user.username, body.friend_username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/accept_friend_request')
+    async acceptFriendRequestByUsername(@Req() request: any, @Body() body: FriendDto) {
+        if (!body || !body.friend_username) {
+            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.acceptFriendRequestByUsername(request.user.username, body.friend_username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/block_friend')
+    async blockFriendByUsername(@Req() request: any, @Body() body: BlockFriendDto) {
+        if (!body || !body.friendID) {
+            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.blockFriendByUsername(request.user.id, body.friendID);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/:username/matches')
+    async getMatchesByUsername(@Req() request: any, @Param('username') username: string) {
+        if (!request.user.username || !username) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+
+        return this.userService.getMatchesByUsername(username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/create_channel')
+    async createChannelByUsername(@Req() request: any, @Body() body: CreateChannelPayloadDto) {
+        if (!body || !request.user.id) {
+            throw new HttpException('Missing username or channel', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.createChannelByUsername(request.user.id, body);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_admin_of_channel')
+    async setUserAsAdminOfChannelByUsername(@Req() request: any, @Body() body: SetUserAsAdminDto) {
+        return await this.UserChannelService.setUserAsAdminOfChannelByUsername(
+            request.user.id,
+            body.newAdminId,
+            body.channelId,
         );
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new UnauthorizedException('Invalid credentials');
-    }
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/disable_2fa')
-  async disable_2fa(@Req() request) {
-    if (!request.user.id) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
-    }
-    const user = await this.TwoFactorAuthService.disableTwoFactorAuth(
-      request.user.id,
-    );
-    if (user == false) {
-      throw new HttpException(
-        'User already disabled 2FA',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return user;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadAvatar(
-    @Req() request,
-    @UploadedFile()
-    file: Express.Multer.File,
-  ) {
-    if (!request.user.id) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
-    }
-    console.log(file);
-    const path = await this.UploadService.uploadFile(file);
-    await this.UploadService.updateUserAvatar(request.user.id, path);
-    return { path, message: 'Avatar uploaded successfully' };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  @Post('/update_user_profile')
-  async update_user_profile(
-    @Req() request,
-    @Body() body: UpdateUserProfileDto,
-  ) {
-    if (!request.user.id || !body) {
-      throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
     }
 
-    return this.userService.update_user_profile(request.user.id, body);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('public/channels')
-  async getChannels(@Req() request) {
-    return await this.UserChannelService.getAllPublicChannels();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/reject_friend_request')
-  async rejectFriendRequestByUsername(@Req() request: any, @Body() body: any) {
-    if (!body || !body.friend_username) {
-      throw new HttpException(
-        'Missing username or friend_username',
-        HttpStatus.BAD_REQUEST,
-      );
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_member_of_channel') // invite new user
+    async setUserAsMemberOfChannelByID(@Req() request: any, @Body() body: AddMemberChannelDto) {
+        return this.UserChannelService.setUserAsMemberOfChannelByID(request.user.id, body.new_memberID, body.channelId);
     }
-    return this.userService.rejectFriendRequestByUsername(
-      request.user.username,
-      body.friend_username,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/join_channel')
-  async joinChannelByUsername(
-    @Req() request: any,
-    @Body() body: joinPublicChannelDto,
-  ) {
-    if (!body || !body.channelID) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/leave_channel')
+    async leaveChannelByUsername(@Req() request: any, @Body() body: LeaveChannelDto) {
+        return this.UserChannelService.leaveChannelByUsername(request.user.id, body.channelId);
     }
-    return this.UserChannelService.joinChannelByUsername(
-      request.user.username,
-      body.channelID,
-      body.password,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/channel_info/:channelID')
-  async getChannelInfo(
-    @Req() request: any,
-    @Body() body: any,
-    @Param('channelID', ParseIntPipe) channelID: number,
-  ) {
-    if (!body || !channelID) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/change_channel_password')
+    async changeChannelPasswordByUsername(@Req() request: any, @Body() body: UpdatePasswordChannelDto) {
+        return this.UserChannelService.changeChannelPasswordByUsername(
+            request.user.id,
+            body.channelId,
+            body.new_password,
+        );
     }
-    return this.UserChannelService.getChannelInfo(request.user.id, channelID);
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/friends/list')
-  async getFriends(@Req() request: any) {
-    return this.userService.getFriends(request.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/channels/userslist/:channelID')
-  async getChannelUsers(
-    @Req() request: any,
-    @Param('channelID', ParseIntPipe) channelID: number,
-  ) {
-    if (!channelID) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/check_channel_password')
+    async checkChannelPasswordByUsername(@Req() request: any, @Body() body: CheckChannelPasswordDto) {
+        return this.UserChannelService.checkChannelPasswordByUsername(
+            request.user.username,
+            body.channel_name,
+            body.password,
+        );
     }
-    return this.UserChannelService.getChannelUsers(request.user.id, channelID);
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/remove_admin_from_channel')
-  async removeAdminFromChannel(
-    @Req() request: any,
-    @Body() body: RemoveAdminDto,
-  ): Promise<any> {
-    if (!body || !body.channelId || !body.userId) {
-      throw new HttpException(
-        'Missing channel ID or user ID',
-        HttpStatus.BAD_REQUEST,
-      );
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/remove_channel_password')
+    async removechannelpasswordByUsername(@Req() request: any, @Body() body: RemoveChannelPasswordDto) {
+        return this.UserChannelService.removeChannelPasswordByUsername(request.user.id, body.channelId);
     }
-    return this.UserChannelService.removeAdminFromChannel(
-      request.user.id,
-      body.channelId,
-      body.userId,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/channels/banned_users/:channelID')
-  async getChannelBannedUsers(
-    @Req() request: any,
-    @Param('channelID', ParseIntPipe) channelID: number,
-  ) {
-    if (!channelID) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_banned_of_channel')
+    async setUserAsBannedOfChannelByUsername(@Req() request: any, @Body() body: BanMemberChannelDto) {
+        return this.UserChannelService.setUserAsBannedOfChannelByUsername(
+            request.user.id,
+            body.BannedId,
+            body.channelId,
+        );
     }
-    return this.UserChannelService.getChannelBannedUsers(
-      request.user.id,
-      channelID,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/channels/muted_users/:channelID')
-  async getChannelMutedUsers(
-    @Req() request: any,
-    @Param('channelID', ParseIntPipe) channelID: number,
-  ) {
-    if (!channelID) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_kicked_of_channel')
+    async setUserAsKickedOfChannelByUsername(@Req() request: any, @Body() body: KickMemberChannelDto) {
+        return this.UserChannelService.setUserAsKickedOfChannelByUsername(
+            request.user.id,
+            body.kickedId,
+            body.channelId,
+        );
     }
-    return this.UserChannelService.getChannelMutedUsers(
-      request.user.id,
-      channelID,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/delete_channel/:id')
-  async deleteChannel(
-    @Req() request: any,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    if (!id) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @Get('/avatar/:id')
+    async getAvatar(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
+        res.redirect(await this.userService.getAvatarUrlById(id));
     }
-    return this.UserChannelService.deleteChannel(request.user.id, id);
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/unblock_friend_user')
-  async unblockUser(@Req() request: any, @Body() body: any) {
-    if (!body || !body.friend_username) {
-      throw new HttpException(
-        'Missing friend_username',
-        HttpStatus.BAD_REQUEST,
-      );
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_muted_of_channel')
+    async setUserAsMutedOfChannel(@Req() request, @Body() body: MuteMemberChannelDto) {
+        return this.muteJob.muteUser(request.user.id, body.userId, body.channelId, body.timeoutMs || 5 * 60 * 1000);
     }
-    return this.userService.unblockUserById(
-      request.user.id,
-      body.friend_username,
-    );
-  }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/channel/update')
-  async updateChannel(
-    @Req() request: any,
-    @Body() body: UpdateChannelDto,
-  ): Promise<any> {
-    if (!body) {
-      throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_unmuted_of_channel')
+    async setUserAsUnmutedOfChannel(@Req() request, @Body() body: MuteMemberChannelDto) {
+        //
+        return this.muteJob.unmuteUser(request.user.id, body.userId, body.channelId);
     }
-    return this.UserChannelService.updateChannel(request.user.id, body);
-  }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/set_user_as_unbanned_of_channel')
+    async setUserAsUnbannedOfChannelByUsername(@Req() request, @Body() body: BanMemberChannelDto) {
+        return this.UserChannelService.setUserAsUnbannedOfChannelByUsername(
+            request.user.id,
+            body.BannedId,
+            body.channelId,
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/:username/info')
+    async get_any_user_info(@Req() request, @Param('username') username: string) {
+        if (!username) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+        return this.InfoUserService.get_any_user_info(username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/setup_2fa')
+    async setup_2fa(@Req() request) {
+        if (!request.user.id) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+        const user = await this.TwoFactorAuthService.enableTwoFactorAuth(request.user.id);
+        if (user == false) {
+            throw new HttpException('User already enabled 2FA', HttpStatus.BAD_REQUEST);
+        }
+        return user;
+    }
+
+    @Post('/verify_2fa')
+    async verify_2fa(@Req() request, @Body() body: any, @Res() res: Response) {
+        const token = jwt.verify(request.cookies.jwt, process.env.JWT_SECRET);
+        const uid = (token as any).uid;
+        const username = (token as any).username;
+        if (!body.code || !token || !uid || !username) {
+            throw new HttpException('Missing username or code', HttpStatus.BAD_REQUEST);
+        }
+        try {
+            const user = await this.TwoFactorAuthService.verifyToken(uid, body.code);
+            if (user == true) {
+                const payload = {
+                    username: username,
+                    uid: uid,
+                    is2f: false,
+                };
+                const token = jwt.sign(payload, process.env.JWT_SECRET);
+                res.cookie('jwt', token, { httpOnly: false, path: '/' });
+                throw new HttpException('Verify 2FA Success', HttpStatus.OK);
+            } else {
+                throw new HttpException('Invalid code or User 2FA Disabled', HttpStatus.BAD_REQUEST);
+            }
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            throw new UnauthorizedException('Invalid credentials');
+        }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/disable_2fa')
+    async disable_2fa(@Req() request) {
+        if (!request.user.id) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+        const user = await this.TwoFactorAuthService.disableTwoFactorAuth(request.user.id);
+        if (user == false) {
+            throw new HttpException('User already disabled 2FA', HttpStatus.BAD_REQUEST);
+        }
+        return user;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadAvatar(
+        @Req() request,
+        @UploadedFile()
+        file: Express.Multer.File,
+    ) {
+        if (!request.user.id) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+        if (!file.mimetype.includes('image')) {
+            throw new HttpException('File is not a image file', HttpStatus.BAD_REQUEST);
+        }
+
+        const path = await this.UploadService.uploadFile(file);
+        await this.UploadService.updateUserAvatar(request.user.id, path);
+        return { path, message: 'Avatar uploaded successfully' };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UsePipes(ValidationPipe)
+    @Post('/update_user_profile')
+    async update_user_profile(@Req() request, @Body() body: UpdateUserProfileDto, @Res() res: Response) {
+        if (!request.user.id || !body) {
+            throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
+        }
+
+        return this.userService.update_user_profile(request.user.id, body, res);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('public/channels')
+    async getChannels(@Req() request) {
+        return await this.UserChannelService.getAllPublicChannels();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/reject_friend_request')
+    async rejectFriendRequestByUsername(@Req() request: any, @Body() body: any) {
+        if (!body || !body.friend_username) {
+            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.rejectFriendRequestByUsername(request.user.username, body.friend_username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/join_channel')
+    async joinChannelByUsername(@Req() request: any, @Body() body: joinPublicChannelDto) {
+        if (!body || !body.channelID) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.joinChannelByUsername(request.user.username, body.channelID, body.password);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/channel_info/:channelID')
+    async getChannelInfo(@Req() request: any, @Body() body: any, @Param('channelID', ParseIntPipe) channelID: number) {
+        if (!body || !channelID) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.getChannelInfo(request.user.id, channelID);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/friends/list')
+    async getFriends(@Req() request: any) {
+        return this.userService.getFriends(request.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/channels/userslist/:channelID')
+    async getChannelUsers(@Req() request: any, @Param('channelID', ParseIntPipe) channelID: number) {
+        if (!channelID) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.getChannelUsers(request.user.id, channelID);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/remove_admin_from_channel')
+    async removeAdminFromChannel(@Req() request: any, @Body() body: RemoveAdminDto): Promise<any> {
+        if (!body || !body.channelId || !body.userId) {
+            throw new HttpException('Missing channel ID or user ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.removeAdminFromChannel(request.user.id, body.channelId, body.userId);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/channels/banned_users/:channelID')
+    async getChannelBannedUsers(@Req() request: any, @Param('channelID', ParseIntPipe) channelID: number) {
+        if (!channelID) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.getChannelBannedUsers(request.user.id, channelID);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/channels/muted_users/:channelID')
+    async getChannelMutedUsers(@Req() request: any, @Param('channelID', ParseIntPipe) channelID: number) {
+        if (!channelID) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.getChannelMutedUsers(request.user.id, channelID);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/delete_channel/:id')
+    async deleteChannel(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
+        if (!id) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.deleteChannel(request.user.id, id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/unblock_friend_user')
+    async unblockUser(@Req() request: any, @Body() body: any) {
+        if (!body || !body.friend_username) {
+            throw new HttpException('Missing friend_username', HttpStatus.BAD_REQUEST);
+        }
+        return this.userService.unblockUserById(request.user.id, body.friend_username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('/channel/update')
+    async updateChannel(@Req() request: any, @Body() body: UpdateChannelDto): Promise<any> {
+        if (!body) {
+            throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
+        }
+        return this.UserChannelService.updateChannel(request.user.id, body);
+    }
 }

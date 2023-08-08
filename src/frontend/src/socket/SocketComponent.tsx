@@ -112,7 +112,7 @@ const SocketComponent = () => {
                 title: data.name,
                 message: data.description,
                 color: "blue",
-                icon: <Image src={api.getUri() + data.iconUrl.slice(1)} width={40} height={40} radius="xl" />,
+                icon: <Image src={api.getUri() + data.iconUrl} width={40} height={40} radius="xl" />,
             });
         });
 

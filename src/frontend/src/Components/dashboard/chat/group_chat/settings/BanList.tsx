@@ -4,7 +4,7 @@ import { BanMemberChannelDto } from "../type";
 import { AxiosError, AxiosResponse } from "axios";
 import api from "@/api";
 import { notifications } from "@mantine/notifications";
-
+import { imageUrl } from "@/Components/imageUrl";
 
 export function BanList({ banList, chat, getBanList, getMembers }: any) {
     function unbanMember(member: { id: number; name: string; avatarUrl: string }, chat: { id: number; name: string }) {
@@ -48,7 +48,7 @@ export function BanList({ banList, chat, getBanList, getMembers }: any) {
             {banList.map((member: any) => (
                 <Flex justify="space-between" align="center" py={5} px={15} key={member.id}>
                     <Flex align="center" gap={10}>
-                        <Avatar size={30} radius="xl" src={member.avatarUrl} />
+                        {member?.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${member?.id}`} />}
                         <Text fz="sm">{member.name}</Text>
                     </Flex>
 

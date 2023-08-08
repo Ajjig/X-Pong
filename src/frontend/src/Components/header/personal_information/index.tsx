@@ -18,7 +18,7 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
 
     useEffect(() => {
         if (file) setProfileImage(URL.createObjectURL(file));
-        else setProfileImage(store.getState().profile.user.avatarUrl);
+        else setProfileImage(api.getUri() + "user/avatar/" + store.getState().profile.user.id);
         setDisplayName(store.getState().profile.user.name);
         setUsername(store.getState().profile.user.username);
     }, [file, opened]);
@@ -31,7 +31,6 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
 
         api.post("/user/upload", formData)
             .then((res: AxiosResponse) => {
-                console.log(res);
                 setLoading(false);
                 notifications.show({
                     title: "Success",
@@ -41,7 +40,9 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
 
                 // update avatar in store
                 let prevProfile = store.getState().profile.user;
-                store.dispatch(setProfile({ ...prevProfile, avatarUrl: res.data.path }));
+                store.dispatch(setProfile({ ...prevProfile, avatarUrl: api.getUri() + res.data.path }));
+                setProfileImage(api.getUri() + res.data.path);
+                console.log(store.getState().profile.user);
                 setFile(null);
             })
             .catch((err: AxiosError<{ message: string }>) => {

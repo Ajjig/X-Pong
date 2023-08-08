@@ -9,8 +9,6 @@ import { notifications } from "@mantine/notifications";
 import store from "@/store/store";
 import { IconBan } from "@tabler/icons-react";
 
-
-
 interface propsListMembers {
     members: any;
     chat: any;
@@ -45,7 +43,7 @@ export function ListMembers({ members, chat, muteList, getMembers, getMuteList, 
                 return (
                     <Flex justify="space-between" align="center" py={5} px={15} key={member.id}>
                         <Flex align="center" gap={10}>
-                            <Avatar size={30} radius="xl" src={member.avatarUrl} />
+                            {member?.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${member.id}`} />}
                             <Text fz="sm">{member.name}</Text>
                             {(chat.adminsIds.includes(member.id) || chat.ownerId == member.id) && (
                                 <Badge
@@ -232,7 +230,7 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
                         <Menu.Dropdown>
                             <Menu.Item onClick={() => MuteMember(member.id, 86400000)}>1 day</Menu.Item>
                             <Menu.Item onClick={() => MuteMember(member.id, 3600000)}>1 hour</Menu.Item>
-                            <Menu.Item onClick={() => MuteMember(member.id, 1000 * 15)}>5 minutes</Menu.Item>
+                            <Menu.Item onClick={() => MuteMember(member.id, 300000)}>5 minutes</Menu.Item>
                         </Menu.Dropdown>
                     </Menu>
                 </Menu.Item>

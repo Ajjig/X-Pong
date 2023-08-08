@@ -67,7 +67,7 @@ export function PrivateChatMenu({ user }: any) {
 
                 <Menu.Dropdown>
                     <Flex direction="column" mih="180px" justify="center" align="center">
-                        <Avatar size="xl" src={user.avatarUrl} radius="xl" />
+                        {user?.id && <Avatar size="xl" src={api.getUri() + `user/avatar/${user.id}`} radius="xl" />}
                         <Flex direction={"column"} align="center">
                             <Text fw="bold" fz="md">
                                 {user.name}
@@ -172,7 +172,7 @@ export function PrivateChatMenu({ user }: any) {
             >
                 <Box mx="auto" p={20} pt={0} pb={20} pos={"relative"}>
                     <Flex align="center" justify="center" direction="column">
-                        <Avatar size="xl" src={user.avatarUrl} radius="xl" my={15} />
+                        {user?.id && <Avatar size="xl" src={api.getUri() + `user/avatar/${user.id}`} radius="xl" my={15} />}
                         <Space w={12} />
                         <Title fz={"lg"} align="center">
                             Waiting {user.name} to accept your challenge
