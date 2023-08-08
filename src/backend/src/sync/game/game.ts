@@ -93,6 +93,10 @@ export class Game {
         y: this.player2.position.y,
       },
       score: this.score,
+      ids: {
+        player1: this.player1Id,
+        player2: this.player2Id,
+      },
     };
     this.client1 && this.client1.emit('gameState', gameState);
     this.client2 && this.client2.emit('gameState', gameState);

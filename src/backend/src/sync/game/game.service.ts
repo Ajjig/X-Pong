@@ -20,7 +20,7 @@ export class GameService {
     this.logger.log('GAME GATEWAY INIT');
   }
 
-  handleMatchmaking(client: Socket): void {
+  async handleMatchmaking(client: Socket) {
     const username = this.getUserNameBySocket(client);
 
     if (!username) return;
@@ -49,6 +49,8 @@ export class GameService {
         client2: p2.client,
         player1Username: p1.username,
         player2Username: p2.username,
+        player1Id: (await this.getUserData(p1.client)).uid,
+        player2Id: (await this.getUserData(p2.client)).uid,
       });
       game.endGameCallback = this.stopGame;
       this.games.set(
@@ -114,7 +116,7 @@ export class GameService {
     this.logger.log(`Player ${senderUsername} invited ${data.username}`);
   }
 
-  handleAcceptInvite(recieverClient: Socket, data: { username: string }): void {
+  async handleAcceptInvite(recieverClient: Socket, data: { username: string }) {
     if (!data.username) return;
     const senderClient = this.players.get(data.username);
     if (!senderClient) {
@@ -138,6 +140,8 @@ export class GameService {
       client2: recieverClient,
       player1Username: data.username,
       player2Username: recieverUsername,
+      player1Id: (await this.getUserData(senderClient)).uid,
+      player2Id: (await this.getUserData(recieverClient)).uid,
     });
 
     game.endGameCallback = this.stopGame;
@@ -292,6 +296,19 @@ export class GameService {
   
     if (isInQueue) isInGame = true;
     return isInGame;
+  }
+
+  handleLeave(client: Socket): void {
+    const username = this.getUserNameBySocket(client);
+    if (!username) return;
+    let game: Game | undefined;
+    this.games.forEach((value: Game, key: string) => {
+      if (value.player1Username === username || value.player2Username === username) {
+        game = value;
+      }
+    });
+    if (!game) return;
+    game.onLeaveGame(username);
   }
 
 }

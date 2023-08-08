@@ -15,4 +15,8 @@ class GameStateDto {
     player1: number,
     player2: number,
   }
+  ids: {
+    player1: number,
+    player2: number,
+  }
 };

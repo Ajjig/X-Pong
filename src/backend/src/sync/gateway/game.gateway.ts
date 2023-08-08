@@ -63,6 +63,12 @@ export class GameGateway {
     this.gameService.handleRejectInvite(client, data);
   }
 
+  @SubscribeMessage('leave')
+  handleLeave(client: Socket): void {
+    this.gameService.handleLeave(client);
+  }
+
+
   // @SubscribeMessage('disconnect')
   async handleDisconnect(client: Socket) {
     this.gameService.handleDisconnect(client);
