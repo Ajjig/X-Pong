@@ -557,6 +557,9 @@ COPY public."Achievements" (id, "createdAt", "updatedAt", name, description, "ic
 --
 
 COPY public."Channel" (id, name, "createdAt", "updatedAt", type, password, salt, "ownerId", "adminsIds") FROM stdin;
+1	Pong Pros Society	2023-08-08 21:19:29.452	2023-08-08 21:19:29.452	public	\N	\N	1	{1}
+2	Rally Rulers Circle	2023-08-08 21:19:36.87	2023-08-08 21:19:36.87	private	\N	\N	1	{1}
+3	Spinovation Club	2023-08-08 21:19:51.463	2023-08-08 21:19:51.463	protected	$2a$10$4Tu5HTy.V30We.UTgeFY7u4YyleSHKzqja.6tGEvCQ10hxuSFCrM.	$2a$10$4Tu5HTy.V30We.UTgeFY7u	1	{1}
 \.
 
 
@@ -595,6 +598,13 @@ COPY public."Matchs" (id, result, "playerScore", "opponentScore", mode, "opponen
 --
 
 COPY public."Message" (id, "createdAt", "updatedAt", content, "channelId", "senderId") FROM stdin;
+1	2023-08-08 21:20:13.678	2023-08-08 21:20:13.678	Hey there! How's your day going?	1	1
+2	2023-08-08 21:20:26.649	2023-08-08 21:20:26.649	Hi! My day's been pretty good, thanks for asking. How about yours?	1	2
+3	2023-08-08 21:20:36.904	2023-08-08 21:20:36.904	Not too bad, thanks. Just trying to stay productive. Did you do anything interesting today?	1	1
+4	2023-08-08 21:20:47.826	2023-08-08 21:20:47.826	Well, I tried a new recipe for lunch, which turned out surprisingly well. Other than that, it's been a regular workday. How about you? Any exciting plans?	1	2
+5	2023-08-08 21:20:58.601	2023-08-08 21:20:58.601	Nice, experimenting in the kitchen can be fun! As for me, no big plans, just catching up on some reading and maybe going for a walk later. Do you enjoy cooking often?	1	1
+6	2023-08-08 21:21:07.681	2023-08-08 21:21:07.681	I do enjoy cooking, though I'm not an expert by any means. It's therapeutic for me. Reading and walking sound like a great way to spend the day! What kind of books do you like to read?	1	2
+7	2023-08-08 21:21:32.462	2023-08-08 21:21:32.462	Hi there! How's your week shaping up?	2	1
 \.
 
 
@@ -612,8 +622,8 @@ COPY public."Notification" (id, type, "from", "to", status, msg, "createdAt", "u
 --
 
 COPY public."User" (id, email, name, username, "avatarUrl", "oauthId", "istwoFactor", "twoFactorAuthSecret", "onlineStatus", "blockedIds", "createdAt", "updatedAt", confirmed, "onlineAt", "isBanned", "socketId", "privateChannels") FROM stdin;
-1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://cdn.intra.42.fr/users/1dba852f7f6d3b906887c37351e6987c/iidkhebb.jpg	\N	f	\N	online	{}	2023-08-08 20:37:33.887	2023-08-08 20:57:17.629	f	2023-08-08 20:37:33.887	f	DQVk9mfnZwT7-6YzAAAH	{__private__@1+2}
-2	roudouch@student.1337.ma	Rachid Oudouch	roudouch	https://cdn.intra.42.fr/users/15beaf14c3ddf394270275669e105d65/roudouch.jpg	\N	f	\N	online	{}	2023-08-08 20:37:43.986	2023-08-08 20:57:27.78	f	2023-08-08 20:37:43.986	f	UrHVfBm_nvHTqCCLAAAK	{__private__@1+2}
+2	roudouch@student.1337.ma	Rachid Oudouch	roudouch	https://cdn.intra.42.fr/users/15beaf14c3ddf394270275669e105d65/roudouch.jpg	\N	f	\N	online	{}	2023-08-08 20:37:43.986	2023-08-08 21:20:25.313	f	2023-08-08 20:37:43.986	f	QFgsTap5HxhjKdIjAAAO	{__private__@1+2}
+1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://cdn.intra.42.fr/users/1dba852f7f6d3b906887c37351e6987c/iidkhebb.jpg	\N	f	\N	online	{}	2023-08-08 20:37:33.887	2023-08-08 21:21:30.84	f	2023-08-08 20:37:33.887	f	yjds2tunYAMIOBP7AAAH	{__private__@1+2}
 \.
 
 
@@ -632,6 +642,9 @@ COPY public."Userstats" (id, wins, losses, ladder, "createdAt", "updatedAt", "us
 --
 
 COPY public."_Admin" ("A", "B") FROM stdin;
+1	1
+2	1
+3	1
 \.
 
 
@@ -664,6 +677,10 @@ COPY public."_Kicked" ("A", "B") FROM stdin;
 --
 
 COPY public."_Member" ("A", "B") FROM stdin;
+1	1
+2	1
+3	1
+1	2
 \.
 
 
@@ -695,7 +712,7 @@ SELECT pg_catalog.setval('public."Achievements_id_seq"', 2, true);
 -- Name: Channel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Channel_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Channel_id_seq"', 3, true);
 
 
 --
@@ -723,7 +740,7 @@ SELECT pg_catalog.setval('public."Matchs_id_seq"', 2, true);
 -- Name: Message_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Message_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Message_id_seq"', 7, true);
 
 
 --

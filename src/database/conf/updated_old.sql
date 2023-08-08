@@ -547,6 +547,8 @@ ALTER TABLE ONLY public."Userstats" ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 COPY public."Achievements" (id, "createdAt", "updatedAt", name, description, "iconUrl", "userId") FROM stdin;
+1	2023-08-08 20:58:59.686	2023-08-08 20:58:59.686	Such a hat-trick	Win a 1v1 game with hat-trick difference	/achievements/3goals.jpg	2
+2	2023-08-08 20:58:59.771	2023-08-08 20:58:59.771	First Win	Win your first game ever	/achievements/firstwin.jpg	2
 \.
 
 
@@ -563,6 +565,8 @@ COPY public."Channel" (id, name, "createdAt", "updatedAt", type, password, salt,
 --
 
 COPY public."DirectMessage" (id, text, "createdAt", "senderId", "receiverId", "privateChannelId") FROM stdin;
+1	afeen	2023-08-08 20:57:44.341	2	1	__private__@1+2
+2	hania	2023-08-08 20:57:52.494	1	2	__private__@1+2
 \.
 
 
@@ -581,6 +585,8 @@ COPY public."Friends" (id, "createdAt", "updatedAt", "FriendID", "friendshipStat
 --
 
 COPY public."Matchs" (id, result, "playerScore", "opponentScore", mode, "opponenId", "createdAt", "updatedAt", "userId") FROM stdin;
+1	WIN	5	1	1v1	1	2023-08-08 20:58:59.777	2023-08-08 20:58:59.777	2
+2	LOSE	1	5	1v1	2	2023-08-08 20:58:59.783	2023-08-08 20:58:59.783	1
 \.
 
 
@@ -606,8 +612,8 @@ COPY public."Notification" (id, type, "from", "to", status, msg, "createdAt", "u
 --
 
 COPY public."User" (id, email, name, username, "avatarUrl", "oauthId", "istwoFactor", "twoFactorAuthSecret", "onlineStatus", "blockedIds", "createdAt", "updatedAt", confirmed, "onlineAt", "isBanned", "socketId", "privateChannels") FROM stdin;
-1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://cdn.intra.42.fr/users/1dba852f7f6d3b906887c37351e6987c/iidkhebb.jpg	\N	f	\N	online	{}	2023-08-08 20:37:33.887	2023-08-08 20:39:02.775	f	2023-08-08 20:37:33.887	f	fl3nokzh4Xc5zA4RAAAY	{__private__@1+2}
-2	roudouch@student.1337.ma	Rachid Oudouch	roudouch	https://cdn.intra.42.fr/users/15beaf14c3ddf394270275669e105d65/roudouch.jpg	\N	f	\N	online	{}	2023-08-08 20:37:43.986	2023-08-08 20:39:15.851	f	2023-08-08 20:37:43.986	f	GLH0vjWNPH3DKKHSAAAb	{__private__@1+2}
+1	iidkhebb@student.1337.ma	Ilyasse Idkhebbach	iidkhebb	https://cdn.intra.42.fr/users/1dba852f7f6d3b906887c37351e6987c/iidkhebb.jpg	\N	f	\N	online	{}	2023-08-08 20:37:33.887	2023-08-08 20:57:17.629	f	2023-08-08 20:37:33.887	f	DQVk9mfnZwT7-6YzAAAH	{__private__@1+2}
+2	roudouch@student.1337.ma	Rachid Oudouch	roudouch	https://cdn.intra.42.fr/users/15beaf14c3ddf394270275669e105d65/roudouch.jpg	\N	f	\N	online	{}	2023-08-08 20:37:43.986	2023-08-08 20:57:27.78	f	2023-08-08 20:37:43.986	f	UrHVfBm_nvHTqCCLAAAK	{__private__@1+2}
 \.
 
 
@@ -616,8 +622,8 @@ COPY public."User" (id, email, name, username, "avatarUrl", "oauthId", "istwoFac
 --
 
 COPY public."Userstats" (id, wins, losses, ladder, "createdAt", "updatedAt", "userId") FROM stdin;
-1	0	0	bronze	2023-08-08 20:37:33.887	2023-08-08 20:37:33.887	1
-2	0	0	bronze	2023-08-08 20:37:43.986	2023-08-08 20:37:43.986	2
+2	1	0	bronze	2023-08-08 20:37:43.986	2023-08-08 20:58:59.81	2
+1	0	1	bronze	2023-08-08 20:37:33.887	2023-08-08 20:58:59.812	1
 \.
 
 
@@ -682,7 +688,7 @@ COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs,
 -- Name: Achievements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Achievements_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Achievements_id_seq"', 2, true);
 
 
 --
@@ -696,7 +702,7 @@ SELECT pg_catalog.setval('public."Channel_id_seq"', 1, false);
 -- Name: DirectMessage_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."DirectMessage_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."DirectMessage_id_seq"', 2, true);
 
 
 --
@@ -710,7 +716,7 @@ SELECT pg_catalog.setval('public."Friends_id_seq"', 2, true);
 -- Name: Matchs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Matchs_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Matchs_id_seq"', 2, true);
 
 
 --
