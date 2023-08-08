@@ -26,6 +26,11 @@ export class GameService {
 
     if (!username) return;
   
+    if (this.queue.find((p) => p.username === username)) {
+      client.emit('error', `You are already in the queue`);
+      client.emit('cancel-join', {});
+      return;
+    }
 
     if (this.isInGame(username)) {
       client.emit('error', `You are already in a game`);
@@ -33,10 +38,7 @@ export class GameService {
       return;
     }
 
-    if (this.queue.find((p) => p.username === username))
-      client.emit('error', `You are already in the queue`);
-    else
-      this.queue.push({ username, client });
+    this.queue.push({ username, client });
 
     
     this.logger.log(`Player ${username} waiting for an opponent`);
@@ -220,7 +222,7 @@ export class GameService {
   getUserNameBySocket(client: Socket): string | null {
     let username: string | null = null;
     this.players.forEach((value: any, key: string) => {
-      if (value === client) {
+      if (value.id === client.id) {
         username = key;
       }
     });
