@@ -109,6 +109,7 @@ export function ProfileLayout({ id }: props) {
                         display: "flex",
                         justifyContent: "space-between",
                         padding: "20px",
+                        marginTop: "-16px",
                     })}
                 >
                     <Box>
@@ -128,9 +129,9 @@ export function ProfileLayout({ id }: props) {
                 </Box>
 
                 {/* archivments */}
-                <Achivments userState={userState} />
+                {userState && userState?.stats && <Achivments userState={userState} />}
 
-                <Box px={20}>
+                <Box px={0}>
                     <Paper radius={20} bg="cos_black.2">
                         <Grid>
                             <Grid.Col span={12}>
@@ -157,7 +158,7 @@ export function ProfileLayout({ id }: props) {
                                                 console.log(match);
                                                 return (
                                                     <Grid.Col span={12} key={match.id}>
-                                                        <Match_info result={match.result} player1={store.getState().profile.user.name} />
+                                                        <Match_info match={match} />
                                                     </Grid.Col>
                                                 );
                                             })}
@@ -196,16 +197,30 @@ const useStyles = createStyles((theme: MantineTheme) => ({
             fontSize: "1rem",
         },
     },
+    titleAchiv: {
+        fontSize: "1.2rem",
+        [theme.fn.smallerThan("md")]: {
+            fontSize: "1rem",
+        },
+    },
+    textAchiv: {
+        fontSize: "1rem",
+        [theme.fn.smallerThan("md")]: {
+            fontSize: "0.8rem",
+        },
+    },
 }));
 
 function Achivments({ userState }: any) {
     const { classes } = useStyles();
 
     return (
-        <Box px={15} mt={20}>
-            <Paper radius={20} bg="cos_black.2" p={30}>
+        <Box px={0} mt={20}>
+            <Paper radius={20} bg="cos_black.2" p={20}>
                 <Flex align="center">
-                    <img src={`/levels/${(userState?.stats?.ladder as string).toLowerCase().replaceAll(" ", "_")}.svg`} className={classes.image} />
+                    {userState?.stats?.ladder && (
+                        <img src={`/levels/${(userState?.stats?.ladder as string).toLowerCase().replaceAll(" ", "_")}.svg`} className={classes.image} />
+                    )}
                     <Space w={10} />
                     <Title order={2} className={classes.title}>
                         {(userState?.stats?.ladder as string).toUpperCase()}
@@ -230,74 +245,88 @@ function Achivments({ userState }: any) {
                         </Text>
                     </Flex>
                 </Flex>
+                <Space h={50} />
+                {userState?.stats?.achievements?.map(
+                    (achivment: { id: number; createdAt: string; updatedAt: string; name: string; description: string; iconUrl: string; userId: number }) => {
+                        return (
+                            <Paper radius={20} bg="dark.9" p={10} py={20} key={achivment.id} shadow="lg">
+                                <Flex align="center">
+                                    <Space w={10} />
+                                    <MantineImage src={api.getUri() + achivment.iconUrl} width={70} radius={20} />
+                                    <Space w={10} />
+                                    <Box ml={20}>
+                                        <Title className={classes.titleAchiv}>{achivment.name}</Title>
+                                        <Text className={classes.textAchiv}>{achivment.description}</Text>
+                                    </Box>
+                                </Flex>
+                            </Paper>
+                        );
+                    }
+                )}
             </Paper>
             <Space h={30} />
         </Box>
     );
 }
 
-export function Match_info({
-    result,
-    score,
-    children,
-    oppinfo,
-}: {
-    result: any;
-    player1: any;
-    player2: any;
-    score: { player1: number; player2: number };
-    result: any;
-    children?: React.ReactNode;
-    oppinfo: { roomName: string; player: number; opponentName: string };
-}) {
+interface Match_info_props {
+    match: {
+        id: number;
+        result: string;
+        playerScore: number;
+        opponentScore: number;
+        mode: string;
+        opponenId: number;
+        createdAt: string;
+        updatedAt: string;
+        userId: number;
+        opponentUsername: string;
+    };
+}
+
+export function Match_info({ match }: Match_info_props) {
     return (
-        <Paper radius={30} bg={"cos_black.1"} p="sm">
+        <Paper radius={30} bg={"cos_black.3"}>
             <Flex
-                p={5}
+                // bg={"red"}
+                p={20}
                 align="center"
                 justify="space-between"
                 sx={(theme: MantineTheme) => ({
                     [theme.fn.smallerThan("sm")]: {
                         flexDirection: "column",
+                        justifyContent: "space-between",
                     },
                 })}
             >
-                <Flex align="center">
-                    <Avatar
-                        size={40}
-                        radius="xl"
-                        src={oppinfo?.player === 2 ? oppinfo?.opponentName : api.getUri() + "user/avatar/" + store.getState().profile.user.id}
-                    />
+                <Flex align="center" w="100%">
+                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + store.getState().profile.user.id} />
                     <Space w={10} />
                     <Title color="gray.4" fz="sm">
-                        {oppinfo?.player === 2 ? oppinfo?.opponentName : store.getState().profile.user.name}
+                        {store.getState().profile.user.username}
                     </Title>
                 </Flex>
-                <Flex align="center">
-                    <Title color="gray.4" fz="lg">
-                        {result.playerScore}
-                    </Title>
+
+                <Flex align="center" w="100%" justify="center" py={10}>
+                    <Paper
+                        radius={20}
+                        bg={match?.result.toLowerCase() == "win" ? "green.9" : match?.result.toLowerCase() == "lose" ? "red.9" : "yellow"}
+                        p={10}
+                    >
+                        <Title color="gray.4" fz="lg">
+                            {match?.playerScore} - {match?.opponentScore}
+                        </Title>
+                    </Paper>
                 </Flex>
-                <Flex align="center">
+
+                <Flex align="center" w="100%" justify="flex-end">
                     <Title color="gray.4" fz="sm">
-                        {oppinfo?.player === 1 ? oppinfo?.opponentName : store.getState().profile.user.name}
+                        {match?.opponentUsername}
                     </Title>
                     <Space w={10} />
-                    <Avatar
-                        size={40}
-                        radius="xl"
-                        src={oppinfo?.player === 1 ? oppinfo?.opponentName : api.getUri() + "user/avatar/" + store.getState().profile.user.id}
-                    />
+                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + match?.opponenId} />
                 </Flex>
             </Flex>
-            {children && (
-                <>
-                    <Space h={20} />
-                    <Flex p={5} align="center" justify="space-between">
-                        {children}
-                    </Flex>
-                </>
-            )}
         </Paper>
     );
 }
