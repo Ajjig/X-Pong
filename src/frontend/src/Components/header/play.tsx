@@ -1,5 +1,4 @@
-
-import { Box, Button, Flex, Loader, Menu, Modal, Space, createStyles } from "@mantine/core";
+import { Box, Button, Flex, Loader, Menu, Modal, Paper, Space, Text, Title, createStyles } from "@mantine/core";
 import { IconUserCircle, IconArrowsRandom, IconDeviceGamepad2 } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import socketGame from "@/socket/gameSocket";
@@ -44,13 +43,17 @@ export function Play() {
     return (
         <>
             <Modal opened={visible} onClose={close} title="" centered withCloseButton={false} closeOnClickOutside={false} classNames={ModelStyle.classes}>
-                <Flex direction="column" align="center" justify="center">
-                    <Loader />
-                    <Space h={50} />
-                    <Button variant="outline" onClick={cancel}>
-                        Cancel
-                    </Button>
-                </Flex>
+                <Paper radius={20} shadow="md" p={30}>
+                    <Flex direction="column" align="center" justify="center">
+                        <Title fz={"md"} my={20}>
+                            Waiting for opponent
+                        </Title>
+                        <Loader variant="dots" my={20} />
+                        <Button variant="default" onClick={cancel} color="gray" my={20}>
+                            Cancel
+                        </Button>
+                    </Flex>
+                </Paper>
             </Modal>
             <Menu shadow="md" width={200} withArrow arrowSize={15} position="bottom-end" arrowOffset={42}>
                 <Menu.Target>
