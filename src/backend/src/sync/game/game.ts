@@ -364,7 +364,7 @@ export class Game {
       this.score.player1 = GOALS_TO_WIN;
       this.score.player2 = 0;
     }
-    this.endGameCallback();
+    this.endGameCallback(this.id);
   }
 
   stopGame() {
