@@ -51,10 +51,11 @@ export function ProfileLayout({ id }: props) {
             .then((res: any) => {
                 if (res.status == 200) {
                     setProfile(res?.data);
-                    console.log(res?.data?.Friends);
-                    if (res?.data?.Friends?.find((friend: any) => friend.id == user.id)) {
-                        setFriendStatus("friend");
-                    }
+                    res?.data?.Friends?.find((friend: any) => {
+                        if (friend.friendId == user.id) {
+                            setFriendStatus(friend.friendshipStatus.toLowerCase());
+                        }
+                    });
                 }
             })
             .catch((err: any) => {
@@ -105,13 +106,14 @@ export function ProfileLayout({ id }: props) {
                 });
                 return;
             }
-            if (data) return;
-            setFriendStatus("pending");
-            notifications.show({
-                title: "Success",
-                message: data.message,
-                color: "green",
-            });
+            if (data.status == 201) {
+                setFriendStatus("pending");
+                notifications.show({
+                    title: "Success",
+                    message: data.message,
+                    color: "green",
+                });
+            }
         });
     };
 
@@ -143,13 +145,13 @@ export function ProfileLayout({ id }: props) {
                         {profile && profile?.username == user?.username ? null : (
                             <>
                                 {FriendStatus === "not_friend" ? (
-                                    <Tooltip label="Add Friend" position="bottom">
+                                    <Tooltip label="Add Friend" position="top">
                                         <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md" onClick={addUser}>
                                             <IconUserPlus />
                                         </ActionIcon>
                                     </Tooltip>
                                 ) : FriendStatus === "pending" ? (
-                                    <Tooltip label="Pending" position="bottom">
+                                    <Tooltip label="Pending" position="top">
                                         <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md">
                                             <IconUserShare />
                                         </ActionIcon>
