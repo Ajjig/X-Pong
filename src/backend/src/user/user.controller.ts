@@ -85,7 +85,7 @@ export class UserController {
     @UsePipes(ValidationPipe)
     @Post('/set_username') // change username
     async setProfileUsernameByusername(@Req() request: any, @Body() body: UpdateUsernameDto, @Res() res: Response) {
-        const isUpdates = this.userService.setProfileUsernameByusername(request.user.username, body.new_username);
+        const isUpdates = this.userService.setProfileUsernameByusername(request.user.id, body.new_username);
         if (isUpdates) {
             request.user.username = body.new_username;
             return this.authService.updateProfileAndToken(request.user, res);
@@ -93,18 +93,9 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('/set_confirmed')
-    async setProfileConfirmedByUsername(@Req() request: any) {
-        if (!request.user.username) {
-            throw new BadRequestException('Missing username');
-        }
-        return this.userService.setProfileConfirmedByUsername(request.user.username);
-    }
-
-    @UseGuards(JwtAuthGuard)
     @Get('/get_stats/:id')
     async getProfileStatsByUsername(@Req() request: any, @Param('id', ParseIntPipe) id: number) {
-        if (!request.user.username) {
+        if (!request.user.id) {
             throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
         }
         return this.userService.getProfileStatsByID(id);
@@ -113,11 +104,10 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @Get('profile')
     async getProfile(@Req() request: any) {
-        if (!request.user.username) {
+        if (!request.user.id) {
             throw new BadRequestException('Missing username');
         }
-        const username = request.user.username;
-        return this.userService.getUserDataByUsername(username, username);
+        return this.userService.getUserDataProfileByID(request.user.id);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -127,26 +117,6 @@ export class UserController {
             throw new BadRequestException('Missing username');
         }
         return await this.userService.getUserDataByUsername(username, request.user.username);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(ValidationPipe)
-    @Post('/add_friend')
-    async addFriendByUsername(@Req() request: any, @Body() body: FriendDto) {
-        if (!body || !request.user.username || !body.friend_username) {
-            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
-        }
-        return this.userService.addFriendByUsername(request.user.username, body.friend_username);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(ValidationPipe)
-    @Post('/accept_friend_request')
-    async acceptFriendRequestByUsername(@Req() request: any, @Body() body: FriendDto) {
-        if (!body || !body.friend_username) {
-            throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
-        }
-        return this.userService.acceptFriendRequestByUsername(request.user.username, body.friend_username);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -162,7 +132,7 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @Get('/:username/matches')
     async getMatchesByUsername(@Req() request: any, @Param('username') username: string) {
-        if (!request.user.username || !username) {
+        if (!request.user.id || !username) {
             throw new HttpException('Missing username', HttpStatus.BAD_REQUEST);
         }
 
@@ -219,11 +189,7 @@ export class UserController {
     @UsePipes(ValidationPipe)
     @Post('/check_channel_password')
     async checkChannelPasswordByUsername(@Req() request: any, @Body() body: CheckChannelPasswordDto) {
-        return this.UserChannelService.checkChannelPasswordByUsername(
-            request.user.username,
-            body.channel_name,
-            body.password,
-        );
+        return this.UserChannelService.checkChannelPasswordByUsername(body.channel_name, body.password);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -395,7 +361,7 @@ export class UserController {
         if (!body || !body.friend_username) {
             throw new HttpException('Missing username or friend_username', HttpStatus.BAD_REQUEST);
         }
-        return this.userService.rejectFriendRequestByUsername(request.user.username, body.friend_username);
+        return this.userService.rejectFriendRequestByUsername(request.user.id, body.friend_username);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -404,7 +370,7 @@ export class UserController {
         if (!body || !body.channelID) {
             throw new HttpException('Missing channel ID', HttpStatus.BAD_REQUEST);
         }
-        return this.UserChannelService.joinChannelByUsername(request.user.username, body.channelID, body.password);
+        return this.UserChannelService.joinChannelByUsername(request.user.id, body.channelID, body.password);
     }
 
     @UseGuards(JwtAuthGuard)
