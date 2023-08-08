@@ -431,18 +431,16 @@ export class ChatService {
         Server: Server,
         connectedClients: Map<string, Socket>,
     ): Promise<any> {
-
-      const user = await this.prisma.user.findUnique({
-          where: {
-              id: userId,
-          },
-          include: {
-              Friends: true,
-          },
-      });
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                Friends: true,
+            },
+        });
         const userClient = connectedClients.get(user.username);
         const friendClient = connectedClients.get(friendRequest);
-
 
         const friendUser = await this.prisma.user.findUnique({
             where: {
@@ -458,7 +456,7 @@ export class ChatService {
         }
 
         // update the friendship status to accepted
-    
+
         const userFriend = await this.prisma.friends.updateMany({
             where: {
                 requestSentToID: user.id,
@@ -537,8 +535,7 @@ export class ChatService {
             where: { id: userId },
         });
 
-      
-      if (userobject.username === friendUsername) {
+        if (userobject.username === friendUsername) {
             const response: SocketResponseDto = {
                 status: HttpStatus.BAD_REQUEST,
                 message: "You can't send a friend request to yourself",
@@ -546,8 +543,6 @@ export class ChatService {
             this.emitToUser(Server, userobject.username, 'add_friend', response);
             return null;
         }
-
-   
 
         const friend = await this.prisma.user.findUnique({
             where: { username: friendUsername },
@@ -608,8 +603,12 @@ export class ChatService {
             },
         });
         this.emitToUser(Server, friendUsername, 'notification', notification_SIDE);
+        const response: SocketResponseDto = {
+            status: HttpStatus.CREATED,
+            message: 'Friend request sent',
+        };
 
-        return my_side;
+        return response;
     }
 
     async loadUserNotifications(userId: number): Promise<notificationsDto[]> {
