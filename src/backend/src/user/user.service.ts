@@ -78,22 +78,16 @@ export class UserService {
             createdAt: true,
             updatedAt: true,
           },
-      }},
+        },
+        Matchs: true,
+      },
     });
     // get user matchs
     if (!user) {
       throw new NotFoundException(`User id ${userId} not found`);
     }
 
-    let matches = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        Matchs: true,
-      },
-    }).Matchs;
-
-    user.Userstats['matches'] = matches ?? [];
-    return user.Userstats;
+    return user;
   }
 
   async getUserDataByUsername(username: string, reqUsername: string) {
