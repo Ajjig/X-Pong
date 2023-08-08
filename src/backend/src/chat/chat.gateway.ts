@@ -385,8 +385,11 @@ export class ChatGateway {
             return;
         }
 
-        const result = await this.chatService.addFriend(userdata.uid, friendObject.username, this.server);
-        client.emit('add_friend', result);
+        await this.chatService.addFriend(userdata.uid, friendObject.username, this.server);
+        // if (result)
+        // {
+        //     client.emit('add_friend', result);
+        // }
     }
 
     // socket Connection Handler
