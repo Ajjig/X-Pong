@@ -7,8 +7,9 @@ WORKDIR /workspace
 
 COPY . .
 
-RUN npm i
+RUN npm i --legacy-peer-deps
 
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "launch"]
+# CMD ["npm", "run", "dev"]
 
