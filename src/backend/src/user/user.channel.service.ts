@@ -491,12 +491,9 @@ export class UserChannelService {
     }
 
     getAllPublicChannels(): Promise<any> {
-        return this.prisma.channel.findMany({
-            where : {
-                AND : [
-                    {type : 'public'},
-                    {type : 'protected'}
-                ],
+        let channels = this.prisma.channel.findMany({
+            where: {
+                AND: [{ type: 'public' }, { type: 'protected' }],
             },
             select: {
                 name: true,
@@ -504,9 +501,11 @@ export class UserChannelService {
                 ownerId: true,
                 id: true,
                 createdAt: true,
-                members : true
+                members: true,
             },
         });
+
+        return channels;
     }
 
     async checkIfUserIsBlockedFromChannel(
