@@ -5,6 +5,13 @@ import { Userstats } from '@prisma/client';
 import { AchievementDto } from '../dto/achievement.dto';
 
 const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
+
+    'newbie': {
+        name: 'Newbie!',
+        description: 'Score your first goal',
+        iconUrl: '/achievements/newbie.jpg',
+    },
+
     'first-win': {
         name: 'First Win',
         description: 'Win your first game ever',
@@ -19,7 +26,7 @@ const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
 
     '5-goals': {
         name: 'The king who scored 5 goals in a single game',
-        description: 'Score 5 goals in a game before your opponent scores 1',
+        description: 'Score 5 goals in a single 1v1 game',
         iconUrl: '/achievements/5goals.jpg',
     },
 
@@ -94,9 +101,15 @@ export class SaveGameService {
         }
 
         const winnerWins = (await this.getUserByUsername(result.winner)).Userstats.wins;
+        const loserWins = (await this.getUserByUsername(result.loser)).Userstats.wins;
+
+        if (loserWins === 0 && result.score.loser === 1) {
+            await this.saveAchievement(result.loser, result.loserClient, 'newbie');
+        }
 
         if (winnerWins === 0) {
             await this.saveAchievement(result.winner, result.winnerClient, 'first-win');
+            await this.saveAchievement(result.winner, result.winnerClient, 'newbie');
         }
 
         if (winnerWins === 5) {
@@ -119,6 +132,7 @@ export class SaveGameService {
                     where: { userId: winnerId },
                     data: { ladder: 'Bronze' },
                 });
+                
             }
 
             if (winnerWins === 3) {
