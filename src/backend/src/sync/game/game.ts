@@ -47,7 +47,6 @@ export class Game {
     this.player1Id = clientsData.player1Id;
     this.player2Id = clientsData.player2Id;
     this.emitMatch(true, true);
-    this.startGame();
   }
       
   startGame() { 
@@ -93,10 +92,6 @@ export class Game {
         y: this.player2.position.y,
       },
       score: this.score,
-      ids: {
-        player1: this.player1Id,
-        player2: this.player2Id,
-      },
     };
     this.client1 && this.client1.emit('gameState', gameState);
     this.client2 && this.client2.emit('gameState', gameState);
@@ -139,22 +134,19 @@ export class Game {
     
     World.add(world, [this.ball]);
   }
+  
 
-  handleEvents() {
-    const  engine = this.engine;
+  updateBall = () => {
+    console.log(Date());
+    Body.setVelocity(this.ball, this.ballDir);
+    this.updatePlayers();
+    this.updateGame();
+  }
 
+  onCollisionStart = (event) => {
 
-    // const dir = this.ballDir;
-    let collide = 10;
-
-    const updateBall = () => {
-      Body.setVelocity(this.ball, this.ballDir);
-      this.updatePlayers();
-      this.updateGame();
-    };
-    // if the ball is colliding with the wall then change the direction
-    Events.on(engine, "collisionStart", (event) => {
-      let pairs = event.pairs;
+      let collide = 10; 
+    let pairs = event.pairs;
 
       pairs.forEach((pair: any) => {
         if (pair.bodyA.id == 1 || pair.bodyA.id == 2) {
@@ -178,64 +170,69 @@ export class Game {
           this.ballDir.y = Math.sin(angle) * BALL_SPEED;
         }
       });
-    });
+  }
 
-
-    Events.on(engine, 'collisionEnd', (event) => {
-
-      const resetball = () => {
-        Body.setPosition(this.ball, {
-          x: 450,
-          y: 250,
-        });
-
-        this.ballDir = {
-          x: 0,
-          y: 0,
-        };
-
-        const difScore = (this.score.player1 + this.score.player2) % 2;
-
-        const ballDirs = [
-          {
-            x: Math.cos(1) * BALL_SPEED,
-            y: Math.sin(0.75) * BALL_SPEED,
-          },
-          {
-            x: -Math.cos(1) * BALL_SPEED,
-            y: -Math.sin(0.75) * BALL_SPEED,
-          },
-        ]
-
-        this.countDown();
-        setTimeout(() => { this.ballDir = ballDirs[difScore] }, 5000);
-      };
-
-      let pairs = event.pairs;
-      pairs.forEach((pair: any) => {
-        if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
-          this.score.player2++;
-          this.score.player2 < GOALS_TO_WIN && resetball();
-        } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
-          this.score.player1++;
-          this.score.player1 < GOALS_TO_WIN && resetball();
-        }
+  onCollisionEnd = (event) => {
+    const resetball = () => {
+      Body.setPosition(this.ball, {
+        x: 450,
+        y: 250,
       });
 
-      const p1 = this.score.player1;
-      const p2 = this.score.player2;
+      this.ballDir = {
+        x: 0,
+        y: 0,
+      };
 
-      if (p1 >= GOALS_TO_WIN || p2 >= GOALS_TO_WIN) {
-        
-        this.client1 && this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
-        this.client2 && this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
-        this.client1 && this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
-        this.client2 && this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
-        this.endGameCallback(this.id);
+      const difScore = (this.score.player1 + this.score.player2) % 2;
+
+      const ballDirs = [
+        {
+          x: Math.cos(1) * BALL_SPEED,
+          y: Math.sin(0.75) * BALL_SPEED,
+        },
+        {
+          x: -Math.cos(1) * BALL_SPEED,
+          y: -Math.sin(0.75) * BALL_SPEED,
+        },
+      ]
+
+      this.countDown();
+      setTimeout(() => { this.ballDir = ballDirs[difScore] }, 5000);
+    };
+
+    let pairs = event.pairs;
+    pairs.forEach((pair: any) => {
+      if (pair.bodyA.id == 3 && pair.bodyB.id == 5) {
+        this.score.player2++;
+        this.score.player2 < GOALS_TO_WIN && resetball();
+      } else if (pair.bodyA.id == 4 && pair.bodyB.id == 5) {
+        this.score.player1++;
+        this.score.player1 < GOALS_TO_WIN && resetball();
       }
     });
 
-    Events.on(engine, "beforeUpdate", updateBall);
+    const p1 = this.score.player1;
+    const p2 = this.score.player2;
+
+    if (p1 >= GOALS_TO_WIN || p2 >= GOALS_TO_WIN) {
+      
+      this.client1 && this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
+      this.client2 && this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
+      this.client1 && this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
+      this.client2 && this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
+      this.endGameCallback(this.id);
+    }
+  }
+
+  handleEvents() {
+    
+    Events.on(this.engine, "collisionStart", this.onCollisionStart);
+
+    Events.on(this.engine, 'collisionEnd', this.onCollisionEnd);
+
+    Events.on(this.engine, "beforeUpdate", this.updateBall);
+
   }
 
   createWalls() {
@@ -310,12 +307,14 @@ export class Game {
         roomName: this.id,
         player: 1,
         opponentName: this.player2Username,
+        opponentId: this.player2Id,
       });
     if (isClient2 && this.client2)
       this.client2.emit((isClient1) ? 'match' : 're-match', {
         roomName: this.id,
         player: 2,
         opponentName: this.player1Username,
+        opponentId: this.player1Id,
       });
   }
 
@@ -370,9 +369,10 @@ export class Game {
   }
 
   stopGame() {
-    Events.off(this.engine, "collisionStart");
-    Events.off(this.engine, "beforeUpdate");
-    Events.off(this.engine, "collisionEnd");
+    
+    Events.off(this.engine, "collisionStart", this.onCollisionStart);
+    Events.off(this.engine, 'collisionEnd', this.onCollisionEnd);
+    Events.off(this.engine, "beforeUpdate", this.updateBall);
 
     World.clear(this.world);
     Engine.clear(this.engine);
