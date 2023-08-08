@@ -33,6 +33,8 @@ export class Game {
     x: 0,
     y: 0,
   };
+  player1Id: number;
+  player2Id: number;
 
   private readonly saveGameService = new SaveGameService();
 
@@ -42,6 +44,8 @@ export class Game {
     this.player2Username = clientsData.player2Username;
     this.client1 = clientsData.client1;
     this.client2 = clientsData.client2;
+    this.player1Id = clientsData.player1Id;
+    this.player2Id = clientsData.player2Id;
     this.emitMatch(true, true);
     this.startGame();
   }
@@ -271,22 +275,18 @@ export class Game {
   }
 
   createWorld() {
-    const engine = Engine.create({
+    this.engine = Engine.create({
       gravity: {
         x: 0,
         y: 0,
         scale: 0,
       },
     });
-    const world = engine.world;
-    const runner = Runner.create();
+    this.world = this.engine.world;
+    this.runner = Runner.create();
 
-    Runner.run(runner, engine);
+    Runner.run(this.runner, this.engine);
 
-
-    this.engine = engine;
-    this.runner = runner;
-    this.world = world;
   }
 
   move(client: any, move) {
@@ -351,12 +351,31 @@ export class Game {
     this.emitMatch(username === this.player1Username, username === this.player2Username);
   }
 
+
+  onLeaveGame(username: string) {
+    if (username === this.player1Username) {
+      this.client2 && this.client2.emit('opponent-left', {});
+      this.score.player2 = GOALS_TO_WIN;
+      this.score.player1 = 0;
+    } else if (username === this.player2Username) {
+      this.client1 && this.client1.emit('opponent-left', {});
+      this.score.player1 = GOALS_TO_WIN;
+      this.score.player2 = 0;
+    }
+    this.endGameCallback();
+  }
+
   stopGame() {
     Events.off(this.engine, "collisionStart");
     Events.off(this.engine, "beforeUpdate");
+    Events.off(this.engine, "collisionEnd");
+
     World.clear(this.world);
     Engine.clear(this.engine);
     Runner.stop(this.runner);
+    this.client1 = null;
+    this.client2 = null;
+
     this.logger.log(`Match '${this.id}' ended`);
     this.saveGameService.saveGame({
       winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
