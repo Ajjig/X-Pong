@@ -2,8 +2,6 @@ import { Box, Container, useMantineTheme } from "@mantine/core";
 import React, { use, useEffect, useRef, useState } from "react";
 import HeaderDashboard from "../Components/header";
 import store from "@/store/store";
-import api from "@/api";
-import { Loading } from "@/Components/loading/loading";
 import Matter, { Composite } from "matter-js";
 import { Match_info } from "@/Components/matchs_history/match_info";
 import { gameState as TypeGameState, oppType } from "@/Components/game/types.d";
