@@ -7,25 +7,25 @@ import { AchievementDto } from '../dto/achievement.dto';
 const ACHIEVEMENTS: { [key: string]: AchievementDto } = {
     'first-win': {
         name: 'First Win',
-        description: 'Win your first game',
+        description: 'Win your first game ever',
         iconUrl: '/achievements/firstwin.jpg',
     },
 
     '3-goals': {
         name: 'Such a hat-trick',
-        description: 'Score 3 goals in a game before your opponent scores 1',
+        description: 'Win a 1v1 game with hat-trick difference',
         iconUrl: '/achievements/3goals.jpg',
     },
 
     '5-goals': {
-        name: 'The king who scored 5 goals',
+        name: 'The king who scored 5 goals in a single game',
         description: 'Score 5 goals in a game before your opponent scores 1',
         iconUrl: '/achievements/5goals.jpg',
     },
 
     'harry-maguire': {
-        name: 'Harry Maguire!',
-        description: 'Lose with difference of 3 goals',
+        name: 'Three times',
+        description: 'Lose with difference of 3 goals in a game',
         iconUrl: '/achievements/harrymaguire.jpg',
     },
 
@@ -54,14 +54,31 @@ export class SaveGameService {
     private readonly logger = new Logger('SAVE-GAME');
     constructor() {}
 
-    async getUserByUsername(username: string): Promise<{ id: number; Userstats: Userstats }> {
+    async getUserByUsername(username: string): Promise<{
+        id: number;
+        Userstats: {
+            id: number;
+            achievements: AchievementDto[];
+            wins: number;
+            losses: number;
+            ladder: string;
+        }
+    }> {
         return await this.prisma.user.findUnique({
             where: {
                 username: username,
             },
             select: {
                 id: true,
-                Userstats: true,
+                Userstats: {
+                    select: {
+                        id: true,
+                        achievements: true,
+                        wins: true,
+                        losses: true,
+                        ladder: true,
+                    },
+                }
             },
         });
     }
@@ -69,15 +86,16 @@ export class SaveGameService {
     async handleAchievements(result: ResultDto) {
         if (result.score.winner === 5 && result.score.loser === 0) {
             await this.saveAchievement(result.winner, result.winnerClient, '5-goals');
-        }
-
-        if (result.score.winner === 3 && result.score.loser === 0) {
-            await this.saveAchievement(result.winner, result.winnerClient, '3-goals');
             await this.saveAchievement(result.loser, result.loserClient, 'harry-maguire');
         }
 
+        if (result.score.winner - result.score.loser >= 3) {
+            await this.saveAchievement(result.winner, result.winnerClient, '3-goals');
+        }
+
         const winnerWins = (await this.getUserByUsername(result.winner)).Userstats.wins;
-        if (winnerWins === 1) {
+
+        if (winnerWins === 0) {
             await this.saveAchievement(result.winner, result.winnerClient, 'first-win');
         }
 
@@ -225,26 +243,26 @@ export class SaveGameService {
     async saveAchievement(username: string, client: any, achievement: string) {
         if (!ACHIEVEMENTS[achievement]) return;
 
-        const userStatsId = (await this.getUserByUsername(username)).Userstats.id;
+        const userStats = (await this.getUserByUsername(username)).Userstats;
 
         // check if user already has this achievement
-        const userAchievements = await this.prisma.achievements.findMany({
-            where: { userId: userStatsId },
-        });
+        const userAchievements = userStats.achievements;
 
         if (userAchievements.find((a) => a.name === ACHIEVEMENTS[achievement].name)) return;
 
-        await this.prisma.userstats.update({
-            where: { id: userStatsId },
+        await this.prisma.achievements.create({
             data: {
-                achievements: {
-                    create: {
-                        ...ACHIEVEMENTS[achievement],
+                name: ACHIEVEMENTS[achievement].name,
+                description: ACHIEVEMENTS[achievement].description,
+                iconUrl: ACHIEVEMENTS[achievement].iconUrl,
+                user: {
+                    connect: {
+                        id: userStats.id,
                     },
                 },
             },
         });
 
-        client.emit('achievement', ACHIEVEMENTS[achievement]);
+        client && client.emit('achievement', ACHIEVEMENTS[achievement]);
     }
 }

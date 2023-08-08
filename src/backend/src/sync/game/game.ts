@@ -377,9 +377,10 @@ export class Game {
     World.clear(this.world);
     Engine.clear(this.engine);
     Runner.stop(this.runner);
-    this.client1 = null;
-    this.client2 = null;
-
+    this.engine = null;
+    this.world = null;
+    this.runner = null;
+    
     this.logger.log(`Match '${this.id}' ended`);
     this.saveGameService.saveGame({
       winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
@@ -392,5 +393,9 @@ export class Game {
       winnerClient: this.score.player1 > this.score.player2 ? this.client1 : this.client2,
       loserClient: this.score.player1 < this.score.player2 ? this.client1 : this.client2,
     });
+
+    this.client1 = null;
+    this.client2 = null;
+  
   }
 }
