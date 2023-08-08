@@ -4,6 +4,7 @@ import { Game } from './game';
 import { Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import { InvitDto } from '../dto/invit.dto';
+import { match } from 'assert';
 
 
 @Injectable()
@@ -28,6 +29,7 @@ export class GameService {
 
     if (this.isInGame(username)) {
       client.emit('error', `You are already in a game`);
+      client.emit('cancel-join', {});
       return;
     }
 
