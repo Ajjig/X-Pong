@@ -31,8 +31,8 @@ services:
       - warper-network
     ports:
       - "5432:5432"
-    # volumes:
-    #   - ./src/database/:/docker-entrypoint-initdb.d
+    volumes:
+      - ./src/database/:/var/lib/postgresql/data
     environment:
       - PGDATA=/var/lib/postgresql/custom-data
     restart: unless-stopped

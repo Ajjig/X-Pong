@@ -15,6 +15,7 @@ import {
     Title,
     createStyles,
     Divider,
+    Tooltip,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useMantineTheme, Flex } from "@mantine/core";
@@ -23,7 +24,7 @@ import { useMantineTheme, Flex } from "@mantine/core";
 import { Text } from "@mantine/core";
 import HeaderDashboard from "../Components/header";
 import store from "@/store/store";
-import { IconEdit, IconMessage, IconUserPlus } from "@tabler/icons-react";
+import { IconEdit, IconMessage, IconUserPlus, IconUserShare } from "@tabler/icons-react";
 import { UserInfo } from "../Components/profile/ProfileUserInfoSection";
 import api from "@/api";
 import { IconSend } from "@tabler/icons-react";
@@ -42,14 +43,20 @@ interface props {
 export function ProfileLayout({ id }: props) {
     const [profile, setProfile] = useState<any>(null);
     const user: any = store.getState().profile.user;
-
     const [userState, setUserState] = useState<any>(null);
+    const [FriendStatus, setFriendStatus] = useState<"friend" | "not_friend" | "pending">("not_friend");
 
     useEffect(() => {
         api.get("/user/id/" + id)
             .then((res: any) => {
-                if (res.status == 200) setProfile(res.data);
-                console.log(res.data);
+                if (res.status == 200) {
+                    setProfile(res?.data);
+                    res?.data?.Friends?.find((friend: any) => {
+                        if (friend.friendId == user.id) {
+                            setFriendStatus(friend.friendshipStatus.toLowerCase());
+                        }
+                    });
+                }
             })
             .catch((err: any) => {
                 notifications.show({
@@ -60,7 +67,6 @@ export function ProfileLayout({ id }: props) {
             });
         api.get("/user/get_stats/" + id)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 setUserState(res.data);
             })
             .catch((err: AxiosError<{ message: string }>) => {
@@ -85,11 +91,30 @@ export function ProfileLayout({ id }: props) {
     };
 
     const addUser = () => {
-        console.log("addUser: ", profile.username);
         const payload: AddFriendRequest = {
             id: profile.id,
         };
-        store.getState().io.socket?.emit("add_friend", payload);
+        if (!chatSocket.connected) chatSocket.connect();
+        chatSocket.emit("add_friend", payload);
+
+        chatSocket.on("add_friend", (data: any) => {
+            if (data && data.status == 400) {
+                notifications.show({
+                    title: "Error",
+                    message: data.message,
+                    color: "red",
+                });
+                return;
+            }
+            if (data.status == 201) {
+                setFriendStatus("pending");
+                notifications.show({
+                    title: "Success",
+                    message: data.message,
+                    color: "green",
+                });
+            }
+        });
     };
 
     const HeaderRef = React.useRef(null);
@@ -117,12 +142,23 @@ export function ProfileLayout({ id }: props) {
                     </Box>
                     {/* buttons */}
                     <Group position="right" spacing="xs" py={"xl"} pr={"xl"}>
-                        {profile && profile.username == user.username ? null : ( // </ActionIcon> //     <IconEdit /> // > //     }} //         color: theme.colors.gray[1], //     sx={{ //     onClick={() => {}} //     radius="md" //     color="gray" //     size="xl" //     p={10} //     variant="filled" // <ActionIcon
+                        {profile && profile?.username == user?.username ? null : (
                             <>
-                                <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md" onClick={addUser}>
-                                    <IconUserPlus />
-                                </ActionIcon>
-                                <Message message={message} setMessage={setMessage} profile={profile} sendMessage={sendMessage} />
+                                {FriendStatus === "not_friend" ? (
+                                    <Tooltip label="Add Friend" position="top">
+                                        <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md" onClick={addUser}>
+                                            <IconUserPlus />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                ) : FriendStatus === "pending" ? (
+                                    <Tooltip label="Pending" position="top">
+                                        <ActionIcon variant="filled" p={10} size="xl" color="gray" radius="md">
+                                            <IconUserShare />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                ) : (
+                                    <Message message={message} setMessage={setMessage} profile={profile} sendMessage={sendMessage} />
+                                )}
                             </>
                         )}
                     </Group>
@@ -130,46 +166,46 @@ export function ProfileLayout({ id }: props) {
 
                 {/* archivments */}
                 {userState && userState?.stats && <Achivments userState={userState} />}
-
-                <Box px={0}>
-                    <Paper radius={20} bg="cos_black.2">
-                        <Grid>
-                            <Grid.Col span={12}>
-                                <Paper radius={20} bg={"transparent"}>
-                                    <Box p={20}>
-                                        <Title
-                                            order={2}
-                                            sx={(theme: MantineTheme) => ({
-                                                fontSize: "1.3rem",
-                                                [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                                                    fontSize: "1.2rem",
-                                                },
-                                                [theme.fn.smallerThan(theme.breakpoints.xs)]: {
-                                                    fontSize: "1rem",
-                                                },
-                                                color: theme.colors.gray[4],
-                                            })}
-                                        >
-                                            Match History
-                                        </Title>
-                                        <Space h={20} />
-                                        <Grid>
-                                            {userState?.matchs?.map((match: any) => {
-                                                console.log(match);
-                                                return (
-                                                    <Grid.Col span={12} key={match.id}>
-                                                        <Match_info match={match} />
-                                                    </Grid.Col>
-                                                );
-                                            })}
-                                        </Grid>
-                                    </Box>
-                                </Paper>
-                            </Grid.Col>
-                        </Grid>
-                    </Paper>
-                    <Space h={30} />
-                </Box>
+                {userState?.matchs?.length > 0 && (
+                    <Box px={0}>
+                        <Paper radius={20} bg="cos_black.2">
+                            <Grid>
+                                <Grid.Col span={12}>
+                                    <Paper radius={20} bg={"transparent"}>
+                                        <Box p={20}>
+                                            <Title
+                                                order={2}
+                                                sx={(theme: MantineTheme) => ({
+                                                    fontSize: "1.3rem",
+                                                    [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                                        fontSize: "1.2rem",
+                                                    },
+                                                    [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                                        fontSize: "1rem",
+                                                    },
+                                                    color: theme.colors.gray[4],
+                                                })}
+                                            >
+                                                Match History
+                                            </Title>
+                                            <Space h={20} />
+                                            <Grid>
+                                                {userState?.matchs?.map((match: any) => {
+                                                    return (
+                                                        <Grid.Col span={12} key={match.id}>
+                                                            <Match_info match={match} />
+                                                        </Grid.Col>
+                                                    );
+                                                })}
+                                            </Grid>
+                                        </Box>
+                                    </Paper>
+                                </Grid.Col>
+                            </Grid>
+                        </Paper>
+                        <Space h={30} />
+                    </Box>
+                )}
             </Container>
         </>
     );

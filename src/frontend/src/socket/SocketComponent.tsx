@@ -17,9 +17,12 @@ import { notifications } from "@mantine/notifications";
 import { TypeMessage } from "@/Components/dashboard/type";
 import api from "@/api";
 import { Image } from "@mantine/core";
+import { useRouter } from "next/router";
 
 const SocketComponent = () => {
     const [connected, setConnected] = useState(false);
+    const router = useRouter();
+
     useEffect(() => {
         if (!socketGame.connected) {
             socketGame.connect();
@@ -35,12 +38,13 @@ const SocketComponent = () => {
 
     useEffect(() => {
         // Connect to the socket server
-        socketGame.on("gameState", (gameState: any) => {
-            store.dispatch(setGameState(gameState));
-        });
 
         store.dispatch(setSocket(socketGame));
         store.dispatch(setSocket(chatSocket));
+
+        socketGame.on("gameState", (gameState: any) => {
+            store.dispatch(setGameState(gameState));
+        });
 
         socketGame.on("error", (err: string) => {
             console.log(err);
@@ -49,6 +53,12 @@ const SocketComponent = () => {
                 message: err,
                 color: "red",
             });
+        });
+
+        socketGame.on("end-game", () => {
+            setTimeout(() => {
+                router.push("/dashboard");
+            }, 2000);
         });
 
         // Event handler for socket connection

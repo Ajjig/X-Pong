@@ -40,9 +40,6 @@ function LeftMenu({ withUser = true, closeDrawer = null }: { withUser?: boolean;
     return (
         <Flex align="center">
             <Play />
-            <Space w={theme.spacing.md} />
-            <NotificationPopover />
-            <Space w={theme.spacing.md} />
             {withUser && <ProfileSection closeDrawer={closeDrawer} />}
         </Flex>
     );

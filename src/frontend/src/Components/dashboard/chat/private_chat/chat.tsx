@@ -72,10 +72,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
         //get the last message
         const lastMessage = scrollRef.current?.lastElementChild;
         // scroll to the last message
-        lastMessage
-            ?.scrollIntoView
-            // { behavior: "smooth" }
-            ();
+        lastMessage?.scrollIntoView();
     }, [messages]);
 
     return (
@@ -91,13 +88,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
         >
             {/* header */}
             <Paper bg="none" p="none" w="100%">
-                <Flex
-                    justify="flex-start"
-                    align="center"
-                    p="md"
-                    h="auto"
-                    // sx={(theme: MantineTheme) => ({ borderBottom: `3px solid ${theme.colors.cos_black[0]}` })}
-                >
+                <Flex justify="flex-start" align="center" p="md" h="auto">
                     <Button p={0} h="auto" onClick={() => setSelected(null)}>
                         <IconChevronLeft size={25} />
                         {friend?.id && <Avatar src={api.getUri() + `user/avatar/${friend.id}`} size={45} radius="xl" m={4} />}
