@@ -12,11 +12,9 @@ export default function TwoFA() {
     function verify() {
         api.post("/user/verify_2fa", { code: pinCode })
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 router.push("/dashboard");
             })
             .catch((err: AxiosError<{ message: string }>) => {
-                console.log(err.response?.data);
                 setError(err.response?.data.message ?? "Something went wrong");
             });
     }

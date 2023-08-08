@@ -14,8 +14,6 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const router = useRouter();
     const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
-    console.log(router.pathname);
-
     return (
         <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
             <Paper px="md" bg="cos_black.2">

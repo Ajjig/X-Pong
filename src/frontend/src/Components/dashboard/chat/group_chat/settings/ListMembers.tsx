@@ -72,36 +72,54 @@ export function ListMembers({ members, chat, muteList, getMembers, getMuteList, 
 
 function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members }: any) {
     function makeAdmin(id: number) {
-        console.log("make admin");
         const body: SetUserAsAdminDto = {
             channelId: chat.id,
             newAdminId: id,
         };
-        console.log(body);
+
         api.post(`/user/set_user_as_admin_of_channel`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
+                notifications.show({
+                    title: "Admin",
+                    message: res.data.message ?? `You made ${members.find((member: any) => member.id == id).name} admin of ${chat.name}`,
+                    color: "green",
+                    autoClose: 5000,
+                });
                 chatSocket.emit("reconnect");
             })
-            .catch((error: AxiosError) => {
-                // console.log(error.response);
+            .catch((error: AxiosError<{ message: string }>) => {
+                notifications.show({
+                    title: "Error",
+                    message: error?.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
             });
     }
 
     function removeAdmin(id: number) {
-        console.log("remove admin");
         const body: RemoveAdminDto = {
             channelId: chat.id,
             userId: id,
         };
-        console.log(body);
+
         api.post(`/user/remove_admin_from_channel`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 chatSocket.emit("reconnect");
+                notifications.show({
+                    title: "Admin",
+                    message: res.data.message ?? `You removed ${members.find((member: any) => member.id == id).name} from admin of ${chat.name}`,
+                    color: "green",
+                    autoClose: 5000,
+                });
             })
-            .catch((error: AxiosError) => {
-                // console.log(error.response);
+            .catch((error: AxiosError<{ message: string }>) => {
+                notifications.show({
+                    title: "Error",
+                    message: error?.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
             });
     }
 
@@ -113,7 +131,6 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
 
         api.post(`/user/set_user_as_kicked_of_channel`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 notifications.show({
                     title: "Kicked",
                     message: res.data.message ?? `You kicked ${members.find((member: any) => member.id == id).name} from ${chat.name}`,
@@ -123,8 +140,13 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
                 chatSocket.emit("reconnect");
                 getMembers();
             })
-            .catch((error: AxiosError) => {
-                // console.log(error.response);
+            .catch((error: AxiosError<{ message: string }>) => {
+                notifications.show({
+                    title: "Error",
+                    message: error?.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
             });
     }
 
@@ -134,7 +156,6 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
             userId: id,
             timeoutMs: time,
         };
-        console.log(body);
 
         api.post(`/user/set_user_as_muted_of_channel`, body)
             .then((res: AxiosResponse) => {
@@ -163,10 +184,8 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
             channelId: chat.id,
             BannedId: id,
         };
-        console.log(body);
         api.post(`/user/set_user_as_banned_of_channel`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 chatSocket.emit("reconnect");
                 getMembers();
                 getBanList();
@@ -177,8 +196,13 @@ function MemberMenu({ member, chat, getMembers, getMuteList, getBanList, members
                     autoClose: 5000,
                 });
             })
-            .catch((error: AxiosError) => {
-                // console.log(error.response);
+            .catch((error: AxiosError<{ message: string }>) => {
+                notifications.show({
+                    title: "Error",
+                    message: error?.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
             });
     }
 

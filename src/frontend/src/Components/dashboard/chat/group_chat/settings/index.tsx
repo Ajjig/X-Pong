@@ -28,7 +28,7 @@ import { MuteList } from "./MuteList";
 import { BanList } from "./BanList";
 import { useDisclosure } from "@mantine/hooks";
 import { AddMemberChannelDto, UpdateChannelDto } from "./type";
-import { Notifications } from "@mantine/notifications";
+import { Notifications, notifications } from "@mantine/notifications";
 
 export function SettingGroupChat({ _chat, opened, open, close, children }: { _chat: any; opened: boolean; open: any; close: any; children: any }) {
     const [Loading, setLoading] = useState<boolean>(false);
@@ -144,7 +144,7 @@ function AddMember({ chat, members, setInvited }: any) {
     function getFriends() {
         api.get("/user/friends/list")
             .then((res: AxiosResponse) => {
-                console.log(res?.data);
+                // console.log(res?.data);
                 setfriends(
                     res?.data?.filter((friend: { FriendID: number }) => {
                         let found = false;
@@ -158,8 +158,13 @@ function AddMember({ chat, members, setInvited }: any) {
                 );
                 // setfriends(res?.data);
             })
-            .catch((err: AxiosError) => {
-                console.log(err.response);
+            .catch((err: AxiosError<{ message: string }>) => {
+                // console.log(err.response);
+                notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message,
+                    color: "red",
+                });
             });
     }
 
@@ -168,8 +173,6 @@ function AddMember({ chat, members, setInvited }: any) {
             channelId: chat.id,
             new_memberID: id,
         };
-
-        console.log(payload);
         api.post("/user/set_user_as_member_of_channel", payload)
             .then((res: AxiosResponse) => {
                 setfriends(friends.filter((friend: any) => friend?.friend?.id != id));

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import chatSocket from "@/socket/chatSocket";
 import { joinPublicChannel, groupInfoType } from "./type";
 import { AxiosError, AxiosResponse } from "axios";
-import { notifications } from "@mantine/notifications";
+import { Notifications, notifications } from "@mantine/notifications";
 
 export default function JoinGroup({ show, data, setShowJoinGroup }: { show: boolean; data: any; setShowJoinGroup: any }) {
     const [opened, { open, close }] = useDisclosure();
@@ -30,8 +30,12 @@ export default function JoinGroup({ show, data, setShowJoinGroup }: { show: bool
                 .then((res: AxiosResponse<any>) => {
                     if (res?.status == 200) setGroupInfo(res?.data);
                 })
-                .catch((err: AxiosError) => {
-                    console.log(err);
+                .catch((err: AxiosError<{ message: string }>) => {
+                    Notifications.show({
+                        title: "Error",
+                        message: err.response?.data?.message || "An error occurred",
+                        color: "red",
+                    });
                 });
         }
 
@@ -125,7 +129,6 @@ export default function JoinGroup({ show, data, setShowJoinGroup }: { show: bool
                                             };
                                             api.post("/user/join_channel", body)
                                                 .then((res: AxiosResponse) => {
-                                                    console.log(res);
                                                     if (res?.status == 201) {
                                                         chatSocket.emit("reconnect");
                                                         setJoinGroup(true);
@@ -137,7 +140,7 @@ export default function JoinGroup({ show, data, setShowJoinGroup }: { show: bool
                                                         title: "Error",
                                                         message: err.response?.data?.message || "An error occurred",
                                                         color: "red",
-                                                    })
+                                                    });
                                                 });
                                         }}
                                     >

@@ -6,8 +6,6 @@ import api from "@/api";
 export function Message({ message }: { message: any }) {
     const theme = useMantineTheme();
 
-    console.log(message);
-
     return (
         <Flex justify={message?.user?.username == store.getState().profile?.user?.username ? "flex-end" : "flex-start"}>
             <Flex align="flex-end" direction={message?.user?.username == store.getState().profile.user.username ? "row-reverse" : "row"}>

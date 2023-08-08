@@ -8,8 +8,7 @@ import { type Object3D } from "./types";
 const OPP = 0;
 const PLAYER = 1;
 
-export function PingPongBall({ Ball, Racket, oppRacket }: { Ball: Object3D, Racket: any, oppRacket: any }) {
-    
+export function PingPongBall({ Ball, Racket, oppRacket }: { Ball: Object3D; Racket: any; oppRacket: any }) {
     let ballDirection = PLAYER;
 
     const [ref, api] = useSphere(() => ({
@@ -24,15 +23,13 @@ export function PingPongBall({ Ball, Racket, oppRacket }: { Ball: Object3D, Rack
         collisionFilterMask: Ball.collisionFilterMask,
 
         onCollide(e) {
-
             // console.log(e.body.id, "oppRacket", oppRacket.id, "Racket", Racket.id);
             if (e.body.id === Racket.id) {
                 // console.log(Racket.ref.current.position);
-                console.log("hit racket");
+
                 api.velocity.set((e.contact.contactPoint[0] - Racket.position[0]) * 15, 1.9, 5);
                 ballDirection = OPP;
             } else if (e.body.id === oppRacket.id) {
-                console.log("hit oppRacket");
                 api.velocity.set(0, 1.9, -5);
                 ballDirection = PLAYER;
             }

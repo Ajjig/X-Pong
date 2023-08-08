@@ -7,7 +7,6 @@ import chatSocket from "@/socket/chatSocket";
 import store, { setCurrentChatGroup } from "@/store/store";
 import { Button } from "@mantine/core";
 
-
 export function LeaveTheGroup({ chat }: { chat: any }) {
     function LeaveGroup() {
         let body: LeaveChannelDto = {
@@ -16,7 +15,7 @@ export function LeaveTheGroup({ chat }: { chat: any }) {
 
         api.post(`/user/leave_channel/`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
+                // console.log(res.data);
                 notifications.show({
                     title: "Left",
                     message: res.data.message ?? `You left ${chat.name}`,

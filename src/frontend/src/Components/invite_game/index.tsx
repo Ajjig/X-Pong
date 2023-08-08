@@ -26,13 +26,11 @@ export function InviteToGame() {
         });
 
         socketGame.on("invite-accepted", () => {
-            console.log("invite-accepted");
             setLoading(false);
             close();
         });
 
         socketGame.on("invite-canceled", () => {
-            console.log("invite-canceled");
             setLoading(false);
             close();
         });

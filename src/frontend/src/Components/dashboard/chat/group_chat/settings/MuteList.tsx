@@ -21,7 +21,6 @@ export function MuteList({ muteList, getMembers, members, chat, getMuteList }: p
             userId: id,
             timeoutMs: 1,
         };
-        console.log(body);
 
         api.post(`/user/set_user_as_unmuted_of_channel`, body)
             .then((res: AxiosResponse) => {

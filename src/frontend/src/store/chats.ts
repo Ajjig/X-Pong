@@ -30,7 +30,7 @@ const ChatsSlice = createSlice({
         addNewMessageToGroupChat: (state, action) => {
             // console.log(action.payload)
             const groupChats: any = state.GroupChats.find((chat: any) => {
-                console.log(chat.id, action.payload.channelId, chat.id === action.payload.channelId);
+                // console.log(chat.id, action.payload.channelId, chat.id === action.payload.channelId);
                 return chat.id === action.payload.channelId;
             });
             if (groupChats) {

@@ -21,4 +21,5 @@ export type oppType = {
     roomName: string;
     player: number;
     opponentName: string;
+    opponentId: number;
 };

@@ -34,7 +34,6 @@ export function Play() {
 
     useEffect(() => {
         socketGame.on("match", (data) => {
-            console.log(data);
             store.dispatch(setOpp(data));
             router.push(`/game/${data.roomName}`);
         });

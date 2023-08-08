@@ -1,6 +1,7 @@
 import React from "react";
 import { Flex, Avatar, Title, Paper, Space } from "@mantine/core";
 import store from "@/store/store";
+import api from "@/api";
 
 export function Match_info({
     player1,
@@ -15,13 +16,17 @@ export function Match_info({
     score: { player1: number; player2: number };
     result: any;
     children?: React.ReactNode;
-    oppinfo: { roomName: string; player: number; opponentName: string };
+    oppinfo: { roomName: string; player: number; opponentName: string; opponentId: number };
 }) {
     return (
         <Paper radius={30} bg={"cos_black.1"} p="sm">
             <Flex p={5} align="center" justify="space-between">
                 <Flex align="center">
-                    <Avatar size={40} radius="xl" src={oppinfo?.player === 2 ? oppinfo?.opponentName : store.getState().profile.user.avatarUrl} />
+                    <Avatar
+                        size={40}
+                        radius="xl"
+                        src={oppinfo?.player === 2 ? api.getUri() + "user/avatar/" + oppinfo.opponentId : store.getState().profile.user.avatarUrl}
+                    />
                     <Space w={10} />
                     <Title color="gray.4" fz="sm">
                         {oppinfo?.player === 2 ? oppinfo?.opponentName : "You"}
@@ -37,7 +42,11 @@ export function Match_info({
                         {oppinfo?.player === 1 ? oppinfo?.opponentName : "You"}
                     </Title>
                     <Space w={10} />
-                    <Avatar size={40} radius="xl" src={oppinfo?.player === 1 ? oppinfo?.opponentName : store.getState().profile.user.avatarUrl} />
+                    <Avatar
+                        size={40}
+                        radius="xl"
+                        src={oppinfo?.player === 1 ? api.getUri() + "user/avatar/" + oppinfo.opponentId : store.getState().profile.user.avatarUrl}
+                    />
                 </Flex>
             </Flex>
             {children && (

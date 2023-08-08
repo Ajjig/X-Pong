@@ -41,7 +41,6 @@ export default function Login({ setLoginShow }: Props) {
     const [logoutState, setLogout] = useState(false);
 
     const intraAuth = () => {
-        console.log("42 BTN CLICKED!");
         // implement the 42 login here open small window with 42 login and auth the user
         // poisition the window in the middle of the screen
         window.location.href = api.getUri() + "auth/42";

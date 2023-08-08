@@ -50,7 +50,7 @@ export function PrivateChatMenu({ user }: any) {
 
     return (
         <>
-            <Menu shadow="md" width={200}>
+            <Menu shadow="md" width={200} position="bottom-end" withArrow>
                 <Menu.Target>
                     <Box
                         sx={{
@@ -139,11 +139,9 @@ export function PrivateChatMenu({ user }: any) {
 
                                             api.post("/user/block_friend", body)
                                                 .then((res: AxiosResponse) => {
-                                                    console.log(res.data);
                                                     setSuccessMessage("Ban successfully");
                                                 })
                                                 .catch((err: AxiosError<{ message?: string }>) => {
-                                                    console.log(err.response?.data?.message);
                                                     setErrorMessage(err.response?.data?.message ?? "");
                                                 });
                                         }}

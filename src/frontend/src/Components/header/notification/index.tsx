@@ -53,10 +53,20 @@ export function NotificationPopover() {
             friend_username: username,
         })
             .then((res) => {
-                console.log(res.data);
+                Notifications.show({
+                    title: "Rejected",
+                    message: res.data.message ?? `You rejected ${username}'s friend request`,
+                    color: "green",
+                    autoClose: 5000,
+                });
             })
             .catch((err) => {
-                console.log(err.response);
+                Notifications.show({
+                    title: "Error",
+                    message: err?.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
             });
 
         store.dispatch(removeFriendRequest(id));

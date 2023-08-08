@@ -42,11 +42,9 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
                 let prevProfile = store.getState().profile.user;
                 store.dispatch(setProfile({ ...prevProfile, avatarUrl: api.getUri() + res.data.path }));
                 setProfileImage(api.getUri() + res.data.path);
-                console.log(store.getState().profile.user);
                 setFile(null);
             })
             .catch((err: AxiosError<{ message: string }>) => {
-                console.log(err.response?.data);
                 notifications.show({
                     title: "Error",
                     message: err.response?.data.message,
@@ -69,7 +67,6 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
         };
         api.post("/user/update_user_profile", body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 setLoading(false);
                 notifications.show({
                     title: "Success",
@@ -81,7 +78,6 @@ export function Personalinformation({ opened, open, close }: { opened: boolean; 
                 store.dispatch(setProfile({ ...prevProfile, username: _username, name: _displayName }));
             })
             .catch((err: AxiosError<{ message: string }>) => {
-                console.log(err.response?.data);
                 notifications.show({
                     title: "Error",
                     message: err.response?.data.message,

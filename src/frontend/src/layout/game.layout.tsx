@@ -28,7 +28,7 @@ type TypeMove = {
 const screen: { width: number; height: number } = { width: 900, height: 500 };
 
 export function GameLayout({ gameID }: props) {
-    const [oppinfo, setOppinfo] = useState<oppType>({ roomName: "", player: 0, opponentName: "" });
+    const [oppinfo, setOppinfo] = useState<oppType>({ roomName: "", player: 0, opponentName: "", opponentId: 0 });
     const HeaderRef = React.useRef(null);
     const theme = useMantineTheme();
     const worldRef = useRef<Matter.World>();
@@ -192,6 +192,7 @@ export function GameLayout({ gameID }: props) {
                 }
                 socketGame.emit("move", keys);
             });
+
             document.addEventListener("keyup", (e) => {
                 if (e.key == "ArrowUp") {
                     keys.move.up = false;

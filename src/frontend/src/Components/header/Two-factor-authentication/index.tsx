@@ -59,7 +59,6 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
     function verify(e: string) {
         api.post("/user/verify_2fa", { code: e })
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 notifications.show({
                     title: "Success",
                     message: "Two-factor authentication enabled",
@@ -75,8 +74,6 @@ export function Two_factor_authentication({ opened, open, close }: { opened: boo
                     message: err.response?.data.message,
                     color: "red",
                 });
-
-                console.log(err.response?.data);
                 setError(err.response?.data.message ?? "Something went wrong");
             });
     }

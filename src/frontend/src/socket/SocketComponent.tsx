@@ -117,7 +117,6 @@ const SocketComponent = () => {
         });
 
         socketGame.on("achievement", (data: AchievementDto) => {
-            console.log(data);
             notifications.show({
                 title: data.name,
                 message: data.description,
