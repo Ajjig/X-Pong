@@ -70,7 +70,7 @@ function MyAccount({ profile }: { profile: any }) {
             }}
         >
             <Menu.Item icon={<IconPacman size={rem(20)} />} miw={"200px"}>
-                My account
+                My profile
             </Menu.Item>
         </Link>
     );
