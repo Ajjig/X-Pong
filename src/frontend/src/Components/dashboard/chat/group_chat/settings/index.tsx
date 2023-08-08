@@ -200,7 +200,7 @@ function AddMember({ chat, members, setInvited }: any) {
                 return (
                     <Flex justify="space-between" align="center" py={10} px={10} key={Friend?.FriendID}>
                         <Flex align="center" gap={10}>
-                            <Avatar size={30} radius="xl" src={Friend?.friend?.avatarUrl} />
+                            {Friend?.friend?.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${Friend?.friend?.id}`} />}
                             <Text fz="sm">{Friend?.friend?.username}</Text>
                         </Flex>
 

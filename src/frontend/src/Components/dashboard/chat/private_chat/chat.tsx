@@ -8,6 +8,7 @@ import { Message } from "./message";
 import chatSocket from "@/socket/chatSocket";
 import { TypeMessage } from "../../type";
 import { PrivateMessageRequest } from "./type";
+import api from "@/api";
 
 export function Chat({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const [friend] = useState<any>(chat.otherUser);
@@ -99,7 +100,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                 >
                     <Button p={0} h="auto" onClick={() => setSelected(null)}>
                         <IconChevronLeft size={25} />
-                        <Avatar src={friend.avatarUrl} size={45} radius="xl" m={4} />
+                        {friend?.id && <Avatar src={api.getUri() + `user/avatar/${friend.id}`} size={45} radius="xl" m={4} />}
                     </Button>
                     <Flex justify="space-between" align="center" w="100%">
                         <Stack w={"100%"} spacing={0} ml="sm">

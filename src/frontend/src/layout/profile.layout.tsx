@@ -14,6 +14,7 @@ import Message from "../Components/profile/buttons/message";
 import { Match_info } from "@/Components/matchs_history/match_info";
 import chatSocket from "@/socket/chatSocket";
 import { AddFriendRequest } from "./addUser";
+import { notifications } from "@mantine/notifications";
 
 interface props {
     id: string;
@@ -30,7 +31,11 @@ export function ProfileLayout({ id }: props) {
                 if (res.status == 200) setProfile(res.data);
             })
             .catch((err: any) => {
-                console.log(err);
+                notifications.show({
+                    title: "Error",
+                    message: err.response?.data.message,
+                    color: "red",
+                });
             });
     }, []);
 
@@ -55,6 +60,8 @@ export function ProfileLayout({ id }: props) {
     };
 
     const HeaderRef = React.useRef(null);
+
+    if (!profile) return <></>;
 
     return (
         <>

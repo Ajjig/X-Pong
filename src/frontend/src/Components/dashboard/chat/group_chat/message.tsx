@@ -1,14 +1,25 @@
 import React from "react";
 import { Box, Flex, Text, useMantineTheme, Space, Avatar } from "@mantine/core";
 import store from "@/store/store";
+import api from "@/api";
 
 export function Message({ message }: { message: any }) {
     const theme = useMantineTheme();
 
+    console.log(message);
+
     return (
         <Flex justify={message?.user?.username == store.getState().profile?.user?.username ? "flex-end" : "flex-start"}>
             <Flex align="flex-end" direction={message?.user?.username == store.getState().profile.user.username ? "row-reverse" : "row"}>
-                <Avatar size={25} radius="xl" m={4} src={message?.user?.avatarUrl} mr={message?.user?.username == store.getState().profile.user.username ? 0 : -10} />
+                {message?.senderId && (
+                    <Avatar
+                        size={25}
+                        radius="xl"
+                        m={4}
+                        src={api.getUri() + `user/avatar/${message?.senderId}`}
+                        mr={message?.user?.username == store.getState().profile.user.username ? 0 : -10}
+                    />
+                )}
                 <Box
                     mr={message?.user?.username == store.getState().profile.user.username ? -10 : 0}
                     mb={20}

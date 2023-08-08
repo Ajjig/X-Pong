@@ -6,6 +6,7 @@ import store from "@/store/store";
 import { Personalinformation } from "./personal_information";
 import { useDisclosure } from "@mantine/hooks";
 import { Two_factor_authentication } from "./Two-factor-authentication";
+import api from "@/api";
 
 function ProfileSection({ closeDrawer }: { closeDrawer: any }) {
     const [profile, setProfile] = useState<any>(null);
@@ -24,7 +25,7 @@ function ProfileSection({ closeDrawer }: { closeDrawer: any }) {
             <Menu withArrow shadow="md" arrowPosition="side" arrowSize={15} position="bottom-end" arrowOffset={15}>
                 <Menu.Target>
                     <Group sx={{ cursor: "pointer" }}>
-                        <Avatar src={profile?.avatarUrl} radius="xl" size={43} />
+                        {profile?.id && <Avatar src={api.getUri() + `user/avatar/${profile?.id}`} radius="xl" size={43} />}
                     </Group>
                 </Menu.Target>
                 <Menu.Dropdown>

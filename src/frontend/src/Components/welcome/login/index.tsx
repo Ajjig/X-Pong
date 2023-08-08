@@ -53,8 +53,7 @@ export default function Login({ setLoginShow }: Props) {
 
     const logout = () => {
         setLogout(true);
-        
-    }
+    };
 
     return (
         <Container className={classes.container}>
@@ -70,7 +69,9 @@ export default function Login({ setLoginShow }: Props) {
                             <Anchor underline={false} href={"/dashboard"}>
                                 <Paper w="100%" p="md" radius="md" withBorder>
                                     <Flex align="center" gap="md">
-                                        <Avatar size="lg" radius="xl" src={store.getState().profile.user.avatarUrl} />
+                                        {store.getState().profile.user.id && (
+                                            <Avatar size="lg" radius="xl" src={api.getUri() + `user/avatar/${store.getState().profile.user.id}`} />
+                                        )}
                                         <Flex direction="column">
                                             <Text size="lg" weight={500}>
                                                 {store.getState().profile.user.name}
@@ -84,12 +85,17 @@ export default function Login({ setLoginShow }: Props) {
                             </Anchor>
                             <Space h="md" />
                             {/* logout */}
-                            <Flex w="100%" justify='center'>
-                                <Button onClick={logout} bg="#5951BA" radius="lg" sx={(theme: MantineTheme) => ({
-                                    [`&:hover`]: {
-                                        backgroundColor: theme.colors.grape[9],
-                                    },
-                                })}>
+                            <Flex w="100%" justify="center">
+                                <Button
+                                    onClick={logout}
+                                    bg="#5951BA"
+                                    radius="lg"
+                                    sx={(theme: MantineTheme) => ({
+                                        [`&:hover`]: {
+                                            backgroundColor: theme.colors.grape[9],
+                                        },
+                                    })}
+                                >
                                     Logout
                                 </Button>
                             </Flex>

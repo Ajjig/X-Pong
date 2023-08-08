@@ -10,6 +10,7 @@ import api from "@/api";
 import { AcceptFriendRequest } from "./type";
 import { SocketResponse } from "@/Components/type";
 import { Notifications } from "@mantine/notifications";
+import { imageUrl } from "@/Components/imageUrl";
 
 export function NotificationPopover() {
     const [, { close, open }] = useDisclosure(false);
@@ -65,7 +66,16 @@ export function NotificationPopover() {
         <Popover position="bottom-end" arrowOffset={15} withArrow shadow="md" arrowPosition="side" arrowSize={15}>
             <Popover.Target>
                 <Indicator color="red" offset={7} size={17} disabled={numberOfNewNotifications == 0} label={numberOfNewNotifications}>
-                    <ActionIcon variant="filled" p={8} color="purple" radius={100} onClick={() => (open(), setNumberOfNewNotifications(0))} size="45" onMouseEnter={open} onMouseLeave={close}>
+                    <ActionIcon
+                        variant="filled"
+                        p={8}
+                        color="purple"
+                        radius={100}
+                        onClick={() => (open(), setNumberOfNewNotifications(0))}
+                        size="45"
+                        onMouseEnter={open}
+                        onMouseLeave={close}
+                    >
                         <IconBell size={25} />
                     </ActionIcon>
                 </Indicator>
@@ -93,7 +103,7 @@ export function NotificationPopover() {
                         <Notification key={notification.id} withCloseButton={false} bg={"cos_black.2"} sx={{ border: 0 }} radius={"lg"}>
                             <Space h={10} />
                             <Flex align="center">
-                                <Avatar size="lg" radius="xl" src={notification.avatarUrl} />
+                                <Avatar size="lg" radius="xl" src={imageUrl(notification.avatarUrl)} />
                                 <Space w={10} />
                                 <Stack spacing={0}>
                                     <Title size="sm" weight={700}>
@@ -109,7 +119,7 @@ export function NotificationPopover() {
                                         size="xs"
                                         color="purple"
                                         variant="filled"
-                                        onClick={() => (acceptFriendRequest(notification.friendId, notification.id))}
+                                        onClick={() => acceptFriendRequest(notification.friendId, notification.id)}
                                     >
                                         Accept
                                     </Button>

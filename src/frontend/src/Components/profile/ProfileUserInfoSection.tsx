@@ -1,3 +1,4 @@
+import api from "@/api";
 import { Box, Flex, Paper, Title, Text, Avatar, Space, Indicator, createStyles } from "@mantine/core";
 import { MantineTheme } from "@mantine/core";
 
@@ -21,25 +22,27 @@ export function UserInfo({ profile }: { profile: any }) {
                     withBorder
                     classNames={StyleIndicator.classes}
                 >
-                    <Avatar
-                        src={profile?.avatarUrl}
-                        alt={profile?.name}
-                        radius={"xl"}
-                        bg={"gray"}
-                        sx={(theme: MantineTheme) => ({
-                            width: "130px !important",
-                            height: "130px !important",
-                            [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-                                width: "100px !important",
-                                height: "100px !important",
-                            },
-                            [theme.fn.smallerThan(theme.breakpoints.xs)]: {
-                                width: "90px !important",
-                                height: "90px !important",
-                            },
-                            border: "5px solid " + theme.colors.gray[3],
-                        })}
-                    />
+                    {profile?.id && (
+                        <Avatar
+                            src={api.getUri() + `user/avatar/${profile?.id}`}
+                            alt={profile?.name}
+                            radius={"xl"}
+                            bg={"gray"}
+                            sx={(theme: MantineTheme) => ({
+                                width: "130px !important",
+                                height: "130px !important",
+                                [theme.fn.smallerThan(theme.breakpoints.sm)]: {
+                                    width: "100px !important",
+                                    height: "100px !important",
+                                },
+                                [theme.fn.smallerThan(theme.breakpoints.xs)]: {
+                                    width: "90px !important",
+                                    height: "90px !important",
+                                },
+                                border: "5px solid " + theme.colors.gray[3],
+                            })}
+                        />
+                    )}
                 </Indicator>
 
                 <Space w={15} />

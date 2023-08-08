@@ -30,8 +30,8 @@ export default function Dashboard() {
 
     return (
         <>
-            <Head title="70sPong - dashboard" description="70sPong" keywords="70sPong" icon="/favicon.svg" />
-            <DashboardLayout />
+            <Head title="Xpong - dashboard" description="Xpong" keywords="Xpong" icon="/favicon.ico" />
+            <DashboardLayout />ß
         </>
     );
 }

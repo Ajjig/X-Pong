@@ -167,7 +167,7 @@ export function ChatGroup({ user, setSelected, chat: _chat }: { user: any; setSe
                     );
                 })}
             </Box>
-            {!isMuted && (<InputMessage user={user} chat={chat} setMessages={setMessages} />)}
+            {!isMuted && <InputMessage user={user} chat={chat} setMessages={setMessages} />}
         </Paper>
     );
 }
@@ -189,7 +189,7 @@ function InputMessage({ user, chat, setMessages }: { user: any; chat: any; setMe
         const newMessage = {
             content: message.message,
             createdAt: new Date(),
-            senderId: user.id,
+            senderId: store.getState().profile.user.id,
             user: {
                 avatarUrl: store.getState().profile.user.avatarUrl,
                 username: store.getState().profile.user.username,
