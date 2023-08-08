@@ -198,11 +198,17 @@ export class GameService {
     
     this.queue = this.queue.filter((p) => p.username !== username);
 
-    // remove from players
+
     this.players[username] = null;
-    // remove from queue if in queue
-    this.queue = this.queue.filter((p) => p.username !== username);
-    // remove from invits if in invits
+    this.games.forEach((game) => {
+      if (game.player1Username === username) {
+        game.client1 = null;
+      }
+      if (game.player2Username === username) {
+        game.client2 = null;
+      }
+    });
+   
     this.invits = this.invits.filter((i) => i.from !== username && i.to !== username);
 
   }

@@ -90,8 +90,8 @@ export class Game {
       },
       score: this.score,
     };
-    this.client1.emit('gameState', gameState);
-    this.client2.emit('gameState', gameState);
+    this.client1 && this.client1.emit('gameState', gameState);
+    this.client2 && this.client2.emit('gameState', gameState);
 
   }
 
@@ -219,10 +219,10 @@ export class Game {
 
       if (p1 >= GOALS_TO_WIN || p2 >= GOALS_TO_WIN) {
         
-        this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
-        this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
-        this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
-        this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
+        this.client1 && this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
+        this.client2 && this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
+        this.client1 && this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
+        this.client2 && this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
         this.endGameCallback(this.id);
       }
     });
@@ -301,45 +301,44 @@ export class Game {
 
 
   emitMatch(isClient1: boolean, isClient2: boolean) {
-    isClient1 && this.client1
-      .emit('match', {
+    if (isClient1 && this.client1)
+      this.client1.emit((isClient2) ? 'match' : 're-match', {
         roomName: this.id,
         player: 1,
         opponentName: this.player2Username,
       });
-    isClient2 && this.client2
-      .emit('match', {
+    if (isClient2 && this.client2)
+      this.client2.emit((isClient1) ? 'match' : 're-match', {
         roomName: this.id,
         player: 2,
         opponentName: this.player1Username,
       });
-    this.logger.log(`${this.player1Username} X ${this.player2Username}`);
   }
 
   countDown() {
     setTimeout(() => {
-      this.client1.emit('gameMessage', '3');
-      this.client2.emit('gameMessage', '3');
+      this.client1 && this.client1.emit('gameMessage', '3');
+      this.client2 && this.client2.emit('gameMessage', '3');
     }, 1000);
 
     setTimeout(() => {
-      this.client1.emit('gameMessage', '2');
-      this.client2.emit('gameMessage', '2');
+      this.client1 && this.client1.emit('gameMessage', '2');
+      this.client2 && this.client2.emit('gameMessage', '2');
     }, 2000);
 
     setTimeout(() => {
-      this.client1.emit('gameMessage', '1');
-      this.client2.emit('gameMessage', '1');
+      this.client1 && this.client1.emit('gameMessage', '1');
+      this.client2 && this.client2.emit('gameMessage', '1');
     }, 3000);
 
     setTimeout(() => {
-      this.client1.emit('gameMessage', 'GO!');
-      this.client2.emit('gameMessage', 'GO!');
+      this.client1 && this.client1.emit('gameMessage', 'GO!');
+      this.client2 && this.client2.emit('gameMessage', 'GO!');
     }, 4000);
 
     setTimeout(() => {
-      this.client1.emit('gameMessage', '');
-      this.client2.emit('gameMessage', '');
+      this.client1 && this.client1.emit('gameMessage', '');
+      this.client2 && this.client2.emit('gameMessage', '');
     }, 5500);
   }
 
@@ -355,9 +354,9 @@ export class Game {
   stopGame() {
     Events.off(this.engine, "collisionStart");
     Events.off(this.engine, "beforeUpdate");
-    Runner.stop(this.runner);
     World.clear(this.world);
     Engine.clear(this.engine);
+    Runner.stop(this.runner);
     this.logger.log(`Match '${this.id}' ended`);
     this.saveGameService.saveGame({
       winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
