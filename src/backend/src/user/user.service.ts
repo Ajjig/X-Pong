@@ -1,4 +1,4 @@
-import { request } from 'http';
+import { get, request } from 'http';
 import * as jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import {
@@ -66,7 +66,7 @@ export class UserService {
   }
 
   async getProfileStatsByID(userId: number) {
-    const user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
         Userstats: {
@@ -82,12 +82,28 @@ export class UserService {
         Matchs: true,
       },
     });
-    // get user matchs
+    
+    const matchs = user.Matchs.map( async (match) => {
+      match['opponentUsername'] = await this.getUserNameById(match.opponenId);
+      return match;
+    });
+
+    user.Matchs = await Promise.all(matchs);
+
     if (!user) {
       throw new NotFoundException(`User id ${userId} not found`);
     }
 
     return {stats: user.Userstats, matchs: user.Matchs};
+  }
+
+  async getUserNameById(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+      select: { username: true },
+    });
+
+    return user.username;
   }
 
   async getUserDataByUsername(username: string, reqUsername: string) {
