@@ -31,7 +31,7 @@ export default function Dashboard() {
     return (
         <>
             <Head title="Xpong - dashboard" description="Xpong" keywords="Xpong" icon="/favicon.ico" />
-            <DashboardLayout />ß
+            <DashboardLayout />
         </>
     );
 }
