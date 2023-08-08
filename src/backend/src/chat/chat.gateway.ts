@@ -268,6 +268,7 @@ export class ChatGateway {
             client.disconnect();
             return;
         }
+        await this.chatService.set_user_online(userdata.uid);
         await this.chatService.joinUsertohischannels(userdata.uid, client);
         this.chatService.setUserSocketId(client.id, userdata.uid);
         const publicChat = await this.userChatHistoryService.getUserChannelConversationChatHistory(
