@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ActionIcon, Avatar, Button, Flex, Indicator, Popover, Space, Stack, Text, Title } from "@mantine/core";
+import { ActionIcon, Avatar, Button, Flex, Indicator, MantineTheme, Popover, Space, Stack, Text, Title, rem } from "@mantine/core";
 import { IconBell, IconBellExclamation, IconSquareRoundedPlusFilled } from "@tabler/icons-react";
 import { Notification } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -72,7 +72,14 @@ export function NotificationPopover() {
                         color="purple"
                         radius={100}
                         onClick={() => (open(), setNumberOfNewNotifications(0))}
-                        size="45"
+                        sx={(theme: MantineTheme) => ({
+                            width: rem(45),
+                            height: rem(45),
+                            [theme.fn.smallerThan("sm")]: {
+                                width: rem(35),
+                                height: rem(35),
+                            },
+                        })}
                         onMouseEnter={open}
                         onMouseLeave={close}
                     >

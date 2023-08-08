@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useState } from "react";
 import { Icon2fa, IconLogout, IconPacman, IconUser } from "@tabler/icons-react";
-import { Group, Avatar, Text, Menu, UnstyledButton, rem } from "@mantine/core";
+import { Group, Avatar, Text, Menu, UnstyledButton, rem, MantineTheme } from "@mantine/core";
 import Link from "next/link";
 import store from "@/store/store";
 import { Personalinformation } from "./personal_information";
@@ -25,7 +25,21 @@ function ProfileSection({ closeDrawer }: { closeDrawer: any }) {
             <Menu withArrow shadow="md" arrowPosition="side" arrowSize={15} position="bottom-end" arrowOffset={15}>
                 <Menu.Target>
                     <Group sx={{ cursor: "pointer" }}>
-                        {profile?.id && <Avatar src={api.getUri() + `user/avatar/${profile?.id}`} radius="xl" size={43} />}
+                        {profile?.id && (
+                            <Avatar
+                                src={api.getUri() + `user/avatar/${profile?.id}`}
+                                radius="xl"
+                                sx={(theme: MantineTheme) => ({
+                                    border: `2px solid ${theme.colors.purple[0]}`,
+                                    width: rem(45),
+                                    height: rem(45),
+                                    [theme.fn.smallerThan("sm")]: {
+                                        width: rem(30),
+                                        height: rem(35),
+                                    },
+                                })}
+                            />
+                        )}
                     </Group>
                 </Menu.Target>
                 <Menu.Dropdown>
