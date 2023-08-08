@@ -221,8 +221,8 @@ export class Game {
         
         this.client1.emit('gameMessage', `You ${p1 > p2 ? 'won' : 'lost'}`);
         this.client2.emit('gameMessage', `You ${p2 > p1 ? 'won' : 'lost'}`);
-        this.client1.emit('endGame', { winner: p1 < p2 ? 1 : 2 });
-        this.client2.emit('endGame', { winner: p2 < p1 ? 1 : 2 });
+        this.client1.emit('end-game', { winner: p1 < p2 ? 1 : 2 });
+        this.client2.emit('end-game', { winner: p2 < p1 ? 1 : 2 });
         this.endGameCallback(this.id);
       }
     });
