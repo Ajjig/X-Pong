@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, useMantineTheme, Image, Group, Flex, Title, Paper, Space } from "@mantine/core";
+import { Header, useMantineTheme, Image, Group, Flex, Title, Paper, Space, MantineTheme, rem } from "@mantine/core";
 import ProfileSection from "./menu";
 import Link from "next/link";
 import DrawerMobile from "./drawer";
@@ -14,6 +14,8 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const router = useRouter();
     const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
+    console.log(router.pathname);
+
     return (
         <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
             <Paper px="md" bg="cos_black.2">
@@ -23,14 +25,25 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                             <Link href="/dashboard" style={{ textDecoration: "none" }}>
                                 <Flex align="center" justify="center">
                                     <Image src="/logo.svg" width={40} height={40} mr={theme.spacing.xs} />
-                                    <Title fw="bolder" color="gray.0" fz="26px" underline={false}>
+                                    <Title
+                                        fw="bolder"
+                                        color="gray.0"
+                                        sx={(theme: MantineTheme) => ({
+                                            fontSize: rem(25),
+                                            [theme.fn.smallerThan("sm")]: {
+                                                fontSize: rem(20),
+                                            },
+                                        })}
+                                        underline={false}
+                                    >
                                         Xpong
                                     </Title>
                                 </Flex>
                             </Link>
                         </Group>
-                        <Group>
+                        <Group spacing={8}>
                             <Search />
+                            {isMobile && <NotificationPopover />}
                             {!isMobile && <LeftMenu />}
                             {isMobile && <ProfileSection closeDrawer={null} />}
                         </Group>
@@ -38,7 +51,7 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
                     {/* Mobile */}
                     {router.pathname == "/dashboard" && (
                         <>
-                            <Space w={theme.spacing.md} />
+                            <Space w={5} />
                             <DrawerMobile />
                         </>
                     )}
@@ -50,13 +63,14 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
 
 export function LeftMenu({ withUser = true, closeDrawer = null }: { withUser?: boolean; closeDrawer?: any }) {
     const theme = useMantineTheme();
+    const router = useRouter();
 
     return (
         <Flex align="center">
-            <Play />
-            <Space w={theme.spacing.md} />
+            {router.pathname != "/game/[gameID]" && <Play />}
+            <Space w={5} />
             <NotificationPopover />
-            <Space w={theme.spacing.md} />
+            <Space w={5} />
             {withUser && <ProfileSection closeDrawer={closeDrawer} />}
         </Flex>
     );
