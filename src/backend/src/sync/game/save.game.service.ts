@@ -183,6 +183,7 @@ export class SaveGameService {
                     playerScore: result.score.winner,
                     opponentScore: result.score.loser,
                     mode: result.mode,
+                    opponenId: loserUser.id,
                     user: {
                         connect: {
                             id: winnerUser.id,
@@ -198,6 +199,7 @@ export class SaveGameService {
                     playerScore: result.score.loser,
                     opponentScore: result.score.winner,
                     mode: result.mode,
+                    opponenId: winnerUser.id,
                     user: {
                         connect: {
                             id: loserUser.id,
