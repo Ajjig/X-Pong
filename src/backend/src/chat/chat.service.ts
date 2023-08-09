@@ -298,8 +298,15 @@ export class ChatService {
         return user.onlineStatus;
     }
 
-    async searchQuery(query: string): Promise<any[]> {
-        const users = await this.prisma.user.findMany({
+    async searchQuery(userId: number, query: string): Promise<any[]> {
+        // hide blocked users ids
+        const User = await this.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+
+        let users = await this.prisma.user.findMany({
             where: {
                 OR: [
                     {
@@ -324,6 +331,15 @@ export class ChatService {
                 name: true,
             },
         });
+
+        // filter blocked users
+        users = users.filter((user) => {
+            if (User.blockedIds.includes(user.id)) {
+                return false;
+            }
+            return true;
+        });
+
 
         const channels = await this.prisma.channel.findMany({
             where: {
@@ -608,7 +624,6 @@ export class ChatService {
             message: 'Friend request sent',
         };
         this.emitToUser(Server, userobject.username, 'add_friend', response);
-
     }
 
     async loadUserNotifications(userId: number): Promise<notificationsDto[]> {
