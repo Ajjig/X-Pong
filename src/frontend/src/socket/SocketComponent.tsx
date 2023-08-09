@@ -14,27 +14,27 @@ import socketGame from "./gameSocket";
 import chatSocket from "./chatSocket";
 import { AchievementDto, NotificationType, SocketResponse } from "./types";
 import { notifications } from "@mantine/notifications";
-import { TypeMessage } from "@/Components/dashboard/type";
 import api from "@/api";
 import { Image } from "@mantine/core";
 import { useRouter } from "next/router";
 
 const SocketComponent = () => {
-    const [connected, setConnected] = useState(false);
+    const [connectedChat, setConnectedChat] = useState(false);
+    const [connectedGame, setConnectedGame] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         if (!socketGame.connected) {
-            socketGame.connect();
+            // socketGame.connect();
         } else {
-            setConnected(false);
+            setConnectedGame(!connectedChat);
         }
         if (!chatSocket.connected) {
-            chatSocket.connect();
+            // chatSocket.connect();
         } else {
-            setConnected(false);
+            setConnectedChat(!connectedGame);
         }
-    }, [connected]);
+    }, [connectedChat, connectedGame]);
 
     useEffect(() => {
         // Connect to the socket server

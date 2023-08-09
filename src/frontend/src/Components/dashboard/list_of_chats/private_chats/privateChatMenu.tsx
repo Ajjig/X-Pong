@@ -27,7 +27,8 @@ export function PrivateChatMenu({ user }: any) {
     };
 
     useEffect(() => {
-        if (socketGame.connected == false) socketGame.connect();
+        if (!socketGame.connected) socketGame.connect();
+        if (!chatSocket.connected) chatSocket.connect();
 
         socketGame.on("invite-canceled", () => {
             ModelWaitingAcceptChallenge[1].close();
@@ -56,7 +57,6 @@ export function PrivateChatMenu({ user }: any) {
                     message: res.data.message ?? "Unblock successfully",
                     color: "green",
                 });
-                if (!chatSocket.connected) chatSocket.connect();
                 chatSocket.emit("reconnect");
                 setBanState(!BanState);
             })

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { Box, Flex, Text, Button, createStyles, Title, Input, Container, MantineTheme } from "@mantine/core";
-import { useFrame } from "@react-three/fiber";
-import Link from "next/link";
+import { Box, Flex, Text, Button, createStyles, Title, MantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import Login from "./login";
-import Team from "../team";
 
 const useStyles = createStyles((theme: MantineTheme) => ({
     container: {
@@ -47,7 +44,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
     span: {
         fontFamily: `valorax`,
         fontSize: 130,
-        color: '#5951BA',
+        color: "#5951BA",
 
         /* mobile */
         "@media (max-width: 768px)": {
@@ -95,8 +92,6 @@ export function Welcome({}: {}) {
             sx={{
                 width: "100vw",
                 height: "100vh",
-                margin: 20,
-                overflowY: "scroll",
             }}
         >
             {loginShow ? (
@@ -104,13 +99,6 @@ export function Welcome({}: {}) {
             ) : (
                 <Box>
                     <HeroSection setLoginShow={setLoginShow} />
-                    {/* <Box
-                        sx={{
-                            minHeight: "90vh",
-                        }}
-                    >
-                     <Team /> 
-                    </Box> */}
                 </Box>
             )}
         </Box>
@@ -124,7 +112,6 @@ export default function HeroSection({ setLoginShow }: { setLoginShow: (value: bo
         <Flex className={classes.animation_apperance} direction="column" align="center" justify="center" mih="100vh">
             <Box className={classes.title}>
                 <Title className={classes.text}>
-                    
                     <Text inherit component="span" className={classes.span}>
                         x
                     </Text>

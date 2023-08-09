@@ -24,7 +24,7 @@ import { Flex } from "@mantine/core";
 import { Text } from "@mantine/core";
 import HeaderDashboard from "../Components/header";
 import store from "@/store/store";
-import { IconEdit, IconMessage, IconUserPlus, IconUserShare } from "@tabler/icons-react";
+import { IconEdit, IconMessage, IconUserCancel, IconUserPlus, IconUserShare } from "@tabler/icons-react";
 import { UserInfo } from "../Components/profile/ProfileUserInfoSection";
 import api from "@/api";
 import { IconSend } from "@tabler/icons-react";
@@ -33,6 +33,7 @@ import chatSocket from "@/socket/chatSocket";
 import { AddFriendRequest } from "./addUser";
 import { notifications } from "@mantine/notifications";
 import { AxiosError, AxiosResponse } from "axios";
+import { useRouter } from "next/router";
 
 type ladder = "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond" | "Master" | "Legend" | "The Chosen One";
 
@@ -71,8 +72,10 @@ export function ProfileLayout({ id }: props) {
     const user: any = store.getState().profile.user;
     const [userState, setUserState] = useState<any>(null);
     const [FriendStatus, setFriendStatus] = useState<"friend" | "not_friend" | "pending">("not_friend");
+    const [error, setError] = useState<boolean>(false);
 
     useEffect(() => {
+        if (!chatSocket.connected) chatSocket.connect();
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) {
@@ -85,23 +88,13 @@ export function ProfileLayout({ id }: props) {
                 }
             })
             .catch((err: any) => {
-                notifications.show({
-                    title: "Error",
-                    message: err.response?.data.message,
-                    color: "red",
-                });
+                setError(true);
             });
         api.get("/user/get_stats/" + id)
             .then((res: AxiosResponse<MatchData>) => {
                 setUserState(res.data);
             })
-            .catch((err: AxiosError<{ message: string }>) => {
-                notifications.show({
-                    title: "Error",
-                    message: err.response?.data.message,
-                    color: "red",
-                });
-            });
+            .catch((err: AxiosError<{ message: string }>) => {});
     }, []);
 
     const [message, setMessage] = useState<string | null>("");
@@ -120,7 +113,6 @@ export function ProfileLayout({ id }: props) {
         const payload: AddFriendRequest = {
             id: profile.id,
         };
-        if (!chatSocket.connected) chatSocket.connect();
         chatSocket.emit("add_friend", payload);
 
         chatSocket.on("add_friend", (data: any) => {
@@ -144,6 +136,14 @@ export function ProfileLayout({ id }: props) {
     };
 
     const HeaderRef = React.useRef(null);
+
+    if (error)
+        return (
+            <Flex justify={"center"} align={"center"} direction={"column"} h={"100vh"}>
+                <IconUserCancel size={100} />
+                <Title order={1}>User not found</Title>
+            </Flex>
+        );
 
     if (!profile) return <></>;
 

@@ -178,6 +178,7 @@ function InputMessage({ user, chat, setMessages }: { user: any; chat: any; setMe
     const [message, setMessage] = useState("");
 
     const sendMessage = (message: any) => {
+        message.message = message.message.trim();
         // protect from sending empty messages
         if (!message || message.message === "") return;
 

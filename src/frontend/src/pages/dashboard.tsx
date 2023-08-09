@@ -1,9 +1,8 @@
-import { Box, Grid } from "@mantine/core";
 import { DashboardLayout } from "@/layout/dashboard.layout";
 import { Head } from "@/Components/head";
 import { useEffect, useState } from "react";
 import api from "@/api";
-import store, { setPrivateChats, setProfile } from "@/store/store";
+import store, { setProfile } from "@/store/store";
 import { Loading } from "@/Components/loading/loading";
 
 export default function Dashboard() {

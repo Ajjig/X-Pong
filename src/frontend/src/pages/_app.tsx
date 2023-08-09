@@ -15,20 +15,6 @@ import Rematch from "@/Components/rematch";
 import { AxiosError } from "axios";
 
 export default function App({ Component, pageProps }: AppProps) {
-    // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    //     key: "mantine-color-scheme",
-    //     defaultValue: "light",
-    //     getInitialValueInEffect: true,
-    // });
-
-    // const toggleColorScheme = (value?: ColorScheme) => {
-    //     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
-    // };
-
-    // useHotkeys([["mod+J", () => toggleColorScheme()]]);
-
-    const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         api.get("/user/profile")
             .then((res: any) => {
@@ -41,7 +27,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
     return (
         <Provider store={store}>
-            {/* <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}> */}
             <MantineProvider theme={default_theme} withGlobalStyles withNormalizeCSS inherit>
                 <Notifications position="top-right" />
                 <Spotlight />
@@ -52,7 +37,6 @@ export default function App({ Component, pageProps }: AppProps) {
                 <main>
                     <Component {...pageProps} />
                 </main>
-                {/* </ColorSchemeProvider> */}
             </MantineProvider>
         </Provider>
     );

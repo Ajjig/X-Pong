@@ -38,6 +38,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
     const scrollRef = useRef<Readonly<HTMLDivElement> | null>(null);
 
     const sendMessage = (message: any) => {
+        message.message = message.message.trim();
         if (!message || message.message === "") return;
 
         let newMessageReq: PrivateMessageRequest = {
