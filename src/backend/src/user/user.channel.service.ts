@@ -493,7 +493,7 @@ export class UserChannelService {
     getAllPublicChannels(): Promise<any> {
         let channels = this.prisma.channel.findMany({
             where: {
-                AND: [{ type: 'public' }, { type: 'protected' }],
+                OR: [{ type: 'public' }, { type: 'protected' }],
             },
             select: {
                 name: true,
