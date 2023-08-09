@@ -25,7 +25,11 @@ export function Match_info({
                     <Avatar
                         size={40}
                         radius="xl"
-                        src={oppinfo?.player === 2 ? api.getUri() + "user/avatar/" + oppinfo.opponentId : store.getState().profile.user.avatarUrl}
+                        src={
+                            oppinfo?.player === 2
+                                ? api.getUri() + "user/avatar/" + oppinfo.opponentId
+                                : api.getUri() + "user/avatar/" + store.getState().profile.user.id
+                        }
                     />
                     <Space w={10} />
                     <Title color="gray.4" fz="sm">
@@ -45,7 +49,11 @@ export function Match_info({
                     <Avatar
                         size={40}
                         radius="xl"
-                        src={oppinfo?.player === 1 ? api.getUri() + "user/avatar/" + oppinfo.opponentId : store.getState().profile.user.avatarUrl}
+                        src={
+                            oppinfo?.player === 1
+                                ? api.getUri() + "user/avatar/" + oppinfo.opponentId
+                                : api.getUri() + "user/avatar/" + store.getState().profile.user.id
+                        }
                     />
                 </Flex>
             </Flex>

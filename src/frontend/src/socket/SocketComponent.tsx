@@ -64,20 +64,20 @@ const SocketComponent = () => {
 
         // Event handler for socket connection
         chatSocket.on("connect", () => {
-            console.log("/chat: Connected to server");
+            // console.log("/chat: Connected to server");
         });
 
         // Event handler for socket disconnection
         chatSocket.on("disconnect", () => {
-            console.log("/chat: Disconnected from server");
+            // console.log("/chat: Disconnected from server");
         });
 
         socketGame.on("connect", () => {
-            console.log("/game: Connected to server");
+            // console.log("/game: Connected to server");
         });
 
         socketGame.on("disconnect", () => {
-            console.log("/game: Disconnected from server");
+            // console.log("/game: Disconnected from server");
         });
 
         chatSocket.on("message", (data: any) => {
