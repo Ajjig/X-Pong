@@ -22,6 +22,17 @@ export class UserChatHistoryService {
       return userConversations;
     }
 
+    const isBlocked = async (otherUserId: number) => {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          blockedIds: true,
+        },
+      });
+      if (!user || !user.blockedIds) return false;
+      return user.blockedIds.includes(otherUserId);
+    };
+  
     await Promise.all(
       user.privateChannels.map(async (id) => {
         let chat = await this.prisma.directMessage.findMany({
@@ -57,9 +68,9 @@ export class UserChatHistoryService {
             name: true,
             onlineStatus: true,
             privateChannels: true,
-            blockedIds: true,
           },
         });
+        otherUser['isBocked'] = await isBlocked(otherUserId);
         const conv = { chat, otherUser, privateChannelId: id };
         userConversations.push(conv);
       }),
