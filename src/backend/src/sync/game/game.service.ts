@@ -77,7 +77,7 @@ export class GameService {
       if (!game) return;
       game.move(client, data.move);
     } catch (e) {
-      this.logger.error(e);
+      this.logger.warn(e);
     }
   }
 
@@ -194,6 +194,17 @@ export class GameService {
       this.logger.log(`Player ${username} connected`);
   }
 
+  handleLeftGame(client: Socket): void {
+    const username = this.getUserNameBySocket(client);
+    if (!username) {
+      client.emit('error', `Something went wrong`);
+    }
+
+    if (this.handleAlreadyInGame(username, client))
+      this.logger.log(`Player ${username} reconnected to previous game`);
+  }
+
+
   handleDisconnect(client: Socket): void {
     if (!client) return;
     let username = this.getUserNameBySocket(client);
@@ -280,11 +291,10 @@ export class GameService {
   public stopGame = (id: string) => {
     const game = this.games.get(id);
     if (!game) {
-      this.logger.error(`Game '${id}' cannod be stopped`);
+      this.logger.warn(`Game '${id}' cannod be stopped`);
       return;
     }
     this.games.delete(id);
-    this.logger.log(`Game '${id}' stopped`);
   }
 
   isInGame(username: string): boolean {
