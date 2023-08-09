@@ -15,7 +15,7 @@ export default function HeaderDashboard({ HeaderRef }: { HeaderRef: any }) {
     const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
     return (
-        <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef} pb="md">
+        <Header height="auto" w="100%" withBorder={false} bg="none" ref={HeaderRef}>
             <Paper px="md" bg="cos_black.2">
                 <Flex w="100%" justify="space-between" align="center">
                     <Flex w="100%" justify="space-between">

@@ -46,6 +46,12 @@ export default function PublicGroups({ HeaderHeight }: any) {
                     autoClose: 5000,
                 });
             });
+
+        return () => {
+            setSelectedId(null);
+            setError("");
+            setPassword("");
+        };
     }, []);
 
     function Icon(type: string) {
@@ -116,9 +122,9 @@ export default function PublicGroups({ HeaderHeight }: any) {
                 </Flex>
             ) : (
                 <Grid
-                    gutter={"30px"}
+                    gutter={"20px"}
                     sx={{
-                        height: `calc(100vh - ${HeaderHeight + titleRef.current?.clientHeight}px)`,
+                        maxHeight: `calc(100vh - ${HeaderHeight + titleRef.current?.clientHeight + 20}px)`,
                         overflowY: "scroll",
                         /* ===== Scrollbar CSS ===== */
                         /* Firefox */
@@ -139,7 +145,7 @@ export default function PublicGroups({ HeaderHeight }: any) {
                 >
                     {publicGroups?.map((group: any) => (
                         <Grid.Col key={group.id} span={12} md={6} lg={4}>
-                            <Group_card group={group} get_icon={Icon} onClick={() => setSelectedId(group.id)} />
+                            <Group_card group={group} get_icon={Icon} onClick={() => (setSelectedId(group.id), setError(""), setPassword(""))} />
                         </Grid.Col>
                     ))}
 

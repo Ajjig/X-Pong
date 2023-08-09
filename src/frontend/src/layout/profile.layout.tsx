@@ -76,7 +76,6 @@ export function ProfileLayout({ id }: props) {
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) {
-                    console.log(res.data);
                     setProfile(res?.data);
                     res?.data?.Friends?.find((friend: any) => {
                         if (friend.friendId == user.id) {
