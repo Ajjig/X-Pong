@@ -6,52 +6,12 @@ import api from "@/api";
 
 export function Chat({ chat }: { chat: any }) {
     const theme = useMantineTheme();
-    // const [date, setDate] = useState<string>("");
 
     function get_last_message() {
         if (chat.chat.length == 0) return "No messages";
         const last_message = chat.chat[chat.chat.length - 1];
         return last_message.content;
     }
-
-    // function date_last_message(): string {
-    //     if (chat.chat.length == 0) return "";
-    //     const last_message = chat.chat[chat.chat.length - 1];
-
-    //     const date = new Date(last_message.createdAt);
-    //     const date_now = new Date();
-
-    //     const date_diff = date_now.getTime() - date.getTime();
-
-    //     const days = Math.floor(date_diff / (1000 * 60 * 60 * 24));
-    //     const hours = Math.floor(date_diff / (1000 * 60 * 60));
-    //     const minutes = Math.floor(date_diff / (1000 * 60));
-    //     const seconds = Math.floor(date_diff / 1000);
-
-    //     if (days > 0) {
-    //         return `${days} days ago`;
-    //     }
-    //     if (hours > 0) {
-    //         return `${hours} hours ago`;
-    //     }
-    //     if (minutes > 0) {
-    //         return `${minutes} minutes ago`;
-    //     }
-    //     if (seconds > 0) {
-    //         return `${seconds} seconds ago`;
-    //     }
-    //     return "now";
-    // }
-
-    // useEffect(() => {
-    //     setDate(date_last_message());
-    //     const timer = setInterval(() => {
-    //         setDate(date_last_message());
-    //     }, 1000);
-    //     return () => clearInterval(timer);
-    // }, []);
-
-    console.log(chat);
     return (
         <Box
             bg={"gray.9"}

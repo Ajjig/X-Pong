@@ -136,7 +136,7 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
             >
                 {messages.map((message: any, index: number) => {
                     return (
-                        <Box key={message.createdAt} mb={10}>
+                        <Box key={message.createdAt ?? index} mb={10}>
                             <Message message={message} friend={friend} />
                         </Box>
                     );

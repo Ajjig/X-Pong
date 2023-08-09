@@ -50,7 +50,7 @@ export function ChatGroup({ user, setSelected, chat: _chat }: { user: any; setSe
                 channelId: data.channelId,
             };
 
-            if (data.channelId == chat.id) {
+            if (data?.channelId == chat?.id) {
                 setMessages((prev: any) => [...prev, newMessage]);
             }
         });

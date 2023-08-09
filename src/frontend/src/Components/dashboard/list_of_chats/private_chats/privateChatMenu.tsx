@@ -6,10 +6,12 @@ import { IconDots } from "@tabler/icons-react";
 import { IconBan } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import api from "@/api";
-import { BlockFriend } from "./type";
+import { BlockFriend, UnblockFriendDto } from "./type";
 import { AxiosError, AxiosResponse } from "axios";
 import { useDisclosure } from "@mantine/hooks";
 import socketGame from "@/socket/gameSocket";
+import { Notifications } from "@mantine/notifications";
+import chatSocket from "@/socket/chatSocket";
 
 export function PrivateChatMenu({ user }: any) {
     const router = useRouter();
@@ -39,6 +41,29 @@ export function PrivateChatMenu({ user }: any) {
 
     const ButtonBan = () => {
         ModelAlert[1].open();
+    };
+
+    const ButtonUnban = () => {
+        let body: UnblockFriendDto = {
+            unblockedId: user.id,
+        };
+
+        api.post("/user/unblock_friend_user", body)
+            .then((res: AxiosResponse) => {
+                Notifications.show({
+                    title: "Success",
+                    message: res.data.message ?? "Unblock successfully",
+                    color: "green",
+                });
+                chatSocket.emit("reconnect");
+            })
+            .catch((err: AxiosError<{ message?: string }>) => {
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message ?? "Something went wrong",
+                    color: "red",
+                });
+            });
     };
 
     const inviteToGame = () => {
@@ -85,8 +110,8 @@ export function PrivateChatMenu({ user }: any) {
                     <Menu.Item icon={<IconDeviceGamepad2 size={20} />} onClick={inviteToGame}>
                         Challenge
                     </Menu.Item>
-                    <Menu.Item color="red" icon={<IconBan size={20} />} onClick={ButtonBan}>
-                        Ban
+                    <Menu.Item color="red" icon={<IconBan size={20} />} onClick={user?.isBlocked ? ButtonUnban : ButtonBan}>
+                        {user?.isBlocked ? "Unban" : "Ban"}
                     </Menu.Item>
                 </Menu.Dropdown>
             </Menu>
