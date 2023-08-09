@@ -1,12 +1,18 @@
 import { Box, Paper, SegmentedControl } from "@mantine/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { ListChats } from "./private_chats/ListChats";
 import { ListGroups } from "./group_chats/ListGroups";
+import chatSocket from "@/socket/chatSocket";
 
 export default function List_of_chats({}: {}) {
     const [value, setValue] = useState("Messages");
     const SegRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!chatSocket.connected) chatSocket.connect();
+        chatSocket.emit("reconnect");
+    }, [value]);
 
     return (
         <Paper
