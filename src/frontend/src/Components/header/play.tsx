@@ -70,7 +70,7 @@ export function Play() {
 
                 <Menu.Dropdown>
                     <Menu.Label>Play</Menu.Label>
-                    <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item>
+                    {/* <Menu.Item icon={<IconUserCircle size={18} />}>Challenge a friend</Menu.Item> */}
                     <Menu.Item icon={<IconArrowsRandom size={18} />} onClick={join}>
                         Play with random
                     </Menu.Item>

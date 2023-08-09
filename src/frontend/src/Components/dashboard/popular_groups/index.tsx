@@ -1,105 +1,51 @@
-import { Box, Grid, Title, Text, Button, MantineTheme, Flex, Card, Image, Paper, Group, Badge } from "@mantine/core";
+import {
+    Box,
+    Grid,
+    Title,
+    Text,
+    Button,
+    MantineTheme,
+    Flex,
+    Card,
+    Image,
+    Paper,
+    Group,
+    Badge,
+    Divider,
+    Space,
+    Avatar,
+    PasswordInput,
+    useMantineTheme,
+} from "@mantine/core";
 import { IconLock, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import api from "@/api";
+import { AxiosError, AxiosResponse } from "axios";
+import { joinPublicChannel } from "@/Components/join_group/type";
+import { Notifications } from "@mantine/notifications";
+import chatSocket from "@/socket/chatSocket";
 
-export default function PublicGroups() {
+export default function PublicGroups({ HeaderHeight }: any) {
     const [publicGroups, setPublicGroups] = React.useState<any>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-
-    const getLatestPublicGroups = () => {
-        setPublicGroups([
-            {
-                id: 1,
-                name: "THE GREATEST",
-                description:
-                    "In literary theory, a text is any object that can be, whether this object is a work of literature, a street sign, an arrangement of buildings on a city block, or styles of clothing. It is a coherent set of signs that transmits some kind of informative message.",
-                members: 10,
-                image: "https://picsum.photos/2000",
-            },
-            {
-                id: 2,
-                name: "1337",
-                description: `In literary theory, a text is any object that can be "read", whether this object is a work of literature, a street sign, an arrangement of buildings on a city block, or styles of clothing. It is a coherent set of signs that transmits some kind of informative message.`,
-                members: 50,
-                image: "https://picsum.photos/2001",
-            },
-            {
-                id: 3,
-                name: "TRS-THEAM",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2063",
-            },
-            {
-                id: 4144,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2094",
-            },
-            {
-                id: 4564,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2034",
-            },
-            {
-                id: 4556,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2994",
-            },
-            {
-                id: 4963,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2104",
-            },
-            {
-                id: 488,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2904",
-            },
-            {
-                id: 99,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2904",
-            },
-            {
-                id: 43,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2084",
-            },
-            {
-                id: 47,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2004",
-            },
-            {
-                id: 45,
-                name: "THE GREATEST",
-                description: "Lorem ipsum dolor sit amet consectetur adipiscing elit",
-                members: 10,
-                image: "https://picsum.photos/2004",
-            },
-        ]);
-    };
     const item = publicGroups.find((item: any) => item.id === selectedId);
+    const [password, setPassword] = useState<string>("");
 
     useEffect(() => {
-        getLatestPublicGroups();
+        api.get("/user/public/channels")
+            .then((res: AxiosResponse) => {
+                setPublicGroups(res.data);
+            })
+            .catch((err: AxiosError<{ message: string }>) => {
+                console.log(err.response?.data);
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
+            });
     }, []);
 
     function Icon(type: string) {
@@ -113,153 +59,266 @@ export default function PublicGroups() {
         }
     }
 
-    return (
-        <Grid gutter={"30px"}>
-            {publicGroups.map((group: any) => (
-                <Grid.Col key={group.id} span={12} md={6} lg={4}>
-                    <Group_card group={group} get_icon={Icon} onClick={() => setSelectedId(group.id)} />
-                </Grid.Col>
-            ))}
+    function JoinGroup(id: number) {
+        let body: joinPublicChannel = {
+            channelID: id,
+            password: password == "" ? null : password,
+        };
+        console.log(body);
 
-            <AnimatePresence>
-                {selectedId && (
-                    <motion.div
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            zIndex: 999,
-                            width: "100%",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                        data-click-outside
-                        onClick={(e: any) => {
-                            if (e.target.dataset.clickOutside) {
-                                setSelectedId(null);
-                            }
-                        }}
-                        initial={{
-                            opacity: 0,
-                            backgroundColor: "rgba(0, 0, 0, 0)",
-                            backdropFilter: "blur(0px)",
-                        }}
-                        animate={{
-                            opacity: 1,
-                            backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            backdropFilter: "blur(5px)",
-                        }}
-                        exit={{
-                            opacity: 0,
-                            backgroundColor: "rgba(0, 0, 0, 0)",
-                            backdropFilter: "blur(0px)",
-                        }}
-                    >
-                        <motion.div layoutId={selectedId}>
-                            <Card p={0} radius="lg" bg="gray.9" maw="500px" mx={10}>
-                                <Card.Section>
-                                    <Image src={item.image} alt="item image" height={90} />
-                                </Card.Section>
-                                <Box
-                                    sx={{
-                                        transform: "translateY(-40%)",
+        api.post("/user/join_channel", body)
+            .then((res: AxiosResponse) => {
+                console.log(res.data);
+                Notifications.show({
+                    title: "Success",
+                    message: "You have joined the group",
+                    color: "green",
+                    autoClose: 5000,
+                });
+                setSelectedId(null);
+                chatSocket.emit("reconnect");
+            })
+            .catch((err: AxiosError<{ message: string }>) => {
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data.message ?? "Something went wrong",
+                    color: "red",
+                    autoClose: 5000,
+                });
+            });
+    }
+    const theme = useMantineTheme();
+    const titleRef = React.useRef<HTMLDivElement>(null);
+
+    return (
+        <>
+            <Title
+                ref={titleRef}
+                order={3}
+                color="gray.2"
+                py={20}
+                sx={(theme: MantineTheme) => ({
+                    fontSize: theme.fontSizes.lg,
+                    [theme.fn.smallerThan("sm")]: {
+                        fontSize: theme.fontSizes.sm,
+                    },
+                })}
+            >
+                Public Groups
+                <Divider mt={10} />
+            </Title>
+
+            <Grid
+                gutter={"30px"}
+                sx={{
+                    height: `calc(100vh - ${HeaderHeight + titleRef.current?.clientHeight}px)`,
+                    overflowY: "scroll",
+                    /* ===== Scrollbar CSS ===== */
+                    /* Firefox */
+                    scrollbarColor: `${theme.colors.gray[8]} transparent`,
+                    scrollbarWidth: "thin",
+                    /* Chrome, Edge, and Safari */
+                    "&::-webkit-scrollbar": {
+                        width: "5px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        background: "transparent",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        background: theme.colors.gray[8],
+                        borderRadius: theme.radius.md,
+                    },
+                }}
+            >
+                {publicGroups.map((group: any) => (
+                    <Grid.Col key={group.id} span={12} md={6} lg={4}>
+                        <Group_card group={group} get_icon={Icon} onClick={() => setSelectedId(group.id)} />
+                    </Grid.Col>
+                ))}
+
+                <AnimatePresence>
+                    {selectedId && (
+                        <motion.div
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 2,
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                            data-click-outside
+                            onClick={(e: any) => {
+                                if (e.target.dataset.clickOutside) {
+                                    setSelectedId(null);
+                                }
+                            }}
+                            initial={{
+                                opacity: 0,
+                                backgroundColor: "rgba(0, 0, 0, 0)",
+                                backdropFilter: "blur(0px)",
+                            }}
+                            animate={{
+                                opacity: 1,
+                                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                                backdropFilter: "blur(5px)",
+                            }}
+                            exit={{
+                                opacity: 0,
+                                backgroundColor: "rgba(0, 0, 0, 0)",
+                                backdropFilter: "blur(0px)",
+                            }}
+                        >
+                            <Box
+                                sx={(theme: MantineTheme) => ({
+                                    width: "40%",
+                                    [theme.fn.smallerThan("sm")]: {
+                                        width: "70%",
+                                    },
+                                    [theme.fn.smallerThan("xs")]: {
+                                        width: "100%",
+                                    },
+                                })}
+                            >
+                                <motion.div
+                                    layoutId={selectedId}
+                                    style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
                                     }}
-                                    px={"lg"}
                                 >
-                                    <Flex w={50} h={50} align="center" justify="center">
-                                        <Paper
-                                            radius="xl"
-                                            p={10}
-                                            bg="gray.9"
-                                            w={50}
-                                            h={50}
-                                            sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            withBorder
-                                        >
-                                            {Icon(["public", "private", "protected"][Math.floor(Math.random() * 3)])}
-                                        </Paper>
-                                    </Flex>
-                                </Box>
-                                <Box
-                                    px="md"
-                                    pb="lg"
-                                    bg="gray.9"
-                                    sx={(theme: MantineTheme) => ({
-                                        marginTop: "-10px",
-                                    })}
-                                >
-                                    <Title order={3} color="gray.2">
-                                        {item.name}
-                                    </Title>
-                                    <Text my="xs" lineClamp={20} color="dummy" fz={"sm"}>
-                                        {item.description}
-                                    </Text>
-                                    <Badge variant="light" color="orange" radius="xl">
-                                        {item.members} members
-                                    </Badge>
-                                </Box>
-                                <Group p={20} position="right">
-                                    <Button
-                                        variant="outline"
-                                        color="gray"
-                                        size="sm"
-                                        radius="lg"
-                                        onClick={() => setSelectedId(null)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button variant="filled" color="orange" size="sm" radius="lg">
-                                        Join
-                                    </Button>
-                                </Group>
-                            </Card>
+                                    <Card p={10} radius="lg" bg="gray.9" mx={10} pt={50} w={"100%"}>
+                                        <Box px="md" pb="lg" bg="gray.9">
+                                            <Flex h={50} align="center" justify="start">
+                                                <Flex align="start" direction={"column"} p={10}>
+                                                    <Title order={3} color="gray.2">
+                                                        {item.name}
+                                                    </Title>
+                                                    <Space h={10} />
+                                                    <Badge variant="light" color="blue" radius="xl">
+                                                        {item.type}
+                                                    </Badge>
+                                                </Flex>
+
+                                                <Avatar.Group
+                                                    spacing="sm"
+                                                    sx={{
+                                                        flex: 1,
+                                                        justifyContent: "flex-end",
+                                                    }}
+                                                >
+                                                    {item.members.map((member: any, index: number) => {
+                                                        if (index > 5) return;
+                                                        return <Avatar key={member.id} src={api.getUri() + "user/avatar/" + member.id} radius="xl" />;
+                                                    })}
+                                                    <Avatar radius="xl">
+                                                        {(() => {
+                                                            const count = item.members.length - 5;
+                                                            if (count > 0) return `+${count}`;
+                                                            else return "+0";
+                                                        })()}
+                                                    </Avatar>
+                                                </Avatar.Group>
+                                            </Flex>
+                                            <Space h={20} />
+                                            <Text color="gray.4" weight={500} px={20}>
+                                                {item.type.toLowerCase() == "public"
+                                                    ? "Anyone can join this group, do you want to join?"
+                                                    : item.type.toLowerCase() == "protected"
+                                                    ? "Anyone can join this group, but only members can see the messages, do you want to join?"
+                                                    : "Only members can join this group, do you want to join?"}
+                                                <br />
+                                                <br />
+                                                After joining, you can leave the group at any time.
+                                            </Text>
+                                            <Box p={20}>
+                                                {item.type.toLowerCase() == "protected" ? (
+                                                    <>
+                                                        <Space h={20} />
+                                                        <PasswordInput
+                                                            value={password}
+                                                            onChange={(e) => setPassword(e.currentTarget.value)}
+                                                            placeholder="Password"
+                                                            required
+                                                            radius="xl"
+                                                            variant="filled"
+                                                            size="sm"
+                                                            error={false}
+                                                            description="Enter the password to join the group"
+                                                            icon={<IconLock />}
+                                                        />
+                                                    </>
+                                                ) : null}
+                                            </Box>
+                                        </Box>
+                                        <Group p={20} position="right">
+                                            <Button variant="default" color="gray" size="sm" radius="lg" onClick={() => setSelectedId(null)}>
+                                                Cancel
+                                            </Button>
+                                            <Button variant="filled" size="sm" radius="lg" onClick={() => JoinGroup(item.id)}>
+                                                Join
+                                            </Button>
+                                        </Group>
+                                    </Card>
+                                </motion.div>
+                            </Box>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </Grid>
+                    )}
+                </AnimatePresence>
+            </Grid>
+        </>
     );
 }
 
 function Group_card({ group, get_icon, onClick }: { group: any; get_icon: any; onClick: any }) {
-    const { id, name, description, members, image } = group;
+    const { id, name, members, type } = group;
     const Icon = get_icon(["public", "private", "protected"][Math.floor(Math.random() * 3)]);
 
     return (
         <motion.div layoutId={id} onClick={onClick}>
             <Card
                 radius="lg"
-                bg="gray.9"
-                sx={(theme: MantineTheme) => ({
+                sx={() => ({
                     cursor: "pointer",
                     transition: "all 0.2s ease",
 
                     "&:hover": {
-                        // boxShadow: `0 8px 0px 0 ${theme.colors.orange[8]}, 0 -8px 0px 0 ${theme.colors.orange[8]}`,
                         transform: "scale(1.03)",
                     },
+
+                    background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url(/chatBackground.png) center center`,
+                    backgroundSize: "cover",
                 })}
             >
-                <Box bg="gray.9">
-                    <Flex h={50} align="center" justify="center">
+                <Box>
+                    <Badge variant="light" color={type == "public" ? "blue" : "red"} radius="xl">
+                        {type}
+                    </Badge>
+                    <Flex pt={10} align="center" justify="center">
                         <Title fz="xl" order={3} color="gray.2">
                             {name}
                         </Title>
                     </Flex>
-                    <Group position="center">
-                        <Badge variant="light" color="orange" radius="xl">
-                            {members} members
-                        </Badge>
-                        <Badge variant="light" color="orange" radius="xl">
-                            Public
-                        </Badge>
-                    </Group>
+                    <Flex h={50} align="center" justify="center">
+                        <Avatar.Group spacing="sm">
+                            {members.map((member: any, index: number) => {
+                                if (index > 5) return;
+                                return <Avatar key={member.id} src={api.getUri() + "user/avatar/" + member.id} radius="xl" />;
+                            })}
+                            <Avatar radius="xl">
+                                {(() => {
+                                    const count = members.length - 5;
+                                    if (count > 0) return `+${count}`;
+                                    else return "+0";
+                                })()}
+                            </Avatar>
+                        </Avatar.Group>
+                    </Flex>
                 </Box>
             </Card>
         </motion.div>
