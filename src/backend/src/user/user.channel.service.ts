@@ -501,7 +501,11 @@ export class UserChannelService {
                 ownerId: true,
                 id: true,
                 createdAt: true,
-                members: true,
+                members: {
+                    select: {
+                        id: true,
+                    },
+                },
             },
         });
 
