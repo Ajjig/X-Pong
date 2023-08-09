@@ -24,16 +24,18 @@ const SocketComponent = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (!socketGame.connected) {
-            // socketGame.connect();
-        } else {
-            setConnectedGame(!connectedChat);
-        }
-        if (!chatSocket.connected) {
-            // chatSocket.connect();
-        } else {
-            setConnectedChat(!connectedGame);
-        }
+        setTimeout(() => {
+            if (!socketGame.connected) {
+                socketGame.connect();
+            } else {
+                setConnectedGame(!connectedChat);
+            }
+            if (!chatSocket.connected) {
+                chatSocket.connect();
+            } else {
+                setConnectedChat(!connectedGame);
+            }
+        }, 1000);
     }, [connectedChat, connectedGame]);
 
     useEffect(() => {
