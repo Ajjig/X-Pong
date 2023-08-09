@@ -307,7 +307,6 @@ export class ChatGateway {
 
     @SubscribeMessage('accept_friend_request')
     async acceptFriendRequest(@ConnectedSocket() client: Socket, @MessageBody() payload: AcceptFriendRequestDto) {
-        console.log('accept_friend_request', payload);
         let userdata: any = await this.chatService.jwtdecoder(client);
         if (!userdata) {
             const response: SocketResponseDto = {
