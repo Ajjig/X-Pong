@@ -67,10 +67,16 @@ export class AuthService {
         const selfUser = await this.prisma.user.findUnique({
             where: { id: userId },
         });
+        if (!selfUser) {
+            throw new HttpException('User not found', 404);
+        }
 
         const lookupUser = await this.prisma.user.findUnique({
             where: { id: lookupId },
         });
+        if (!lookupUser) {
+            throw new HttpException('User not found', 404);
+        }
 
         if (selfUser.id === lookupUser.id) {
             return this.prisma.user.findUnique({
@@ -98,15 +104,15 @@ export class AuthService {
                 avatarUrl: true,
                 onlineStatus: true,
                 id: true,
-                Friends : {
-                  where : {
-                    friendId : userId,
-                    userId : lookupId,
-                  },
-                  select : {
-                    friendId : true,
-                    friendshipStatus : true,  
-                  }
+                Friends: {
+                    where: {
+                        friendId: userId,
+                        userId: lookupId,
+                    },
+                    select: {
+                        friendId: true,
+                        friendshipStatus: true,
+                    },
                 },
             },
         });

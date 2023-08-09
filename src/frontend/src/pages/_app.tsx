@@ -34,18 +34,9 @@ export default function App({ Component, pageProps }: AppProps) {
             .then((res: any) => {
                 if (res.status == 200) {
                     store.dispatch(setProfile(res.data));
-                } else {
-                    // window.location.href = "/";
                 }
             })
-            .catch((err: AxiosError<{ message: string }>) => {
-                // redirect to login
-                Notifications.show({
-                    title: "Error",
-                    message: err.response?.data.message,
-                    color: "red",
-                });
-            });
+            .catch((err: AxiosError<{ message: string }>) => {});
     }, []);
 
     return (

@@ -43,6 +43,14 @@ export class UserService {
     }
 
     async getProfileStatsByID(userId: number) {
+        const userCheck = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!userCheck) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+
         let user = await this.prisma.user.findUnique({
             where: { id: userId },
             select: {
@@ -62,20 +70,19 @@ export class UserService {
                     },
                     orderBy: {
                         createdAt: 'desc',
-                    }
+                    },
                 },
             },
         });
 
-        
         let matchs = user.Matchs.map(async (match) => {
             match['opponentUsername'] = await this.getUserNameById(match.opponenId);
             match['playerUsername'] = await this.getUserNameById(match.userId);
             return match;
         });
-        
+
         user.Matchs = await Promise.all(matchs);
-        
+
         if (!user) {
             throw new NotFoundException(`User id ${userId} not found`);
         }
@@ -112,16 +119,15 @@ export class UserService {
     }
 
     async getUserDataProfileByID(userId: number) {
-
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             include: {
                 Userstats: true,
                 Matchs: true,
-                Friends: true, 
+                Friends: true,
                 channels: true,
                 AdminOf: true,
-            }, 
+            },
         });
         if (user) {
             return user;
