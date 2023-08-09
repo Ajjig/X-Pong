@@ -31,6 +31,7 @@ export default function PublicGroups({ HeaderHeight }: any) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const item = publicGroups.find((item: any) => item.id === selectedId);
     const [password, setPassword] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
         api.get("/user/public/channels")
@@ -38,7 +39,6 @@ export default function PublicGroups({ HeaderHeight }: any) {
                 setPublicGroups(res.data);
             })
             .catch((err: AxiosError<{ message: string }>) => {
-                console.log(err.response?.data);
                 Notifications.show({
                     title: "Error",
                     message: err.response?.data.message ?? "Something went wrong",
@@ -79,6 +79,7 @@ export default function PublicGroups({ HeaderHeight }: any) {
                 chatSocket.emit("reconnect");
             })
             .catch((err: AxiosError<{ message: string }>) => {
+                setError(err.response?.data.message ?? "Something went wrong");
                 Notifications.show({
                     title: "Error",
                     message: err.response?.data.message ?? "Something went wrong",
@@ -248,9 +249,9 @@ export default function PublicGroups({ HeaderHeight }: any) {
                                                             radius="xl"
                                                             variant="filled"
                                                             size="sm"
-                                                            error={false}
                                                             description="Enter the password to join the group"
                                                             icon={<IconLock />}
+                                                            error={error}
                                                         />
                                                     </>
                                                 ) : null}

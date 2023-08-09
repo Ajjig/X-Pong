@@ -144,6 +144,7 @@ export class UserChannelService {
                 channels: {
                     where: { id: channelId },
                 },
+                Friends: true,
             },
         });
         if (userIdObjet == null) {
@@ -173,6 +174,20 @@ export class UserChannelService {
             // check if channel exists
             where: { id: channelId },
         });
+
+        // check if the new_member is blocked from the inviting user
+        let blocked = false;
+        userIdObjet.Friends.forEach((friend) => {
+            if (friend.friendId == new_member) {
+                if (friend.friendshipStatus == 'Blocked') {
+                    blocked = true;
+                }
+            }
+        });
+        if (blocked) {
+            throw new HttpException('You cannot add a blocked user', HttpStatus.UNAUTHORIZED);
+        }
+
         if (channel == null) {
             throw new HttpException('Channel does not exist', HttpStatus.NOT_FOUND);
         } else {
