@@ -99,6 +99,10 @@ export class Game {
   }
 
   updatePlayers() {
+
+    if (!this.client1 || !this.client2)
+      this.stopGame(false);
+
     if (this.playersDir.player1.up && this.player1.position.y - PADDLE_HEIGHT / 2 > 0) {
       Body.setPosition(this.player1, {
         x: this.player1.position.x,
@@ -366,11 +370,13 @@ export class Game {
 
   onLeaveGame(username: string) {
     if (username === this.player1Username) {
-      this.client2 && this.client2.emit('opponent-left', {});
+      this.client2 && this.client2.emit('gameMessage', 'Opponent left');
+      this.client2 && this.client2.emit('end-game', { winner: 2 });
       this.score.player2 = GOALS_TO_WIN;
       this.score.player1 = 0;
     } else if (username === this.player2Username) {
-      this.client1 && this.client1.emit('opponent-left', {});
+      this.client1 && this.client1.emit('gameMessage', 'Opponent left');
+      this.client1 && this.client1.emit('end-game', { winner: 1 });
       this.score.player1 = GOALS_TO_WIN;
       this.score.player2 = 0;
     }
@@ -378,7 +384,7 @@ export class Game {
     this.stopGame();
   }
 
-  stopGame() {
+  stopGame(saveGame: boolean = true) {
     
     Events.off(this.engine, "collisionStart", this.onCollisionStart);
     Events.off(this.engine, 'collisionEnd', this.onCollisionEnd);
@@ -391,18 +397,21 @@ export class Game {
     this.world = null;
     this.runner = null;
     
-    this.logger.log(`Match '${this.id}' ended`);
-    this.saveGameService.saveGame({
-      winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
-      loser: this.score.player1 < this.score.player2 ? this.player1Username : this.player2Username,
-      score: {
-        winner: this.score.player1 > this.score.player2 ? this.score.player1 : this.score.player2,
-        loser: this.score.player1 < this.score.player2 ? this.score.player1 : this.score.player2,
-      },
-      mode: '1v1',
-      winnerClient: this.score.player1 > this.score.player2 ? this.client1 : this.client2,
-      loserClient: this.score.player1 < this.score.player2 ? this.client1 : this.client2,
-    });
+    this.logger.log(`Match '${this.id}' ${saveGame ? 'ended' : 'aborted'}`);
+
+    if (saveGame){
+      this.saveGameService.saveGame({
+        winner: this.score.player1 > this.score.player2 ? this.player1Username : this.player2Username,
+        loser: this.score.player1 < this.score.player2 ? this.player1Username : this.player2Username,
+        score: {
+          winner: this.score.player1 > this.score.player2 ? this.score.player1 : this.score.player2,
+          loser: this.score.player1 < this.score.player2 ? this.score.player1 : this.score.player2,
+        },
+        mode: '1v1',
+        winnerClient: this.score.player1 > this.score.player2 ? this.client1 : this.client2,
+        loserClient: this.score.player1 < this.score.player2 ? this.client1 : this.client2,
+      });
+    }
 
     this.client1 = null;
     this.client2 = null;
