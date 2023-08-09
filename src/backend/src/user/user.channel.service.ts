@@ -919,6 +919,43 @@ export class UserChannelService {
             throw new HttpException('User is not the owner of the channel', HttpStatus.BAD_REQUEST);
         }
 
+        // Delete all messages
+        const messages = await this.prisma.message.findMany({
+            where: { channelId: channelID },
+        });
+
+        for (const message of messages) {
+            await this.prisma.message.delete({
+                where: { id: message.id },
+            });
+        }
+
+        // Delete all members
+        const members = await this.prisma.channel.findUnique({
+            where: { id: channelID },
+            select: {
+                members: {
+                    select: {
+                        id: true,
+                    },
+                },
+            },
+        });
+
+        for (const member of members.members) {
+            await this.prisma.channel.update({
+                where: { id: channelID },
+                data: {
+                    members: {
+                        disconnect: { id: member.id },
+                    },
+                    admins: {
+                        disconnect: { id: member.id },
+                    },
+                },
+            });
+        }
+
         await this.prisma.channel.delete({
             where: { id: channelID },
         });

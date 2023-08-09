@@ -409,6 +409,7 @@ export class ChatGateway {
         }
         this.connectedClients.set(userdata.username, client);
         // test get user client socket from using server
+        await this.chatService.set_user_online(userdata.uid);
         await this.chatService.setUserSocketId(client.id, userdata.uid);
 
         await this.chatService.joinUsertohischannels(userdata.uid, client);
@@ -427,7 +428,6 @@ export class ChatGateway {
         client.emit('privateChat', privateChat);
         client.emit('publicChat', publicChat);
         client.emit('notifications', UserNotifications);
-        await this.chatService.set_user_online(userdata.uid);
     }
 
     async handleDisconnect(@ConnectedSocket() client: Socket) {
