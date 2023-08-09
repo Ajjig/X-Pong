@@ -298,8 +298,15 @@ export class ChatService {
         return user.onlineStatus;
     }
 
-    async searchQuery(query: string): Promise<any[]> {
-        const users = await this.prisma.user.findMany({
+    async searchQuery(userId: number, query: string): Promise<any[]> {
+        // hide blocked users ids
+        const User = await this.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+
+        let users = await this.prisma.user.findMany({
             where: {
                 OR: [
                     {
@@ -323,6 +330,14 @@ export class ChatService {
                 avatarUrl: true,
                 name: true,
             },
+        });
+
+        // filter blocked users
+        users = users.filter((user) => {
+            if (User.blockedIds.includes(user.id)) {
+                return false;
+            }
+            return true;
         });
 
         const channels = await this.prisma.channel.findMany({
@@ -357,7 +372,7 @@ export class ChatService {
         return [...users, ...channels];
     }
 
-    async checkUserIsBlocked(Sender: string, Receiver: number): Promise<boolean> {
+    async checkUserIsBlocked(Sender: string, ReceiverId: number): Promise<boolean> {
         const user = await this.prisma.user.findUnique({
             where: {
                 username: Sender,
@@ -367,17 +382,11 @@ export class ChatService {
             },
         });
 
-        const receiverOBJ = await this.prisma.user.findUnique({
-            where: {
-                id: Receiver,
-            },
-        });
-
         let check: boolean = false;
 
         user.Friends.forEach((friend) => {
-            if (friend.FriendID === receiverOBJ.id) {
-                if (friend.friendshipStatus === 'blocked') {
+            if (friend.FriendID === ReceiverId) {
+                if (friend.friendshipStatus === 'Blocked') {
                     check = true;
                 }
             }
@@ -608,7 +617,6 @@ export class ChatService {
             message: 'Friend request sent',
         };
         this.emitToUser(Server, userobject.username, 'add_friend', response);
-
     }
 
     async loadUserNotifications(userId: number): Promise<notificationsDto[]> {

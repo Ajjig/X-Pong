@@ -236,6 +236,17 @@ export class ChatGateway {
 
     @SubscribeMessage('search')
     async SearchQuery(@ConnectedSocket() client: Socket, @MessageBody() payload: SearchQueryDto) {
+        let userdata: any = await this.chatService.jwtdecoder(client);
+        if (!userdata) {
+            const response: SocketResponseDto = {
+                status: HttpStatus.NOT_FOUND,
+                message: 'User not found',
+            };
+            client.emit('reconnect', response);
+            client.disconnect();
+            return;
+        }
+
         if (!payload || !payload.query) {
             const response: SocketResponseDto = {
                 status: HttpStatus.BAD_REQUEST,
@@ -244,7 +255,7 @@ export class ChatGateway {
             client.emit('search', response);
             return;
         }
-        const result = await this.chatService.searchQuery(payload.query);
+        const result = await this.chatService.searchQuery(userdata.uid, payload.query);
         if (!result) {
             const response: SocketResponseDto = {
                 status: HttpStatus.NOT_FOUND,
@@ -307,7 +318,6 @@ export class ChatGateway {
 
     @SubscribeMessage('accept_friend_request')
     async acceptFriendRequest(@ConnectedSocket() client: Socket, @MessageBody() payload: AcceptFriendRequestDto) {
-        console.log('accept_friend_request', payload);
         let userdata: any = await this.chatService.jwtdecoder(client);
         if (!userdata) {
             const response: SocketResponseDto = {
