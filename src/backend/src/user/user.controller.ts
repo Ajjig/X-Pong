@@ -52,6 +52,7 @@ import { RemoveAdminDto } from './dto/remove.admin.dts';
 import { UpdateChannelDto } from './dto/update.channel.dto';
 import * as jwt from 'jsonwebtoken';
 import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
+import {UnblockFriendDto} from './dto/unblock.friend.dto';
 
 @Controller('user')
 export class UserController {
@@ -435,11 +436,11 @@ export class UserController {
 
     @UseGuards(JwtAuthGuard)
     @Post('/unblock_friend_user')
-    async unblockUser(@Req() request: any, @Body() body: any) {
-        if (!body || !body.friend_username) {
+    async unblockUser(@Req() request: any, @Body() body: UnblockFriendDto) {
+        if (!body || !body.unblockedId) {
             throw new HttpException('Missing friend_username', HttpStatus.BAD_REQUEST);
         }
-        return this.userService.unblockUserById(request.user.id, body.friend_username);
+        return this.userService.unblockUserById(request.user.id, body.unblockedId);
     }
 
     @UseGuards(JwtAuthGuard)
