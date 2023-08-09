@@ -340,7 +340,6 @@ export class ChatService {
             return true;
         });
 
-
         const channels = await this.prisma.channel.findMany({
             where: {
                 name: {
@@ -373,7 +372,7 @@ export class ChatService {
         return [...users, ...channels];
     }
 
-    async checkUserIsBlocked(Sender: string, Receiver: number): Promise<boolean> {
+    async checkUserIsBlocked(Sender: string, ReceiverId: number): Promise<boolean> {
         const user = await this.prisma.user.findUnique({
             where: {
                 username: Sender,
@@ -383,17 +382,11 @@ export class ChatService {
             },
         });
 
-        const receiverOBJ = await this.prisma.user.findUnique({
-            where: {
-                id: Receiver,
-            },
-        });
-
         let check: boolean = false;
 
         user.Friends.forEach((friend) => {
-            if (friend.FriendID === receiverOBJ.id) {
-                if (friend.friendshipStatus === 'blocked') {
+            if (friend.FriendID === ReceiverId) {
+                if (friend.friendshipStatus === 'Blocked') {
                     check = true;
                 }
             }
