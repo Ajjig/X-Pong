@@ -20,6 +20,7 @@ export function PrivateChatMenu({ user }: any) {
     const theme = useMantineTheme();
     const [errorMessage, setErrorMessage] = React.useState<string>("");
     const [successMessage, setSuccessMessage] = React.useState<string>("");
+    const [BanState, setBanState] = React.useState<boolean>(user?.isBlocked);
 
     const ButtonProfile = () => {
         router.push(`/profile/${user.id}`);
@@ -55,7 +56,9 @@ export function PrivateChatMenu({ user }: any) {
                     message: res.data.message ?? "Unblock successfully",
                     color: "green",
                 });
+                if (!chatSocket.connected) chatSocket.connect();
                 chatSocket.emit("reconnect");
+                setBanState(!BanState);
             })
             .catch((err: AxiosError<{ message?: string }>) => {
                 Notifications.show({
@@ -63,6 +66,7 @@ export function PrivateChatMenu({ user }: any) {
                     message: err.response?.data?.message ?? "Something went wrong",
                     color: "red",
                 });
+                chatSocket.emit("reconnect");
             });
     };
 
@@ -110,8 +114,8 @@ export function PrivateChatMenu({ user }: any) {
                     <Menu.Item icon={<IconDeviceGamepad2 size={20} />} onClick={inviteToGame}>
                         Challenge
                     </Menu.Item>
-                    <Menu.Item color="red" icon={<IconBan size={20} />} onClick={user?.isBlocked ? ButtonUnban : ButtonBan}>
-                        {user?.isBlocked ? "Unban" : "Ban"}
+                    <Menu.Item color="red" icon={<IconBan size={20} />} onClick={BanState ? ButtonUnban : ButtonBan}>
+                        {BanState ? "Unban" : "Ban"}
                     </Menu.Item>
                 </Menu.Dropdown>
             </Menu>
@@ -165,9 +169,12 @@ export function PrivateChatMenu({ user }: any) {
                                             api.post("/user/block_friend", body)
                                                 .then((res: AxiosResponse) => {
                                                     setSuccessMessage("Ban successfully");
+                                                    chatSocket.emit("reconnect");
+                                                    setBanState(!BanState);
                                                 })
                                                 .catch((err: AxiosError<{ message?: string }>) => {
                                                     setErrorMessage(err.response?.data?.message ?? "");
+                                                    chatSocket.emit("reconnect");
                                                 });
                                         }}
                                     >

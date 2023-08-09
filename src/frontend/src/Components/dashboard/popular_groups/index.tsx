@@ -17,7 +17,7 @@ import {
     PasswordInput,
     useMantineTheme,
 } from "@mantine/core";
-import { IconLock, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
+import { IconLock, IconMoodEmpty, IconPoo, IconShieldLock, IconUsersGroup } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "@/api";
@@ -107,169 +107,178 @@ export default function PublicGroups({ HeaderHeight }: any) {
                 <Divider mt={10} />
             </Title>
 
-            <Grid
-                gutter={"30px"}
-                sx={{
-                    height: `calc(100vh - ${HeaderHeight + titleRef.current?.clientHeight}px)`,
-                    overflowY: "scroll",
-                    /* ===== Scrollbar CSS ===== */
-                    /* Firefox */
-                    scrollbarColor: `${theme.colors.gray[8]} transparent`,
-                    scrollbarWidth: "thin",
-                    /* Chrome, Edge, and Safari */
-                    "&::-webkit-scrollbar": {
-                        width: "5px",
-                    },
-                    "&::-webkit-scrollbar-track": {
-                        background: "transparent",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                        background: theme.colors.gray[8],
-                        borderRadius: theme.radius.md,
-                    },
-                }}
-            >
-                {publicGroups.map((group: any) => (
-                    <Grid.Col key={group.id} span={12} md={6} lg={4}>
-                        <Group_card group={group} get_icon={Icon} onClick={() => setSelectedId(group.id)} />
-                    </Grid.Col>
-                ))}
+            {publicGroups?.length == 0 ? (
+                <Flex align="center" justify="center" h="50vh" direction={"column"}>
+                    <IconPoo size={50} />
+                    <Title color="gray.4" fz="lg" mt={10}>
+                        No public groups
+                    </Title>
+                </Flex>
+            ) : (
+                <Grid
+                    gutter={"30px"}
+                    sx={{
+                        height: `calc(100vh - ${HeaderHeight + titleRef.current?.clientHeight}px)`,
+                        overflowY: "scroll",
+                        /* ===== Scrollbar CSS ===== */
+                        /* Firefox */
+                        scrollbarColor: `${theme.colors.gray[8]} transparent`,
+                        scrollbarWidth: "thin",
+                        /* Chrome, Edge, and Safari */
+                        "&::-webkit-scrollbar": {
+                            width: "5px",
+                        },
+                        "&::-webkit-scrollbar-track": {
+                            background: "transparent",
+                        },
+                        "&::-webkit-scrollbar-thumb": {
+                            background: theme.colors.gray[8],
+                            borderRadius: theme.radius.md,
+                        },
+                    }}
+                >
+                    {publicGroups?.map((group: any) => (
+                        <Grid.Col key={group.id} span={12} md={6} lg={4}>
+                            <Group_card group={group} get_icon={Icon} onClick={() => setSelectedId(group.id)} />
+                        </Grid.Col>
+                    ))}
 
-                <AnimatePresence>
-                    {selectedId && (
-                        <motion.div
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                zIndex: 2,
-                                width: "100%",
-                                height: "100%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                            data-click-outside
-                            onClick={(e: any) => {
-                                if (e.target.dataset.clickOutside) {
-                                    setSelectedId(null);
-                                }
-                            }}
-                            initial={{
-                                opacity: 0,
-                                backgroundColor: "rgba(0, 0, 0, 0)",
-                                backdropFilter: "blur(0px)",
-                            }}
-                            animate={{
-                                opacity: 1,
-                                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                                backdropFilter: "blur(5px)",
-                            }}
-                            exit={{
-                                opacity: 0,
-                                backgroundColor: "rgba(0, 0, 0, 0)",
-                                backdropFilter: "blur(0px)",
-                            }}
-                        >
-                            <Box
-                                sx={(theme: MantineTheme) => ({
-                                    width: "40%",
-                                    [theme.fn.smallerThan("sm")]: {
-                                        width: "70%",
-                                    },
-                                    [theme.fn.smallerThan("xs")]: {
-                                        width: "100%",
-                                    },
-                                })}
+                    <AnimatePresence>
+                        {selectedId && (
+                            <motion.div
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 2,
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                                data-click-outside
+                                onClick={(e: any) => {
+                                    if (e.target.dataset.clickOutside) {
+                                        setSelectedId(null);
+                                    }
+                                }}
+                                initial={{
+                                    opacity: 0,
+                                    backgroundColor: "rgba(0, 0, 0, 0)",
+                                    backdropFilter: "blur(0px)",
+                                }}
+                                animate={{
+                                    opacity: 1,
+                                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                                    backdropFilter: "blur(5px)",
+                                }}
+                                exit={{
+                                    opacity: 0,
+                                    backgroundColor: "rgba(0, 0, 0, 0)",
+                                    backdropFilter: "blur(0px)",
+                                }}
                             >
-                                <motion.div
-                                    layoutId={selectedId}
-                                    style={{
-                                        width: "100%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
+                                <Box
+                                    sx={(theme: MantineTheme) => ({
+                                        width: "40%",
+                                        [theme.fn.smallerThan("sm")]: {
+                                            width: "70%",
+                                        },
+                                        [theme.fn.smallerThan("xs")]: {
+                                            width: "100%",
+                                        },
+                                    })}
                                 >
-                                    <Card p={10} radius="lg" bg="gray.9" mx={10} pt={50} w={"100%"}>
-                                        <Box px="md" pb="lg" bg="gray.9">
-                                            <Flex h={50} align="center" justify="start">
-                                                <Flex align="start" direction={"column"} p={10}>
-                                                    <Title order={3} color="gray.2">
-                                                        {item.name}
-                                                    </Title>
-                                                    <Space h={10} />
-                                                    <Badge variant="light" color="blue" radius="xl">
-                                                        {item.type}
-                                                    </Badge>
-                                                </Flex>
+                                    <motion.div
+                                        layoutId={selectedId}
+                                        style={{
+                                            width: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Card p={10} radius="lg" bg="gray.9" mx={10} pt={50} w={"100%"}>
+                                            <Box px="md" pb="lg" bg="gray.9">
+                                                <Flex h={50} align="center" justify="start">
+                                                    <Flex align="start" direction={"column"} p={10}>
+                                                        <Title order={3} color="gray.2">
+                                                            {item.name}
+                                                        </Title>
+                                                        <Space h={10} />
+                                                        <Badge variant="light" color="blue" radius="xl">
+                                                            {item.type}
+                                                        </Badge>
+                                                    </Flex>
 
-                                                <Avatar.Group
-                                                    spacing="sm"
-                                                    sx={{
-                                                        flex: 1,
-                                                        justifyContent: "flex-end",
-                                                    }}
-                                                >
-                                                    {item.members.map((member: any, index: number) => {
-                                                        if (index > 5) return;
-                                                        return <Avatar key={member.id} src={api.getUri() + "user/avatar/" + member.id} radius="xl" />;
-                                                    })}
-                                                    <Avatar radius="xl">
-                                                        {(() => {
-                                                            const count = item.members.length - 5;
-                                                            if (count > 0) return `+${count}`;
-                                                            else return "+0";
-                                                        })()}
-                                                    </Avatar>
-                                                </Avatar.Group>
-                                            </Flex>
-                                            <Space h={20} />
-                                            <Text color="gray.4" weight={500} px={20}>
-                                                {item.type.toLowerCase() == "public"
-                                                    ? "Anyone can join this group, do you want to join?"
-                                                    : item.type.toLowerCase() == "protected"
-                                                    ? "Anyone can join this group, but only members can see the messages, do you want to join?"
-                                                    : "Only members can join this group, do you want to join?"}
-                                                <br />
-                                                <br />
-                                                After joining, you can leave the group at any time.
-                                            </Text>
-                                            <Box p={20}>
-                                                {item.type.toLowerCase() == "protected" ? (
-                                                    <>
-                                                        <Space h={20} />
-                                                        <PasswordInput
-                                                            value={password}
-                                                            onChange={(e) => setPassword(e.currentTarget.value)}
-                                                            placeholder="Password"
-                                                            required
-                                                            radius="xl"
-                                                            variant="filled"
-                                                            size="sm"
-                                                            description="Enter the password to join the group"
-                                                            icon={<IconLock />}
-                                                            error={error}
-                                                        />
-                                                    </>
-                                                ) : null}
+                                                    <Avatar.Group
+                                                        spacing="sm"
+                                                        sx={{
+                                                            flex: 1,
+                                                            justifyContent: "flex-end",
+                                                        }}
+                                                    >
+                                                        {item.members.map((member: any, index: number) => {
+                                                            if (index > 5) return;
+                                                            return <Avatar key={member.id} src={api.getUri() + "user/avatar/" + member.id} radius="xl" />;
+                                                        })}
+                                                        <Avatar radius="xl">
+                                                            {(() => {
+                                                                const count = item.members.length - 5;
+                                                                if (count > 0) return `+${count}`;
+                                                                else return "+0";
+                                                            })()}
+                                                        </Avatar>
+                                                    </Avatar.Group>
+                                                </Flex>
+                                                <Space h={20} />
+                                                <Text color="gray.4" weight={500} px={20}>
+                                                    {item.type.toLowerCase() == "public"
+                                                        ? "Anyone can join this group, do you want to join?"
+                                                        : item.type.toLowerCase() == "protected"
+                                                        ? "Anyone can join this group, but only members can see the messages, do you want to join?"
+                                                        : "Only members can join this group, do you want to join?"}
+                                                    <br />
+                                                    <br />
+                                                    After joining, you can leave the group at any time.
+                                                </Text>
+                                                <Box p={20}>
+                                                    {item.type.toLowerCase() == "protected" ? (
+                                                        <>
+                                                            <Space h={20} />
+                                                            <PasswordInput
+                                                                value={password}
+                                                                onChange={(e) => setPassword(e.currentTarget.value)}
+                                                                placeholder="Password"
+                                                                required
+                                                                radius="xl"
+                                                                variant="filled"
+                                                                size="sm"
+                                                                description="Enter the password to join the group"
+                                                                icon={<IconLock />}
+                                                                error={error}
+                                                            />
+                                                        </>
+                                                    ) : null}
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                        <Group p={20} position="right">
-                                            <Button variant="default" color="gray" size="sm" radius="lg" onClick={() => setSelectedId(null)}>
-                                                Cancel
-                                            </Button>
-                                            <Button variant="filled" size="sm" radius="lg" onClick={() => JoinGroup(item.id)}>
-                                                Join
-                                            </Button>
-                                        </Group>
-                                    </Card>
-                                </motion.div>
-                            </Box>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </Grid>
+                                            <Group p={20} position="right">
+                                                <Button variant="default" color="gray" size="sm" radius="lg" onClick={() => setSelectedId(null)}>
+                                                    Cancel
+                                                </Button>
+                                                <Button variant="filled" size="sm" radius="lg" onClick={() => JoinGroup(item.id)}>
+                                                    Join
+                                                </Button>
+                                            </Group>
+                                        </Card>
+                                    </motion.div>
+                                </Box>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </Grid>
+            )}
         </>
     );
 }
