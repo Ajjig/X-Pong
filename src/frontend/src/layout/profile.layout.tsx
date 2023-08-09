@@ -285,7 +285,7 @@ function Achivments({ userState }: any) {
                 {userState?.stats?.achievements?.map(
                     (achivment: { id: number; createdAt: string; updatedAt: string; name: string; description: string; iconUrl: string; userId: number }) => {
                         return (
-                            <Paper radius={20} bg="dark.9" p={10} py={20} key={achivment.id} shadow="lg">
+                            <Paper radius={20} bg="dark.9" p={10} py={20} key={achivment.id} shadow="lg" mb={10}>
                                 <Flex align="center">
                                     <Space w={10} />
                                     <MantineImage src={api.getUri() + achivment.iconUrl} width={70} radius={20} />
@@ -324,7 +324,6 @@ export function Match_info({ match }: Match_info_props) {
     return (
         <Paper radius={30} bg={"cos_black.3"}>
             <Flex
-                // bg={"red"}
                 p={20}
                 align="center"
                 justify="space-between"
