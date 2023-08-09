@@ -9,12 +9,14 @@ import chatSocket from "@/socket/chatSocket";
 import { TypeMessage } from "../../type";
 import { PrivateMessageRequest } from "./type";
 import api from "@/api";
+import { useRouter } from "next/router";
 
 export function Chat({ user, setSelected, chat }: { user: any; setSelected: any; chat: any }) {
     const [friend] = useState<any>(chat.otherUser);
     const theme: MantineTheme = useMantineTheme();
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [messages, setMessages] = useState<any>([]);
+    const router = useRouter();
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
@@ -94,7 +96,17 @@ export function Chat({ user, setSelected, chat }: { user: any; setSelected: any;
                         {friend?.id && <Avatar src={api.getUri() + `user/avatar/${friend.id}`} size={45} radius="xl" m={4} />}
                     </Button>
                     <Flex justify="space-between" align="center" w="100%">
-                        <Stack w={"100%"} spacing={0} ml="sm">
+                        <Stack
+                            w={"100%"}
+                            spacing={0}
+                            ml="sm"
+                            sx={{
+                                cursor: "pointer",
+                            }}
+                            onClick={() => {
+                                router.push(`/profile/${friend.id}`);
+                            }}
+                        >
                             <Text fw="bold" fz="lg">
                                 {friend.name}
                             </Text>
