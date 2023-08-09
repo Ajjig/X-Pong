@@ -95,6 +95,7 @@ export class UserChatHistoryService {
           name: conv.otherUser.name,
           onlineStatus: conv.otherUser.onlineStatus,
           privateChannels: conv.otherUser.privateChannels,
+          isBlocked: conv.otherUser.isBocked,
         },
         privateChannelId: conv.privateChannelId,
       };
