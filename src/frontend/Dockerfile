@@ -10,6 +10,6 @@ COPY . .
 RUN npm i --legacy-peer-deps
 
 
-# CMD ["npm", "run", "launch"]
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "launch"]
+# CMD ["npm", "run", "dev"]
 

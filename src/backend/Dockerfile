@@ -10,6 +10,6 @@ COPY . .
 RUN npm i
 RUN npm i -g @nestjs/cli
 
-CMD ["npm", "run", "start:dev"]
-# CMD ["npm", "run", "start:prod"]
+# CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "launch"]
 
