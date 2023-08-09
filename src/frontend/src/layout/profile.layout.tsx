@@ -40,6 +40,32 @@ interface props {
     id: string;
 }
 
+type Match = {
+    id: number;
+    result: "WIN" | "LOSE";
+    playerScore: number;
+    opponentScore: number;
+    playerUsername: string;
+    opponentUsername: string;
+    mode: string;
+    opponenId: number;
+    userId: number;
+    createdAt: string;
+    updatedAt: string;
+};
+
+type Stats = {
+    wins: number;
+    losses: number;
+    ladder: string;
+    // ... other properties
+};
+
+type MatchData = {
+    stats: Stats;
+    matchs: Match[];
+};
+
 export function ProfileLayout({ id }: props) {
     const [profile, setProfile] = useState<any>(null);
     const user: any = store.getState().profile.user;
@@ -66,7 +92,7 @@ export function ProfileLayout({ id }: props) {
                 });
             });
         api.get("/user/get_stats/" + id)
-            .then((res: AxiosResponse) => {
+            .then((res: AxiosResponse<MatchData>) => {
                 setUserState(res.data);
             })
             .catch((err: AxiosError<{ message: string }>) => {
@@ -305,22 +331,8 @@ function Achivments({ userState }: any) {
     );
 }
 
-interface Match_info_props {
-    match: {
-        id: number;
-        result: string;
-        playerScore: number;
-        opponentScore: number;
-        mode: string;
-        opponenId: number;
-        createdAt: string;
-        updatedAt: string;
-        userId: number;
-        opponentUsername: string;
-    };
-}
-
-export function Match_info({ match }: Match_info_props) {
+export function Match_info({ match }: { match: Match }) {
+    // console.log(match);
     return (
         <Paper radius={30} bg={"cos_black.3"}>
             <Flex
@@ -335,10 +347,10 @@ export function Match_info({ match }: Match_info_props) {
                 })}
             >
                 <Flex align="center" w="100%">
-                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + store.getState().profile.user.id} />
+                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + match.userId} />
                     <Space w={10} />
                     <Title color="gray.4" fz="sm">
-                        {store.getState().profile.user.username}
+                        {match?.playerUsername}
                     </Title>
                 </Flex>
 
@@ -359,7 +371,7 @@ export function Match_info({ match }: Match_info_props) {
                         {match?.opponentUsername}
                     </Title>
                     <Space w={10} />
-                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + match?.opponenId} />
+                    <Avatar size={40} radius="xl" src={api.getUri() + "user/avatar/" + match.opponenId} />
                 </Flex>
             </Flex>
         </Paper>
