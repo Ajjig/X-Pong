@@ -14,8 +14,6 @@ services:
       - .env
     networks:
       - warper-network
-    volumes:
-      - ./src/backend/:/app
     ports:
       - "3000:3000"
       - "5555:5555"
@@ -44,10 +42,6 @@ services:
       - .env
     networks:
       - warper-network
-    volumes:
-      - ./src/frontend/:/app
     ports:
       - "3001:3001"
     restart: unless-stopped
-    depends_on:
-      - nestjs
