@@ -1,15 +1,15 @@
 FROM node:latest
 
-EXPOSE 3001
-
-
-WORKDIR /workspace
-
+RUN mkdir -p /app
+WORKDIR /app
 COPY . .
 
-RUN npm i --legacy-peer-deps
+# install dependencies
+RUN npm install -g next
+RUN npm install --legacy-peer-deps
 
+ENV NODE_ENV production
+RUN npm run build
 
-CMD ["npm", "run", "launch"]
-# CMD ["npm", "run", "dev"]
-
+# EXPOSE 3000
+CMD [ "npm", "start" ]

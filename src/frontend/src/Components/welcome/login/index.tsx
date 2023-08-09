@@ -58,7 +58,7 @@ export default function Login({ setLoginShow }: Props) {
         <Container className={classes.container}>
             <Container size="400px" className={classes.form}>
                 <Back_Button func={setLoginShow} />
-                <Paper w="100%" p="xl" radius="md" withBorder>
+                <Paper w="100%" p="xl" radius="md" withBorder bg="white">
                     {store.getState().profile?.user?.username && logoutState == false ? (
                         <Flex direction="column">
                             <Text size="lg" weight={500}>
@@ -101,7 +101,7 @@ export default function Login({ setLoginShow }: Props) {
                         </Flex>
                     ) : (
                         <>
-                            <Text size="lg" weight={500}>
+                            <Text size="lg" weight={500} color="gray">
                                 Start using
                             </Text>
                             <Third_party_login auths={auths} />
