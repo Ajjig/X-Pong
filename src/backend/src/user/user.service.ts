@@ -6,6 +6,8 @@ import { PrismaService } from '../prisma.service';
 import { Prisma } from '.prisma/client';
 import { UpdateUserProfileDto } from './dto/update.user.profile.dto';
 import { join } from 'path';
+import { Matches, matches } from 'class-validator';
+import { map } from 'rxjs';
 
 export type userStatstype = {
     achievements?: string[];
@@ -43,7 +45,7 @@ export class UserService {
     async getProfileStatsByID(userId: number) {
         let user = await this.prisma.user.findUnique({
             where: { id: userId },
-            include: {
+            select: {
                 Userstats: {
                     select: {
                         achievements: true,
@@ -54,17 +56,26 @@ export class UserService {
                         updatedAt: true,
                     },
                 },
-                Matchs: true,
+                Matchs: {
+                    where: {
+                        opponenId: { not: userId },
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    }
+                },
             },
         });
 
-        const matchs = user.Matchs.map(async (match) => {
+        
+        let matchs = user.Matchs.map(async (match) => {
             match['opponentUsername'] = await this.getUserNameById(match.opponenId);
+            match['playerUsername'] = await this.getUserNameById(match.userId);
             return match;
         });
-
+        
         user.Matchs = await Promise.all(matchs);
-
+        
         if (!user) {
             throw new NotFoundException(`User id ${userId} not found`);
         }
