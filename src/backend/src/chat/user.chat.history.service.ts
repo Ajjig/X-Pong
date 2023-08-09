@@ -57,6 +57,7 @@ export class UserChatHistoryService {
             name: true,
             onlineStatus: true,
             privateChannels: true,
+            blockedIds: true,
           },
         });
         const conv = { chat, otherUser, privateChannelId: id };
