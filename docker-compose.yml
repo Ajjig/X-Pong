@@ -15,7 +15,7 @@ services:
     networks:
       - warper-network
     volumes:
-      - ./src/backend/:/workspace
+      - ./src/backend/:/app
     ports:
       - "3000:3000"
       - "5555:5555"
@@ -45,7 +45,7 @@ services:
     networks:
       - warper-network
     volumes:
-      - ./src/frontend/:/workspace
+      - ./src/frontend/:/app
     ports:
       - "3001:3001"
     restart: unless-stopped
