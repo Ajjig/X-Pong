@@ -15,6 +15,15 @@ export class UserChatHistoryService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      select: {
+        privateChannels: true,
+        username: true,
+        id: true,
+        avatarUrl: true,
+        name: true,
+        onlineStatus: true,
+        blockedIds: true,
+      },
     });
 
     let userConversations = [];
@@ -22,14 +31,7 @@ export class UserChatHistoryService {
       return userConversations;
     }
 
-    const isBlocked = async (otherUserId: number) => {
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          blockedIds: true,
-        },
-      });
-      if (!user || !user.blockedIds) return false;
+    const isBlocked = (otherUserId: number) => {
       return user.blockedIds.includes(otherUserId);
     };
   
@@ -70,7 +72,7 @@ export class UserChatHistoryService {
             privateChannels: true,
           },
         });
-        otherUser['isBocked'] = await isBlocked(otherUserId);
+        otherUser['isBocked'] = isBlocked(otherUserId);
         const conv = { chat, otherUser, privateChannelId: id };
         userConversations.push(conv);
       }),
