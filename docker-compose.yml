@@ -7,21 +7,21 @@ networks:
 
 services:
 
-  nestjs:
-    container_name: nestjs
-    build: ./src/backend
-    env_file:
-      - .env
-    networks:
-      - warper-network
-    volumes:
-      - ./src/backend/:/workspace
-    ports:
-      - "3000:3000"
-      - "5555:5555"
-    restart: unless-stopped
-    depends_on:
-      - postgres  
+  # nestjs:
+  #   container_name: nestjs
+  #   build: ./src/backend
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - warper-network
+  #   volumes:
+  #     - ./src/backend/:/workspace
+  #   ports:
+  #     - "3000:3000"
+  #     - "5555:5555"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres  
   postgres:
     container_name: postgres
     build: ./src/database
@@ -37,17 +37,17 @@ services:
       - PGDATA=/var/lib/postgresql/custom-data
     restart: unless-stopped
 
-  frontend:
-    container_name: frontend
-    build: ./src/frontend
-    env_file:
-      - .env
-    networks:
-      - warper-network
-    volumes:
-      - ./src/frontend/:/workspace
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-    depends_on:
-      - nestjs
+  # frontend:
+  #   container_name: frontend
+  #   build: ./src/frontend
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - warper-network
+  #   volumes:
+  #     - ./src/frontend/:/workspace
+  #   ports:
+  #     - "3001:3001"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - nestjs

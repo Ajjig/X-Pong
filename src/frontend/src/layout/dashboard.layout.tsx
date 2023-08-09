@@ -51,15 +51,14 @@ export function DashboardLayout() {
     return (
         <Box h="100vh" pos="relative">
             <HeaderDashboard HeaderRef={HeaderRef} />
-            <Grid gutter="0" w={"100%"} px="lg" pt={0}>
+            <Grid gutter="0" w={"100%"} px="0" pt={0}>
                 <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
                     <Grid.Col
                         span={5}
                         lg={4}
                         xl={3}
                         sx={{ display: "flex", flexDirection: "column", height: `calc(100vh - ${HeaderRef.current?.clientHeight}px)` }}
-                        p={"md"}
-                        pt={0}
+                        p="sm"
                     >
                         <Box>
                             <UserInfo />
@@ -69,10 +68,9 @@ export function DashboardLayout() {
                     </Grid.Col>
                 </MediaQuery>
 
-                <Grid.Col span={12} sm={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
+                <Grid.Col span={12} sm={7} lg={8} xl={9} style={fullHeight} p="sm">
                     {chat && <Chat user={chat} setSelected={setChat} chat={chat} key={chat && chat.privateChannelId} />}
                     {Group && <ChatGroup user={Group} setSelected={setGroup} chat={Group} key={Group && Group.id} />}
-
                     {!chat && !Group && <PublicGroups HeaderHeight={HeaderRef.current?.clientHeight} />}
                 </Grid.Col>
             </Grid>
