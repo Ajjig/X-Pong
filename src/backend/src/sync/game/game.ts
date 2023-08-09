@@ -8,8 +8,8 @@ const HEIGHT = 500;
 const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 120;
 const BALL_RADIUS = 10;
-const BALL_SPEED = 8.69;
-const PLAYER_SPEED = 2.69;
+const BALL_SPEED = 10;
+const PLAYER_SPEED = 7.69;
 const GOALS_TO_WIN = 5;
 
 export class Game {
@@ -137,6 +137,12 @@ export class Game {
   
 
   updateBall = () => {
+    if (this.ballDir.y === 0 && this.ballDir.x !== 0) {
+      this.ballDir.y = 1;
+    } else if (this.ballDir.x === 0 && this.ballDir.y !== 0) {
+      this.ballDir.x = 1;
+    }
+  
     Body.setVelocity(this.ball, this.ballDir);
     this.updatePlayers();
     this.updateGame();
@@ -144,7 +150,7 @@ export class Game {
 
   onCollisionStart = (event) => {
 
-      let collide = 10; 
+    let collide = 10; 
     let pairs = event.pairs;
 
       pairs.forEach((pair: any) => {
@@ -284,7 +290,10 @@ export class Game {
       },
     });
     this.world = this.engine.world;
-    this.runner = Runner.create();
+    this.runner = Runner.create({
+      delta: 1000 / 60,
+      isFixed: true,
+    });
 
     Runner.run(this.runner, this.engine);
 
