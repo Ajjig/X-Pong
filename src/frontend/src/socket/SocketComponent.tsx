@@ -47,7 +47,6 @@ const SocketComponent = () => {
         });
 
         socketGame.on("error", (err: string) => {
-            console.log(err);
             notifications.show({
                 title: "Error",
                 message: err,

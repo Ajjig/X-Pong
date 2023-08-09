@@ -60,8 +60,13 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
             .then((res) => {
                 setMembers([...res.data]);
             })
-            .catch((err: AxiosError) => {
-                console.log(err.response);
+            .catch((err: AxiosError<{ message: string }>) => {
+                // console.log(err.response);
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message ?? "Something went wrong",
+                    color: "red",
+                });
             });
     }
 
@@ -71,8 +76,13 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
                 // console.log(res.data);
                 setBanList([...res.data]);
             })
-            .catch((err: AxiosError) => {
+            .catch((err: AxiosError<{ message: string }>) => {
                 // console.log(err.response);
+                notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message ?? "Something went wrong",
+                    color: "red",
+                });
             });
     }
 
@@ -81,8 +91,13 @@ export function SettingGroupChat({ _chat, opened, open, close, children }: { _ch
             .then((res: AxiosResponse) => {
                 setMuteList([...res.data]);
             })
-            .catch((err: AxiosError) => {
+            .catch((err: AxiosError<{ message: string }>) => {
                 // console.log(err.response);
+                notifications.show({
+                    title: "Error",
+                    message: err.response?.data?.message ?? "Something went wrong",
+                    color: "red",
+                });
             });
     }
 
@@ -295,9 +310,19 @@ function Memebers({ members, chat, muteList, getMembers, getMuteList, getBanList
                 <Space h={8} />
                 <Flex direction="column" gap={10}>
                     <Space h={8} />
-                    <MuteList muteList={muteList} getMembers={getMembers} members={members} chat={chat} getMuteList={getMuteList} />
+                    {
+                        // if the user is the owner or admin of the group
+                        chat.ownerId == store.getState().profile.user.id || chat.adminsIds.includes(store.getState().profile.user.id) ? (
+                            <MuteList muteList={muteList} getMembers={getMembers} members={members} chat={chat} getMuteList={getMuteList} />
+                        ) : null
+                    }
                     <Space h={8} />
-                    <BanList banList={banList} chat={chat} getBanList={getBanList} getMembers={getMembers} />
+                    {
+                        // if the user is the owner or admin of the group
+                        chat.ownerId == store.getState().profile.user.id || chat.adminsIds.includes(store.getState().profile.user.id) ? (
+                            <BanList banList={banList} chat={chat} getBanList={getBanList} getMembers={getMembers} />
+                        ) : null
+                    }
                 </Flex>
             </Flex>
         </Tabs.Panel>

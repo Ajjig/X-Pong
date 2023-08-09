@@ -8,6 +8,7 @@ import chatSocket from "@/socket/chatSocket";
 import { notifications } from "@mantine/notifications";
 import store from "@/store/store";
 import { IconBan } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 
 interface propsListMembers {
     members: any;
@@ -20,6 +21,7 @@ interface propsListMembers {
 }
 
 export function ListMembers({ members, chat, muteList, getMembers, getMuteList, getBanList, setInvited }: propsListMembers) {
+    const router = useRouter();
     return (
         <>
             <Flex justify="space-between" align="center">
@@ -43,8 +45,18 @@ export function ListMembers({ members, chat, muteList, getMembers, getMuteList, 
                 return (
                     <Flex justify="space-between" align="center" py={5} px={15} key={member.id}>
                         <Flex align="center" gap={10}>
-                            {member?.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${member.id}`} />}
-                            <Text fz="sm">{member.name}</Text>
+                            <Flex
+                                align="center"
+                                gap={10}
+                                sx={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    router.push(`/profile/${member.id}`);
+                                }}
+                            >
+                                {member?.id && <Avatar size={30} radius="xl" src={api.getUri() + `user/avatar/${member.id}`} />}
+                                <Text fz="sm">{member.name}</Text>
+                            </Flex>
+
                             {(chat.adminsIds.includes(member.id) || chat.ownerId == member.id) && (
                                 <Badge
                                     color={chat.ownerId == member.id ? "purple" : "gray"}

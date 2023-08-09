@@ -18,7 +18,7 @@ import {
     Tooltip,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { useMantineTheme, Flex } from "@mantine/core";
+import { Flex } from "@mantine/core";
 // import Header from "./header";
 
 import { Text } from "@mantine/core";
@@ -76,6 +76,7 @@ export function ProfileLayout({ id }: props) {
         api.get("/user/id/" + id)
             .then((res: any) => {
                 if (res.status == 200) {
+                    console.log(res.data);
                     setProfile(res?.data);
                     res?.data?.Friends?.find((friend: any) => {
                         if (friend.friendId == user.id) {
@@ -332,7 +333,25 @@ function Achivments({ userState }: any) {
 }
 
 export function Match_info({ match }: { match: Match }) {
-    // console.log(match);
+    function date(time: string): string {
+        let date = new Date(time);
+        let now = new Date();
+        let diff = now.getTime() - date.getTime();
+        let hours = Math.floor(diff / (1000 * 60 * 60));
+        let minutes = Math.floor((diff / (1000 * 60)) % 60);
+        let seconds = Math.floor((diff / 1000) % 60);
+
+        if (hours > 0) {
+            return hours + "h ago";
+        } else if (minutes > 0) {
+            return minutes + "m ago";
+        } else if (seconds > 0) {
+            return seconds + "s ago";
+        } else {
+            return "now";
+        }
+    }
+
     return (
         <Paper radius={30} bg={"cos_black.3"}>
             <Flex
@@ -354,12 +373,18 @@ export function Match_info({ match }: { match: Match }) {
                     </Title>
                 </Flex>
 
-                <Flex align="center" w="100%" justify="center" py={10}>
+                <Flex align="center" w="100%" justify="center" py={0}>
                     <Paper
                         radius={20}
                         bg={match?.result.toLowerCase() == "win" ? "green.9" : match?.result.toLowerCase() == "lose" ? "red.9" : "yellow"}
                         p={10}
                     >
+                        {/* add time */}
+                        <Flex align="center" justify="center" pb={3}>
+                            <Text color="gray.4" fz="xs">
+                                {date(match.createdAt)}
+                            </Text>
+                        </Flex>
                         <Title color="gray.4" fz="lg">
                             {match?.playerScore} - {match?.opponentScore}
                         </Title>

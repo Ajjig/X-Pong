@@ -12,6 +12,7 @@ import api from "@/api";
 import { InviteToGame } from "@/Components/invite_game";
 import { Notifications } from "@mantine/notifications";
 import Rematch from "@/Components/rematch";
+import { AxiosError } from "axios";
 
 export default function App({ Component, pageProps }: AppProps) {
     // const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -37,9 +38,13 @@ export default function App({ Component, pageProps }: AppProps) {
                     // window.location.href = "/";
                 }
             })
-            .catch((err: any) => {
+            .catch((err: AxiosError<{ message: string }>) => {
                 // redirect to login
-                console.log(err);
+                Notifications.show({
+                    title: "Error",
+                    message: err.response?.data.message,
+                    color: "red",
+                });
             });
     }, []);
 

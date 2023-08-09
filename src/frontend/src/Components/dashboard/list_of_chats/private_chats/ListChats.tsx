@@ -16,10 +16,6 @@ export function ListChats({ SegRef }: { SegRef: any }) {
             const chatsFromStore = store.getState().chats.PrivateChats;
 
             setChats(() => {
-                // filter chats that have no messages
-                // const filteredChats = chatsFromStore.filter((chat: any) => {
-                //     return chat.chat.length > 0;
-                // });
                 return chatsFromStore;
             });
         });

@@ -12,11 +12,11 @@ export function BanList({ banList, chat, getBanList, getMembers }: any) {
             channelId: chat.id,
             BannedId: member.id,
         };
-        console.log(body);
+        // console.log(body);
 
         api.post(`/user/set_user_as_unbanned_of_channel/`, body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
+                // console.log(res.data);
                 getBanList();
                 getMembers();
                 notifications.show({

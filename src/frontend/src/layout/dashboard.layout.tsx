@@ -70,7 +70,7 @@ export function DashboardLayout() {
                 </MediaQuery>
 
                 <Grid.Col span={12} sm={7} lg={8} xl={9} sx={fullHeight} p="md" pt={0}>
-                    {chat && <Chat user={chat} setSelected={setChat} chat={chat} key={chat && chat.id} />}
+                    {chat && <Chat user={chat} setSelected={setChat} chat={chat} key={chat && chat.privateChannelId} />}
                     {Group && <ChatGroup user={Group} setSelected={setGroup} chat={Group} key={Group && Group.id} />}
 
                     {!chat && !Group && <PublicGroups HeaderHeight={HeaderRef.current?.clientHeight} />}

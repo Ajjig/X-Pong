@@ -39,7 +39,7 @@ export function Play() {
         });
 
         socketGame.on("cancel-join", () => {
-            console.log("cancel-join");
+            // console.log("cancel-join");
             close();
         });
     }, []);

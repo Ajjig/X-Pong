@@ -64,11 +64,9 @@ export default function PublicGroups({ HeaderHeight }: any) {
             channelID: id,
             password: password == "" ? null : password,
         };
-        console.log(body);
 
         api.post("/user/join_channel", body)
             .then((res: AxiosResponse) => {
-                console.log(res.data);
                 Notifications.show({
                     title: "Success",
                     message: "You have joined the group",

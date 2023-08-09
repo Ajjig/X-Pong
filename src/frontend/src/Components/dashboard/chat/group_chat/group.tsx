@@ -19,7 +19,7 @@ export function ChatGroup({ user, setSelected, chat: _chat }: { user: any; setSe
 
     useEffect(() => {
         if (!chatSocket.connected) chatSocket.connect();
-        setMessages(chat.messages);
+        setMessages(chat?.messages);
 
         store.subscribe(() => {
             setChat(store.getState().chats.GroupChats.find((chat: any) => chat.id == _chat.id));
@@ -73,22 +73,24 @@ export function ChatGroup({ user, setSelected, chat: _chat }: { user: any; setSe
     }, [messages]);
 
     const icon = () => {
-        if (chat.type == "private") {
+        if (chat?.type == "private") {
             return <IconLock size={30} />;
-        } else if (chat.type == "protected") {
+        } else if (chat?.type == "protected") {
             return <IconShieldLock size={30} />;
         }
         return <IconUsersGroup size={30} />;
     };
 
     const color = () => {
-        if (chat.type == "private") {
+        if (chat?.type == "private") {
             return "red";
-        } else if (chat.type == "protected") {
+        } else if (chat?.type == "protected") {
             return "yellow";
         }
         return "purple";
     };
+
+    if (!chat) return null;
 
     return (
         <Paper
