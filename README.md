@@ -1,4 +1,11 @@
 # X-Pong
+### Online multilayer ping-pong game.
+
+## Video preview
+
+https://github.com/Ajjig/X-Pong/assets/74059327/8e066c2e-c292-4d1f-a3f4-ee91f9cfbdae
+
+
 
 ## ScreenShots
 
